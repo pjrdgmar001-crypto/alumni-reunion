@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>งานเลี้ยงคืนสู่เหย้า ศิษย์เก่าดุริยางค์ พตพ "12 ปีที่คิดถึง"</title>
+    <style>
+        :root {
+            --primary: #0d0d1f;
+            --secondary: #12122a;
+            --card-bg: rgba(255,255,255,0.05);
+            --accent: #c9a227;
+            --accent-light: #e8c547;
+            --accent-dim: rgba(201,162,39,0.15);
+            --text: #f0f0f0;
+            --text-muted: #8888aa;
+            --border: rgba(201,162,39,0.25);
+            --danger: #e05555;
+            --success: #4caf75;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', 'Sarabun', 'Tahoma', sans-serif;
+            background: var(--primary);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(160deg, #080818 0%, #1a1040 40%, #0d0d25 70%, #080818 100%);
+            text-align: center;
+            padding: 3rem 1.5rem 2rem;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .header-deco {
+            position: absolute;
+            font-size: 220px;
+            opacity: 0.025;
+            color: var(--accent);
+            pointer-events: none;
+            line-height: 1;
+        }
+        .header-deco.left  { top: -40px; left: -30px; }
+        .header-deco.right { bottom: -60px; right: -20px; }
+
+        .event-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #111;
+            padding: 0.3rem 1.4rem;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            margin-bottom: 1.2rem;
+        }
+
+        .event-title {
+            font-size: clamp(1.6rem, 5vw, 3rem);
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1.25;
+            text-shadow: 0 0 40px rgba(201,162,39,0.4);
+            margin-bottom: 0.6rem;
+        }
+
+        .event-quote {
+            font-size: clamp(1.3rem, 3.5vw, 2.2rem);
+            color: var(--accent-light);
+            font-style: italic;
+            margin: 0.6rem 0 0.8rem;
+        }
+
+        .event-sub {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .stats-bar {
+            display: inline-flex;
+            gap: 0;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .stat-item { padding: 0.8rem 2rem; text-align: center; }
+        .stat-item + .stat-item { border-left: 1px solid var(--border); }
+
+        .stat-num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1;
+            transition: all 0.3s;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        /* ===== LIVE INDICATOR ===== */
+        .live-dot {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(76,175,117,0.15);
+            border: 1px solid rgba(76,175,117,0.3);
+            color: #4caf75;
+            padding: 0.25rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .live-dot .dot {
+            width: 8px;
+            height: 8px;
+            background: #4caf75;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .live-dot.offline { color: var(--text-muted); border-color: rgba(136,136,170,0.3); background: transparent; }
+        .live-dot.offline .dot { background: var(--text-muted); animation: none; }
+
+        @keyframes pulse {
+            0%   { opacity: 1; transform: scale(1); }
+            50%  { opacity: 0.4; transform: scale(1.3); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* ===== NAV TABS ===== */
+        .nav {
+            display: flex;
+            justify-content: center;
+            background: var(--secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-tab {
+            padding: 1rem 2.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 3px solid transparent;
+            transition: all 0.25s;
+            user-select: none;
+        }
+
+        .nav-tab:hover { color: var(--text); background: var(--accent-dim); }
+        .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        /* ===== CONTENT ===== */
+        .content {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 2rem 1rem 3rem;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* ===== CARD ===== */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.8rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(6px);
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ===== FORM ===== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.1rem;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        label { font-size: 0.88rem; font-weight: 600; color: var(--text-muted); }
+        label .req { color: var(--danger); margin-left: 2px; }
+
+        input, select, textarea {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(201,162,39,0.2);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            width: 100%;
+            transition: all 0.25s;
+        }
+
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.2); }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(201,162,39,0.08);
+            box-shadow: 0 0 0 3px rgba(201,162,39,0.12);
+        }
+
+        input:disabled, select:disabled, textarea:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        select option { background: #1a1a2e; }
+        textarea { resize: vertical; min-height: 80px; }
+
+        .btn-submit {
+            width: 100%;
+            margin-top: 1.2rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border: none;
+            border-radius: 10px;
+            color: #111;
+            font-size: 1.05rem;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: 0.05em;
+            position: relative;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(201,162,39,0.45);
+        }
+
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(0,0,0,0.3);
+            border-top-color: #111;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== ATTENDEES LIST ===== */
+        .toolbar {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .toolbar input { flex: 1; min-width: 180px; }
+
+        .btn-csv {
+            background: transparent;
+            border: 1px solid #4caf75;
+            color: #4caf75;
+            padding: 0.65rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+
+        .btn-csv:hover { background: rgba(76,175,117,0.12); }
+
+        .btn-clear {
+            background: transparent;
+            border: 1px solid rgba(224,85,85,0.4);
+            color: rgba(224,85,85,0.7);
+            padding: 0.65rem 1rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+
+        .btn-clear:hover { border-color: var(--danger); color: var(--danger); background: rgba(224,85,85,0.08); }
+
+        .summary-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.7rem 1rem;
+            background: var(--accent-dim);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: #111;
+            font-weight: 800;
+            padding: 0.15rem 0.7rem;
+            border-radius: 12px;
+            font-size: 0.88rem;
+        }
+
+        .summary-right { margin-left: auto; color: var(--accent); font-weight: 700; }
+
+        /* Attendee cards */
+        .attendee-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.2rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(201,162,39,0.12);
+            border-radius: 10px;
+            margin-bottom: 0.7rem;
+            transition: all 0.2s;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .attendee-card:hover {
+            background: rgba(201,162,39,0.07);
+            border-color: rgba(201,162,39,0.4);
+            transform: translateX(3px);
+        }
+
+        .num-circle {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #111;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .att-info { flex: 1; min-width: 0; }
+
+        .att-name {
+            font-weight: 700;
+            font-size: 1.05rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .att-detail { font-size: 0.83rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+        .att-meta { text-align: right; }
+
+        .seat-tag {
+            display: inline-block;
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid rgba(201,162,39,0.3);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .att-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+        /* Empty / Loading state */
+        .empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty .icon { font-size: 3.5rem; margin-bottom: 1rem; }
+
+        .loading-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            max-width: 340px;
+            padding: 0.9rem 1.4rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #fff;
+            transform: translateY(120%);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            z-index: 9999;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: linear-gradient(135deg, #2e7d50, #4caf75); }
+        .toast.error   { background: linear-gradient(135deg, #a32929, #e05555); }
+        .toast.info    { background: linear-gradient(135deg, #1a4a8a, #2979c9); }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        .footer .notes { font-size: 1.4rem; letter-spacing: 0.5rem; margin-bottom: 0.5rem; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+
+        .modal-overlay.show { opacity: 1; pointer-events: all; }
+
+        .modal {
+            background: #16163a;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 2rem;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal h3 { color: var(--accent); margin-bottom: 0.8rem; font-size: 1.2rem; }
+        .modal p  { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+        .modal-btns {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        .btn-confirm {
+            background: var(--danger);
+            border: none;
+            color: #fff;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-confirm:hover { background: #c93d3d; }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover { border-color: var(--accent); color: var(--accent); }
+
+        @media (max-width: 580px) {
+            .header { padding: 2rem 1rem 1.5rem; }
+            .stat-item { padding: 0.7rem 1.2rem; }
+            .nav-tab { padding: 0.9rem 1.3rem; font-size: 0.9rem; }
+            .attendee-card { flex-wrap: wrap; }
+            .att-meta { width: 100%; display: flex; align-items: center; gap: 0.5rem; }
+            .att-date { margin-top: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <span class="header-deco left">♫</span>
+    <span class="header-deco right">♬</span>
+
+    <div class="event-badge">♩ งานรวมใจ ศิษย์เก่าดุริยางค์ ♩</div>
+    <h1 class="event-title">งานเลี้ยงคืนสู่เหย้า<br>ศิษย์เก่าดุริยางค์ พตพ</h1>
+    <div class="event-quote">"12 ปีที่คิดถึง"</div>
+    <p class="event-sub">ร่วมรำลึกความทรงจำ · พบปะเพื่อนเก่า · สร้างความสัมพันธ์ที่ไม่รู้จางหาย</p>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-num" id="hdrCount">—</div>
+            <div class="stat-label">ผู้ลงทะเบียน</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num" id="hdrSeats">—</div>
+            <div class="stat-label">ที่นั่งทั้งหมด</div>
+        </div>
+    </div>
+
+    <div>
+        <span class="live-dot offline" id="liveIndicator">
+            <span class="dot"></span>
+            <span id="liveText">กำลังเชื่อมต่อ...</span>
+        </span>
+    </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+    <div class="nav-tab active" onclick="switchTab('register')">✏️ ลงทะเบียน</div>
+    <div class="nav-tab" onclick="switchTab('list')">👥 รายชื่อผู้ร่วมงาน</div>
+</nav>
+
+<main class="content">
+
+    <!-- ===== REGISTER TAB ===== -->
+    <section class="section active" id="section-register">
+        <div class="card">
+            <div class="card-title">📝 แบบฟอร์มลงทะเบียนเข้าร่วมงาน</div>
+            <form id="regForm" onsubmit="handleSubmit(event)" novalidate>
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>คำนำหน้า / ยศ <span class="req">*</span></label>
+                        <select id="f-title" required>
+                            <option value="">-- เลือก --</option>
+                            <optgroup label="พลเรือน">
+                                <option>นาย</option>
+                                <option>นาง</option>
+                                <option>นางสาว</option>
+                            </optgroup>
+                            <optgroup label="ยศทหาร">
+                                <option>ร.ต.</option>
+                                <option>ร.ท.</option>
+                                <option>ร.อ.</option>
+                                <option>พ.ต.</option>
+                                <option>พ.ท.</option>
+                                <option>พ.อ.</option>
+                                <option>พล.ต.</option>
+                                <option>จ.ส.อ.</option>
+                                <option>ส.อ.</option>
+                                <option>พลฯ</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ชื่อ <span class="req">*</span></label>
+                        <input type="text" id="f-fname" placeholder="ชื่อ" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>นามสกุล <span class="req">*</span></label>
+                        <input type="text" id="f-lname" placeholder="นามสกุล" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รุ่นที่ / ปีที่จบ</label>
+                        <input type="text" id="f-batch" placeholder="เช่น รุ่นที่ 5 หรือ 2557">
+                    </div>
+
+                    <div class="form-group">
+                        <label>เบอร์โทรศัพท์ <span class="req">*</span></label>
+                        <input type="tel" id="f-phone" placeholder="08x-xxx-xxxx" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>จำนวนที่นั่ง (รวมตัวเอง)</label>
+                        <select id="f-seats">
+                            <option value="1">1 ที่นั่ง (ตัวเอง)</option>
+                            <option value="2">2 ที่นั่ง</option>
+                            <option value="3">3 ที่นั่ง</option>
+                            <option value="4">4 ที่นั่ง</option>
+                            <option value="5">5 ที่นั่ง</option>
+                            <option value="6">6 ที่นั่ง</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>ข้อความ / ฝากถึงเพื่อนๆ</label>
+                        <textarea id="f-note" placeholder="ฝากข้อความ หรือหมายเหตุ..."></textarea>
+                    </div>
+
+                </div>
+                <button type="submit" class="btn-submit" id="submitBtn">✅ ยืนยันการลงทะเบียน</button>
+            </form>
+        </div>
+
+        <div class="card" style="text-align:center; padding: 1.5rem;">
+            <div style="font-size:2rem; margin-bottom:0.5rem; letter-spacing:0.5rem;">♩ ♪ ♫ ♬</div>
+            <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.7;">
+                ขอขอบคุณทุกท่านที่สละเวลามาร่วมงาน<br>
+                <strong style="color:var(--accent);">"คืนแห่งความทรงจำ ที่ไม่มีวันลืม"</strong>
+            </p>
+        </div>
+    </section>
+
+    <!-- ===== LIST TAB ===== -->
+    <section class="section" id="section-list">
+        <div class="card">
+            <div class="card-title">👥 รายชื่อผู้ลงทะเบียนเข้าร่วมงาน</div>
+
+            <div class="toolbar">
+                <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ, รุ่น, เบอร์..."
+                    oninput="renderList()" autocomplete="off">
+                <button class="btn-csv" onclick="exportCSV()">⬇️ ส่งออก CSV</button>
+                <button class="btn-clear" onclick="showClearModal()">🗑️ ล้างข้อมูล</button>
+            </div>
+
+            <div class="summary-bar">
+                <span>ผู้ลงทะเบียนทั้งหมด:</span>
+                <span class="badge" id="listCount">0</span>
+                <span>คน</span>
+                <span class="summary-right" id="listSeats">ที่นั่งรวม: 0 ที่</span>
+            </div>
+
+            <div id="attendeesList">
+                <div class="loading-row">
+                    <span class="spinner"></span>
+                    <span>กำลังโหลดข้อมูล...</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <div class="notes">♩ ♪ ♫ ♬</div>
+    งานเลี้ยงคืนสู่เหย้า ศิษย์เก่าดุริยางค์ พตพ &nbsp;|&nbsp; "12 ปีที่คิดถึง"
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Clear Confirm Modal -->
+<div class="modal-overlay" id="clearModal">
+    <div class="modal">
+        <h3>⚠️ ยืนยันการล้างข้อมูล</h3>
+        <p>การดำเนินการนี้จะลบรายชื่อผู้ลงทะเบียน<strong>ทั้งหมด</strong> และไม่สามารถกู้คืนได้<br><br>ต้องการดำเนินการต่อหรือไม่?</p>
+        <div class="modal-btns">
+            <button class="btn-confirm" onclick="clearAll()">ล้างข้อมูลทั้งหมด</button>
+            <button class="btn-cancel" onclick="hideClearModal()">ยกเลิก</button>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+    /* ── Firebase Init ── */
+    const firebaseConfig = {
+        apiKey:            "AIzaSyAPJX88snVWdfxWpJjT5BM503Z5u_qqoWg",
+        authDomain:        "alumni-reunion-ptpt.firebaseapp.com",
+        projectId:         "alumni-reunion-ptpt",
+        storageBucket:     "alumni-reunion-ptpt.firebasestorage.app",
+        messagingSenderId: "33108782517",
+        appId:             "1:33108782517:web:e13caa0cf8f361e18e7dfc"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const COL = 'alumni_reunion_ptpt';
+
+    /* ── State ── */
+    let allAttendees = [];
+    let isConnected  = false;
+
+    /* ── Real-time Listener ── */
+    db.collection(COL)
+        .orderBy('createdAt', 'asc')
+        .onSnapshot(
+            snapshot => {
+                isConnected = true;
+                setLive(true);
+
+                allAttendees = snapshot.docs.map(doc => {
+                    const d = doc.data();
+                    const ts = d.createdAt;
+                    const dateStr = ts?.toDate
+                        ? ts.toDate().toLocaleDateString('th-TH', {
+                            year: 'numeric', month: 'short', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                          })
+                        : '—';
+                    return { id: doc.id, ...d, dateStr };
+                });
+
+                updateStats();
+                if (document.getElementById('section-list').classList.contains('active')) {
+                    renderList();
+                }
+            },
+            err => {
+                console.error(err);
+                setLive(false);
+                toast('ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error');
+            }
+        );
+
+    /* ── Live indicator ── */
+    function setLive(on) {
+        const el   = document.getElementById('liveIndicator');
+        const text = document.getElementById('liveText');
+        el.className   = 'live-dot' + (on ? '' : ' offline');
+        text.textContent = on ? 'อัปเดตแบบ Real-time' : 'ออฟไลน์';
+    }
+
+    /* ── Stats ── */
+    function updateStats() {
+        const seats = allAttendees.reduce((s, a) => s + parseInt(a.seats || 1), 0);
+        document.getElementById('hdrCount').textContent = allAttendees.length;
+        document.getElementById('hdrSeats').textContent = seats;
+    }
+
+    /* ── Toast ── */
+    let toastTimer;
+    function toast(msg, type = 'success') {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.className = `toast ${type} show`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { el.className = 'toast'; }, 3800);
+    }
+
+    /* ── Tab switching ── */
+    function switchTab(tab) {
+        document.querySelectorAll('.nav-tab').forEach((t, i) => {
+            t.classList.toggle('active', (tab === 'register' && i === 0) || (tab === 'list' && i === 1));
+        });
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('section-' + tab).classList.add('active');
+        if (tab === 'list') renderList();
+    }
+
+    /* ── Registration submit ── */
+    async function handleSubmit(e) {
+        e.preventDefault();
+
+        const title  = document.getElementById('f-title').value;
+        const fname  = document.getElementById('f-fname').value.trim();
+        const lname  = document.getElementById('f-lname').value.trim();
+        const batch  = document.getElementById('f-batch').value.trim();
+        const phone  = document.getElementById('f-phone').value.trim();
+        const seats  = document.getElementById('f-seats').value;
+        const note   = document.getElementById('f-note').value.trim();
+
+        if (!title || !fname || !lname || !phone) {
+            toast('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'error');
+            return;
+        }
+
+        const phoneClean = phone.replace(/\D/g, '');
+        if (phoneClean.length < 9) {
+            toast('เบอร์โทรศัพท์ไม่ถูกต้อง', 'error');
+            return;
+        }
+
+        if (allAttendees.some(a => (a.phone || '').replace(/\D/g, '') === phoneClean)) {
+            toast('เบอร์โทรนี้ได้ลงทะเบียนแล้ว', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>กำลังบันทึก...';
+
+        try {
+            await db.collection(COL).add({
+                title, fname, lname, batch,
+                phone: phoneClean, seats, note,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            document.getElementById('regForm').reset();
+            toast(`✅ ลงทะเบียนสำเร็จ! ยินดีต้อนรับ ${title}${fname} ครับ/ค่ะ`);
+            setTimeout(() => switchTab('list'), 1600);
+        } catch (err) {
+            console.error(err);
+            toast('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '✅ ยืนยันการลงทะเบียน';
+        }
+    }
+
+    /* ── Render attendees list ── */
+    function renderList() {
+        const q = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+
+        const filtered = q
+            ? allAttendees.filter(a =>
+                `${a.title}${a.fname}${a.lname}${a.batch}${a.phone}`
+                    .toLowerCase().includes(q))
+            : allAttendees;
+
+        const seats = filtered.reduce((s, a) => s + parseInt(a.seats || 1), 0);
+        document.getElementById('listCount').textContent = filtered.length;
+        document.getElementById('listSeats').textContent = `ที่นั่งรวม: ${seats} ที่`;
+
+        const container = document.getElementById('attendeesList');
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="empty">
+                    <div class="icon">🎵</div>
+                    <p style="font-size:1rem;">${
+                        allAttendees.length === 0
+                            ? 'ยังไม่มีผู้ลงทะเบียน<br><span style="font-size:0.88rem">เป็นคนแรกที่ลงทะเบียนได้เลย!</span>'
+                            : 'ไม่พบชื่อที่ค้นหา'
+                    }</p>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = filtered.map((a, i) => {
+            const batchTxt = a.batch ? `📚 รุ่น ${escHtml(a.batch)} · ` : '';
+            const phoneFmt = formatPhone(a.phone || '');
+            const noteTxt  = a.note  ? `<br>💬 ${escHtml(a.note)}` : '';
+            return `
+            <div class="attendee-card">
+                <div class="num-circle">${i + 1}</div>
+                <div class="att-info">
+                    <div class="att-name">${escHtml(a.title)}${escHtml(a.fname)} ${escHtml(a.lname)}</div>
+                    <div class="att-detail">${batchTxt}📞 ${phoneFmt}${noteTxt}</div>
+                </div>
+                <div class="att-meta">
+                    <span class="seat-tag">🪑 ${a.seats} ที่นั่ง</span>
+                    <div class="att-date">${escHtml(a.dateStr)}</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    /* ── Export CSV ── */
+    function exportCSV() {
+        if (!allAttendees.length) { toast('ยังไม่มีข้อมูลสำหรับส่งออก', 'error'); return; }
+
+        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','รุ่น','เบอร์โทร','จำนวนที่นั่ง','หมายเหตุ','วันที่ลงทะเบียน'];
+        const rows = allAttendees.map((a, i) => [
+            i+1, a.title, a.fname, a.lname, a.batch,
+            formatPhone(a.phone || ''), a.seats, a.note, a.dateStr
+        ]);
+
+        const csv = '﻿' + [hdr, ...rows]
+            .map(r => r.map(c => `"${String(c ?? '').replace(/"/g,'""')}"`).join(','))
+            .join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = 'รายชื่อผู้ร่วมงาน_12ปีที่คิดถึง.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('ส่งออกไฟล์ CSV สำเร็จ!');
+    }
+
+    /* ── Clear modal ── */
+    function showClearModal() { document.getElementById('clearModal').classList.add('show'); }
+    function hideClearModal() { document.getElementById('clearModal').classList.remove('show'); }
+
+    async function clearAll() {
+        hideClearModal();
+        try {
+            const snapshot = await db.collection(COL).get();
+            const batch = db.batch();
+            snapshot.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            toast('ล้างข้อมูลทั้งหมดแล้ว', 'info');
+        } catch (err) {
+            toast('เกิดข้อผิดพลาดในการล้างข้อมูล', 'error');
+        }
+    }
+
+    /* ── Utilities ── */
+    function escHtml(str) {
+        return String(str ?? '')
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function formatPhone(p) {
+        const d = p.replace(/\D/g, '');
+        if (d.length === 10) return `${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`;
+        return p;
+    }
+</script>
+</body>
+</html>
