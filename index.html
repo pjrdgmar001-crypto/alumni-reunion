@@ -9,139 +9,115 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg:        #f5f3ee;
-            --surface:   #ffffff;
-            --border:    #e5dfd4;
-            --text:      #1a1a28;
-            --text-2:    #555466;
-            --text-3:    #9a98a8;
-            --gold:      #b8921f;
-            --gold-dk:   #8c6e12;
-            --gold-bg:   #fdf8ec;
-            --gold-bd:   #e8d48a;
-            --navy:      #1a2d4a;
-            --navy-2:    #243d62;
-            --green:     #15803d;
-            --green-bg:  #f0fdf4;
-            --red:       #dc2626;
-            --red-bg:    #fef2f2;
-            --sh:        0 2px 12px rgba(0,0,0,0.07);
-            --sh-sm:     0 1px 4px rgba(0,0,0,0.05);
-            --r:         12px;
-            --rs:        8px;
+            --bg:       #f5f3ee;
+            --surface:  #ffffff;
+            --border:   #e5dfd4;
+            --text:     #1a1a28;
+            --text-2:   #555466;
+            --text-3:   #9a98a8;
+            --gold:     #b8921f;
+            --gold-dk:  #8c6e12;
+            --gold-bg:  #fdf8ec;
+            --gold-bd:  #e8d48a;
+            --navy:     #1a2d4a;
+            --navy-2:   #243d62;
+            --green:    #15803d;
+            --green-bg: #f0fdf4;
+            --red:      #dc2626;
+            --red-bg:   #fef2f2;
+            --sh:       0 2px 12px rgba(0,0,0,.07);
+            --sh-sm:    0 1px 4px rgba(0,0,0,.05);
+            --r:        12px;
+            --rs:       8px;
         }
-
         * { margin:0; padding:0; box-sizing:border-box; }
-
-        body {
-            font-family: 'Sarabun', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
+        body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; -webkit-font-smoothing:antialiased; }
 
         /* ── HEADER ── */
-        .hdr {
-            background: linear-gradient(160deg,#0f1d33 0%,#1a2d4a 60%,#1e3456 100%);
-            padding: 3rem 1.5rem 2.5rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
+        .hdr { background:linear-gradient(160deg,#0f1d33 0%,#1a2d4a 60%,#1e3456 100%); padding:3rem 1.5rem 2.5rem; text-align:center; position:relative; overflow:hidden; }
         .hdr::before { content:'♫'; position:absolute; font-size:260px; color:rgba(201,162,39,.04); top:-50px; left:-30px; pointer-events:none; }
         .hdr::after  { content:'♬'; position:absolute; font-size:260px; color:rgba(201,162,39,.04); bottom:-70px; right:-30px; pointer-events:none; }
-
-        .hdr-chip {
-            display:inline-block; border:1px solid rgba(201,162,39,.4); color:#c9a227;
-            padding:.3rem 1.2rem; border-radius:20px; font-size:.78rem; font-weight:600;
-            letter-spacing:.14em; margin-bottom:1.2rem; background:rgba(201,162,39,.08);
-        }
-        .hdr-title {
-            font-size:clamp(1.8rem,5vw,3.2rem); font-weight:800; color:#fff;
-            line-height:1.2; margin-bottom:.5rem;
-        }
-        .hdr-quote {
-            font-size:clamp(1.2rem,3.5vw,2rem); color:#c9a227;
-            font-style:italic; font-weight:600; margin:.8rem 0;
-        }
-        .hdr-sub { color:rgba(255,255,255,.45); font-size:.88rem; font-weight:300; margin-bottom:2rem; }
-
-        .hdr-stats {
-            display:inline-flex; background:rgba(255,255,255,.06);
-            border:1px solid rgba(255,255,255,.1); border-radius:var(--r); overflow:hidden;
-        }
+        .hdr-chip { display:inline-block; border:1px solid rgba(201,162,39,.4); color:#c9a227; padding:.3rem 1.2rem; border-radius:20px; font-size:.78rem; font-weight:600; letter-spacing:.14em; margin-bottom:1.2rem; background:rgba(201,162,39,.08); }
+        .hdr-title { font-size:clamp(1.8rem,5vw,3.2rem); font-weight:800; color:#fff; line-height:1.2; margin-bottom:.5rem; }
+        .hdr-quote { font-size:clamp(1.2rem,3.5vw,2rem); color:#c9a227; font-style:italic; font-weight:600; margin:.8rem 0; }
+        .hdr-sub   { color:rgba(255,255,255,.45); font-size:.88rem; font-weight:300; margin-bottom:2rem; }
+        .hdr-stats { display:inline-flex; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:var(--r); overflow:hidden; }
         .hs { padding:.9rem 2rem; text-align:center; }
         .hs+.hs { border-left:1px solid rgba(255,255,255,.1); }
-        .hs-num  { font-size:2rem; font-weight:800; color:#c9a227; line-height:1; }
-        .hs-lbl  { font-size:.72rem; color:rgba(255,255,255,.4); margin-top:.2rem; }
-
-        .live-badge {
-            display:inline-flex; align-items:center; gap:.4rem;
-            background:rgba(22,163,74,.15); border:1px solid rgba(22,163,74,.3);
-            color:#4ade80; padding:.25rem .9rem; border-radius:20px;
-            font-size:.74rem; font-weight:600; margin-top:1rem;
-        }
+        .hs-num { font-size:2rem; font-weight:800; color:#c9a227; line-height:1; }
+        .hs-lbl { font-size:.72rem; color:rgba(255,255,255,.4); margin-top:.2rem; }
+        .live-badge { display:inline-flex; align-items:center; gap:.4rem; background:rgba(22,163,74,.15); border:1px solid rgba(22,163,74,.3); color:#4ade80; padding:.25rem .9rem; border-radius:20px; font-size:.74rem; font-weight:600; margin-top:1rem; }
         .live-badge .dot { width:6px; height:6px; background:#4ade80; border-radius:50%; animation:pulse 1.5s infinite; }
-        .live-badge.off  { color:rgba(255,255,255,.3); background:transparent; border-color:rgba(255,255,255,.1); }
+        .live-badge.off { color:rgba(255,255,255,.3); background:transparent; border-color:rgba(255,255,255,.1); }
         .live-badge.off .dot { background:rgba(255,255,255,.3); animation:none; }
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
 
         /* ── NAV ── */
-        .nav {
-            background:var(--surface); border-bottom:1.5px solid var(--border);
-            display:flex; justify-content:center;
-            position:sticky; top:0; z-index:100; box-shadow:var(--sh-sm);
-        }
-        .ntab {
-            padding:1rem 2rem; cursor:pointer; font-size:.95rem; font-weight:600;
-            color:var(--text-3); border-bottom:2.5px solid transparent;
-            transition:all .2s; user-select:none;
-        }
+        .nav { background:var(--surface); border-bottom:1.5px solid var(--border); display:flex; justify-content:center; position:sticky; top:0; z-index:100; box-shadow:var(--sh-sm); }
+        .ntab { padding:1rem 2rem; cursor:pointer; font-size:.95rem; font-weight:600; color:var(--text-3); border-bottom:2.5px solid transparent; transition:all .2s; user-select:none; }
         .ntab:hover { color:var(--text-2); }
         .ntab.active { color:var(--navy); border-bottom-color:var(--gold); }
 
         /* ── CONTENT ── */
         .content { max-width:860px; margin:0 auto; padding:2rem 1rem 4rem; }
-        .sec { display:none; }
-        .sec.active { display:block; }
+        .sec { display:none; } .sec.active { display:block; }
 
         /* ── CARD ── */
-        .card {
-            background:var(--surface); border:1px solid var(--border);
-            border-radius:var(--r); padding:2rem; margin-bottom:1.5rem; box-shadow:var(--sh);
-        }
+        .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:2rem; margin-bottom:1.5rem; box-shadow:var(--sh); }
         .card-hd { margin-bottom:1.8rem; padding-bottom:1rem; border-bottom:1.5px solid var(--border); }
         .card-title { font-size:1.1rem; font-weight:700; color:var(--navy); }
-        .card-sub   { font-size:.82rem; color:var(--text-3); margin-top:.2rem; }
+        .card-sub { font-size:.82rem; color:var(--text-3); margin-top:.2rem; }
+
+        /* ── ATTENDANCE TOGGLE ── */
+        .attend-wrap { margin-bottom:1.8rem; }
+        .attend-q { font-size:1rem; font-weight:700; color:var(--navy); margin-bottom:.9rem; }
+        .attend-opts { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+        .aopt input { display:none; }
+        .aopt label {
+            display:flex; flex-direction:column; align-items:center; gap:.35rem;
+            padding:1.1rem .8rem; border:2px solid var(--border); border-radius:var(--r);
+            cursor:pointer; background:var(--surface); transition:all .22s; text-align:center; user-select:none;
+        }
+        .aopt label .ai   { font-size:1.8rem; }
+        .aopt label .am   { font-size:.95rem; font-weight:700; color:var(--text-2); }
+        .aopt label .as   { font-size:.75rem; color:var(--text-3); }
+        .aopt label:hover { border-color:var(--navy); }
+        /* attending selected */
+        .aopt input#a-yes:checked + label { border-color:var(--green); background:var(--green-bg); }
+        .aopt input#a-yes:checked + label .am { color:var(--green); }
+        .aopt input#a-yes:checked + label .as { color:#4ade80; }
+        /* not attending selected */
+        .aopt input#a-no:checked + label { border-color:var(--text-3); background:#f7f6f8; }
+        .aopt input#a-no:checked + label .am { color:var(--text-2); }
+
+        /* ── FORM SECTION LABEL ── */
+        .sec-lbl { font-size:.72rem; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.1em; margin:1.8rem 0 .9rem; }
+        .sec-lbl:first-child { margin-top:0; }
+        .sec-lbl .req { color:var(--red); }
+
+        /* ── LOCKABLE SECTIONS ── */
+        .lockable { transition:opacity .25s; }
+        .lockable.locked { opacity:.28; pointer-events:none; user-select:none; }
+        .lock-tag {
+            display:none; align-items:center; gap:.35rem; font-size:.72rem;
+            color:var(--text-3); background:#f0eff2; border:1px solid var(--border);
+            padding:.2rem .6rem; border-radius:6px; width:fit-content; margin-bottom:.5rem;
+        }
+        .lockable.locked .lock-tag { display:inline-flex; }
 
         /* ── FORM ── */
-        .sec-lbl {
-            font-size:.72rem; font-weight:700; color:var(--text-3);
-            text-transform:uppercase; letter-spacing:.1em; margin:1.8rem 0 .9rem;
-        }
-        .sec-lbl:first-child { margin-top:0; }
-
         .fgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
         .fg { display:flex; flex-direction:column; gap:.35rem; }
         .fg.full { grid-column:1/-1; }
-
         .lbl { font-size:.82rem; font-weight:600; color:var(--text-2); }
         .lbl .req { color:var(--red); margin-left:2px; }
-
         input[type=text], input[type=tel], select, textarea {
             background:var(--bg); border:1.5px solid var(--border); border-radius:var(--rs);
-            padding:.7rem .9rem; color:var(--text); font-size:.95rem;
-            font-family:'Sarabun',sans-serif; width:100%; transition:all .2s; appearance:none;
+            padding:.7rem .9rem; color:var(--text); font-size:.95rem; font-family:'Sarabun',sans-serif;
+            width:100%; transition:all .2s; appearance:none;
         }
-        input:focus, select:focus, textarea:focus {
-            outline:none; border-color:var(--navy); background:var(--surface);
-            box-shadow:0 0 0 3px rgba(26,45,74,.08);
-        }
-        select {
-            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239a98a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-repeat:no-repeat; background-position:right 12px center; padding-right:2.5rem;
-        }
+        input:focus, select:focus, textarea:focus { outline:none; border-color:var(--navy); background:var(--surface); box-shadow:0 0 0 3px rgba(26,45,74,.08); }
+        select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239a98a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:2.5rem; }
         select option { background:#fff; }
         textarea { resize:vertical; min-height:80px; }
         input:disabled, select:disabled, textarea:disabled { opacity:.5; cursor:not-allowed; }
@@ -149,85 +125,53 @@
         /* ── ZONE SELECTOR ── */
         .zone-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; }
         .zopt input { display:none; }
-        .zopt label {
-            display:flex; flex-direction:column; align-items:center; justify-content:center;
-            gap:.3rem; padding:.9rem .5rem; border:1.5px solid var(--border); border-radius:var(--rs);
-            cursor:pointer; background:var(--surface); color:var(--text-2);
-            font-size:.88rem; font-weight:500; transition:all .2s; text-align:center; user-select:none;
-        }
+        .zopt label { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.3rem; padding:.9rem .5rem; border:1.5px solid var(--border); border-radius:var(--rs); cursor:pointer; background:var(--surface); color:var(--text-2); font-size:.88rem; font-weight:500; transition:all .2s; text-align:center; user-select:none; }
         .zopt label .zi { font-size:1.4rem; }
-        .zopt input:checked + label {
-            border-color:var(--navy); background:var(--navy); color:#fff; font-weight:700;
-            box-shadow:0 4px 14px rgba(26,45,74,.22);
-        }
+        .zopt input:checked + label { border-color:var(--navy); background:var(--navy); color:#fff; font-weight:700; box-shadow:0 4px 14px rgba(26,45,74,.22); }
         .zopt label:hover { border-color:var(--navy); }
 
         /* ── GROUP SIZE ── */
         .grp-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:.5rem; }
         .gopt input { display:none; }
-        .gopt label {
-            display:flex; flex-direction:column; align-items:center; justify-content:center;
-            gap:.2rem; padding:.75rem .3rem; border:1.5px solid var(--border); border-radius:var(--rs);
-            cursor:pointer; background:var(--surface); transition:all .2s; text-align:center; user-select:none;
-        }
+        .gopt label { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.2rem; padding:.75rem .3rem; border:1.5px solid var(--border); border-radius:var(--rs); cursor:pointer; background:var(--surface); transition:all .2s; text-align:center; user-select:none; }
         .gopt label .gnum { font-size:1.3rem; font-weight:800; color:var(--text-2); }
         .gopt label .gsub { font-size:.68rem; color:var(--text-3); line-height:1.2; }
-        .gopt input:checked + label {
-            border-color:var(--gold); background:var(--gold-bg); box-shadow:0 2px 8px rgba(184,146,31,.2);
-        }
+        .gopt input:checked + label { border-color:var(--gold); background:var(--gold-bg); box-shadow:0 2px 8px rgba(184,146,31,.2); }
         .gopt input:checked + label .gnum { color:var(--gold-dk); }
         .gopt input:checked + label .gsub { color:var(--gold); }
         .gopt label:hover { border-color:var(--gold); }
 
         /* ── TERMS ── */
-        .terms-box {
-            background:var(--red-bg); border:1.5px solid rgba(220,38,38,.2);
-            border-radius:var(--rs); padding:1rem 1.2rem;
-            display:flex; align-items:flex-start; gap:.8rem; cursor:pointer;
-        }
-        .terms-box input[type=checkbox] {
-            width:18px; height:18px; min-width:18px;
-            margin-top:2px; cursor:pointer; accent-color:var(--red);
-        }
+        .terms-box { background:var(--red-bg); border:1.5px solid rgba(220,38,38,.2); border-radius:var(--rs); padding:1rem 1.2rem; display:flex; align-items:flex-start; gap:.8rem; cursor:pointer; }
+        .terms-box input[type=checkbox] { width:18px; height:18px; min-width:18px; margin-top:2px; cursor:pointer; accent-color:var(--red); }
         .terms-txt { font-size:.84rem; color:var(--red); line-height:1.65; }
         .terms-txt strong { font-weight:700; }
 
         /* ── SUBMIT ── */
-        .btn-submit {
-            width:100%; margin-top:1.5rem; padding:1rem;
-            background:var(--navy); border:none; border-radius:var(--rs);
-            color:#fff; font-size:1rem; font-weight:700;
-            font-family:'Sarabun',sans-serif; cursor:pointer; transition:all .2s;
-        }
+        .btn-submit { width:100%; margin-top:1.5rem; padding:1rem; background:var(--navy); border:none; border-radius:var(--rs); color:#fff; font-size:1rem; font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; transition:all .2s; }
+        .btn-submit.gray { background:#888; }
         .btn-submit:hover:not(:disabled) { background:var(--navy-2); transform:translateY(-1px); box-shadow:0 6px 20px rgba(26,45,74,.3); }
+        .btn-submit.gray:hover:not(:disabled) { background:#666; }
         .btn-submit:disabled { opacity:.55; cursor:not-allowed; transform:none; }
-
         .spinner { display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:6px; }
         .spinner-dk { display:inline-block; width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--navy); border-radius:50%; animation:spin .7s linear infinite; }
         @keyframes spin { to{transform:rotate(360deg)} }
 
         /* ── DASHBOARD ── */
-        .dash-grid {
-            display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-bottom:1.5rem;
-        }
+        .dash-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-bottom:1.5rem; }
         @media(min-width:580px){ .dash-grid{ grid-template-columns:repeat(4,1fr); } }
-
-        .sc {
-            background:var(--surface); border:1px solid var(--border);
-            border-radius:var(--r); padding:1.2rem 1rem; text-align:center; box-shadow:var(--sh-sm);
-        }
-        .sc.dark { background:var(--navy); border-color:var(--navy); }
-        .sc-icon { font-size:1.4rem; margin-bottom:.4rem; }
-        .sc-num  { font-size:2.2rem; font-weight:800; color:var(--navy); line-height:1; }
+        .sc { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:1.2rem 1rem; text-align:center; box-shadow:var(--sh-sm); }
+        .sc.dark  { background:var(--navy); border-color:var(--navy); }
+        .sc.gn    { background:var(--green-bg); border-color:rgba(21,128,61,.25); }
+        .sc-icon  { font-size:1.4rem; margin-bottom:.4rem; }
+        .sc-num   { font-size:2.2rem; font-weight:800; color:var(--navy); line-height:1; }
         .sc.dark .sc-num { color:#c9a227; }
-        .sc-lbl  { font-size:.75rem; color:var(--text-3); margin-top:.25rem; font-weight:500; }
+        .sc.gn   .sc-num { color:var(--green); }
+        .sc-lbl   { font-size:.75rem; color:var(--text-3); margin-top:.25rem; font-weight:500; }
         .sc.dark .sc-lbl { color:rgba(255,255,255,.45); }
+        .sc.gn   .sc-lbl { color:rgba(21,128,61,.6); }
 
-        /* zone chart */
-        .zone-card {
-            background:var(--surface); border:1px solid var(--border);
-            border-radius:var(--r); padding:1.4rem 1.5rem; margin-bottom:1.5rem; box-shadow:var(--sh-sm);
-        }
+        .zone-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:1.4rem 1.5rem; margin-bottom:1.5rem; box-shadow:var(--sh-sm); }
         .zone-card-ttl { font-size:.75rem; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:1rem; }
         .zbar-wrap { display:flex; border-radius:6px; overflow:hidden; height:34px; margin-bottom:.8rem; }
         .zbseg { display:flex; align-items:center; justify-content:center; font-size:.73rem; font-weight:700; color:#fff; transition:width .5s ease; overflow:hidden; white-space:nowrap; padding:0 6px; }
@@ -238,53 +182,36 @@
         .zlitem { display:flex; align-items:center; gap:.4rem; font-size:.8rem; color:var(--text-2); }
         .zldot  { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 
-        /* list */
         .toolbar { display:flex; gap:.7rem; margin-bottom:1rem; flex-wrap:wrap; }
-        .toolbar input {
-            flex:1; min-width:160px; background:var(--bg); border:1.5px solid var(--border);
-            border-radius:var(--rs); padding:.65rem .9rem; font-family:'Sarabun',sans-serif;
-            font-size:.9rem; color:var(--text); transition:all .2s;
-        }
+        .toolbar input { flex:1; min-width:160px; background:var(--bg); border:1.5px solid var(--border); border-radius:var(--rs); padding:.65rem .9rem; font-family:'Sarabun',sans-serif; font-size:.9rem; color:var(--text); transition:all .2s; }
         .toolbar input:focus { outline:none; border-color:var(--navy); background:#fff; }
-
-        .btn-ol { padding:.65rem 1.1rem; border-radius:var(--rs); font-family:'Sarabun',sans-serif; font-size:.84rem; font-weight:600; cursor:pointer; background:transparent; white-space:nowrap; transition:all .2s; }
+        .btn-ol  { padding:.65rem 1.1rem; border-radius:var(--rs); font-family:'Sarabun',sans-serif; font-size:.84rem; font-weight:600; cursor:pointer; background:transparent; white-space:nowrap; transition:all .2s; }
         .btn-green { border:1.5px solid var(--green); color:var(--green); }
         .btn-green:hover { background:var(--green-bg); }
-        .btn-red  { border:1.5px solid rgba(220,38,38,.35); color:rgba(220,38,38,.7); }
+        .btn-red   { border:1.5px solid rgba(220,38,38,.35); color:rgba(220,38,38,.7); }
         .btn-red:hover { border-color:var(--red); color:var(--red); background:var(--red-bg); }
 
-        .sumrow {
-            display:flex; align-items:center; gap:.8rem; padding:.65rem 1rem;
-            background:var(--gold-bg); border:1px solid var(--gold-bd);
-            border-radius:var(--rs); margin-bottom:1rem; font-size:.86rem; flex-wrap:wrap;
-        }
+        .sumrow { display:flex; align-items:center; gap:.8rem; padding:.65rem 1rem; background:var(--gold-bg); border:1px solid var(--gold-bd); border-radius:var(--rs); margin-bottom:1rem; font-size:.86rem; flex-wrap:wrap; }
         .bdg { background:var(--gold); color:#fff; font-weight:800; padding:.1rem .6rem; border-radius:10px; font-size:.84rem; }
         .sumright { margin-left:auto; font-weight:700; color:var(--gold-dk); font-size:.84rem; }
 
-        .att-item {
-            display:flex; align-items:center; gap:.9rem; padding:.9rem 1rem;
-            border:1px solid var(--border); border-radius:var(--rs);
-            margin-bottom:.55rem; background:var(--surface); transition:all .18s;
-            animation:fadeIn .25s ease;
-        }
+        .att-item { display:flex; align-items:center; gap:.9rem; padding:.9rem 1rem; border:1px solid var(--border); border-radius:var(--rs); margin-bottom:.55rem; background:var(--surface); transition:all .18s; animation:fadeIn .25s ease; }
         @keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
         .att-item:hover { border-color:rgba(26,45,74,.22); box-shadow:var(--sh-sm); transform:translateX(2px); }
-
-        .att-num {
-            width:34px; height:34px; min-width:34px; background:var(--navy); color:#fff;
-            border-radius:50%; display:flex; align-items:center; justify-content:center;
-            font-size:.8rem; font-weight:700;
-        }
+        .att-item.no-attend { background:#fafaf8; border-color:#ece9e2; }
+        .att-item.no-attend .att-name { color:var(--text-3); }
+        .att-num { width:34px; height:34px; min-width:34px; background:var(--navy); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:700; }
+        .att-num.no { background:#bbb; }
         .att-main { flex:1; min-width:0; }
         .att-name { font-size:.98rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .att-det  { font-size:.78rem; color:var(--text-3); margin-top:.12rem; line-height:1.45; }
-
         .att-tags { display:flex; flex-direction:column; align-items:flex-end; gap:.28rem; }
         .tag { display:inline-block; padding:.15rem .55rem; border-radius:6px; font-size:.72rem; font-weight:600; white-space:nowrap; }
         .tz-thon  { background:#e8eef5; color:var(--navy); }
         .tz-phra  { background:var(--gold-bg); color:var(--gold-dk); }
         .tz-other { background:#f3f3f5; color:var(--text-3); }
         .tg-grp   { background:var(--green-bg); color:var(--green); }
+        .tg-no    { background:#f3f3f5; color:#888; }
         .att-date { font-size:.69rem; color:var(--text-3); }
 
         .empty { text-align:center; padding:3.5rem 2rem; color:var(--text-3); }
@@ -292,44 +219,31 @@
         .loading-row { display:flex; align-items:center; justify-content:center; gap:.7rem; padding:3rem; color:var(--text-3); }
 
         /* ── TOAST ── */
-        .toast {
-            position:fixed; bottom:1.5rem; right:1.5rem; max-width:320px;
-            padding:.85rem 1.3rem; border-radius:var(--rs); font-weight:600; font-size:.9rem;
-            color:#fff; transform:translateY(120%); opacity:0;
-            transition:all .3s cubic-bezier(.34,1.56,.64,1); z-index:9999; box-shadow:0 8px 28px rgba(0,0,0,.15);
-        }
+        .toast { position:fixed; bottom:1.5rem; right:1.5rem; max-width:340px; padding:.85rem 1.3rem; border-radius:var(--rs); font-weight:600; font-size:.9rem; color:#fff; transform:translateY(120%); opacity:0; transition:all .3s cubic-bezier(.34,1.56,.64,1); z-index:9999; box-shadow:0 8px 28px rgba(0,0,0,.15); }
         .toast.show { transform:translateY(0); opacity:1; }
         .toast.success { background:#15803d; }
         .toast.error   { background:var(--red); }
         .toast.info    { background:var(--navy); }
 
         /* ── MODAL ── */
-        .modal-ov {
-            position:fixed; inset:0; background:rgba(0,0,0,.4); backdrop-filter:blur(4px);
-            display:flex; align-items:center; justify-content:center; z-index:8000;
-            opacity:0; pointer-events:none; transition:opacity .2s;
-        }
+        .modal-ov { position:fixed; inset:0; background:rgba(0,0,0,.4); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:8000; opacity:0; pointer-events:none; transition:opacity .2s; }
         .modal-ov.show { opacity:1; pointer-events:all; }
-        .modal {
-            background:var(--surface); border-radius:var(--r); padding:2rem;
-            max-width:360px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.2);
-        }
+        .modal { background:var(--surface); border-radius:var(--r); padding:2rem; max-width:360px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.2); }
         .modal h3 { font-size:1.1rem; font-weight:700; color:var(--red); margin-bottom:.7rem; }
         .modal p  { font-size:.87rem; color:var(--text-2); line-height:1.7; }
         .modal-btns { display:flex; gap:.8rem; margin-top:1.5rem; justify-content:center; }
-        .btn-danger { background:var(--red); border:none; color:#fff; padding:.65rem 1.4rem; border-radius:var(--rs); font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; }
-        .btn-cancel { background:transparent; border:1.5px solid var(--border); color:var(--text-2); padding:.65rem 1.4rem; border-radius:var(--rs); font-weight:600; font-family:'Sarabun',sans-serif; cursor:pointer; }
+        .btn-danger  { background:var(--red); border:none; color:#fff; padding:.65rem 1.4rem; border-radius:var(--rs); font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; }
+        .btn-cancel2 { background:transparent; border:1.5px solid var(--border); color:var(--text-2); padding:.65rem 1.4rem; border-radius:var(--rs); font-weight:600; font-family:'Sarabun',sans-serif; cursor:pointer; }
 
-        /* ── FOOTER ── */
         .footer { text-align:center; padding:2rem 1rem; border-top:1px solid var(--border); color:var(--text-3); font-size:.78rem; }
 
-        /* ── MOBILE ── */
         @media(max-width:500px){
             .card { padding:1.2rem; }
             .hs { padding:.7rem 1.2rem; }
             .ntab { padding:.9rem 1.1rem; font-size:.88rem; }
             .att-tags { flex-direction:row; flex-wrap:wrap; justify-content:flex-end; }
             .grp-grid { grid-template-columns:repeat(5,1fr); }
+            .attend-opts { grid-template-columns:1fr 1fr; }
         }
         @media(max-width:380px){
             .zone-grid { grid-template-columns:1fr; }
@@ -339,7 +253,6 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="hdr">
     <div class="hdr-chip">♩ งานรวมใจ ศิษย์เก่าดุริยางค์ ♩</div>
     <h1 class="hdr-title">งานเลี้ยงคืนสู่เหย้า<br>ศิษย์เก่าดุริยางค์ พตพ</h1>
@@ -347,7 +260,7 @@
     <p class="hdr-sub">ร่วมรำลึกความทรงจำ · พบปะเพื่อนเก่า · สร้างความสัมพันธ์ที่ไม่รู้จางหาย</p>
     <div class="hdr-stats">
         <div class="hs"><div class="hs-num" id="hdrCount">—</div><div class="hs-lbl">ผู้ลงทะเบียน</div></div>
-        <div class="hs"><div class="hs-num" id="hdrPeople">—</div><div class="hs-lbl">คนทั้งหมด</div></div>
+        <div class="hs"><div class="hs-num" id="hdrAttend">—</div><div class="hs-lbl">เข้าร่วมงาน</div></div>
     </div>
     <div>
         <span class="live-badge off" id="liveBadge">
@@ -357,7 +270,6 @@
     </div>
 </header>
 
-<!-- NAV -->
 <nav class="nav">
     <div class="ntab active" onclick="switchTab('register')">✏️ ลงทะเบียน</div>
     <div class="ntab" onclick="switchTab('dashboard')">📊 รายชื่อผู้ร่วมงาน</div>
@@ -369,15 +281,39 @@
     <section class="sec active" id="sec-register">
         <div class="card">
             <div class="card-hd">
-                <div class="card-title">📝 แบบฟอร์มลงทะเบียนเข้าร่วมงาน</div>
-                <div class="card-sub">กรอกข้อมูลให้ครบถ้วน แล้วกดยืนยันด้านล่าง</div>
+                <div class="card-title">📝 แบบฟอร์มลงทะเบียน</div>
+                <div class="card-sub">กรอกข้อมูล แล้วกดยืนยันด้านล่าง</div>
             </div>
 
             <form id="regForm" onsubmit="handleSubmit(event)" novalidate>
 
+                <!-- ATTENDANCE TOGGLE -->
+                <div class="attend-wrap">
+                    <div class="attend-q">คุณจะมาร่วมงานหรือไม่? <span style="color:var(--red)">*</span></div>
+                    <div class="attend-opts">
+                        <div class="aopt">
+                            <input type="radio" name="attend" id="a-yes" value="yes" onchange="onAttendChange()">
+                            <label for="a-yes">
+                                <span class="ai">🎉</span>
+                                <span class="am">ยืนยันเข้าร่วมงาน</span>
+                                <span class="as">กรอกข้อมูลให้ครบถ้วน</span>
+                            </label>
+                        </div>
+                        <div class="aopt">
+                            <input type="radio" name="attend" id="a-no" value="no" onchange="onAttendChange()">
+                            <label for="a-no">
+                                <span class="ai">😔</span>
+                                <span class="am">ไม่สะดวกเข้าร่วม</span>
+                                <span class="as">แจ้งให้ทราบเท่านั้น</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PERSONAL INFO -->
                 <div class="sec-lbl">ข้อมูลส่วนตัว</div>
                 <div class="fgrid">
-                    <div class="fg">
+                    <div class="fg" id="fg-title">
                         <label class="lbl">คำนำหน้า / ยศ <span class="req">*</span></label>
                         <select id="f-title" required>
                             <option value="">— เลือก —</option>
@@ -399,7 +335,8 @@
                         <label class="lbl">นามสกุล <span class="req">*</span></label>
                         <input type="text" id="f-lname" placeholder="นามสกุล" required>
                     </div>
-                    <div class="fg">
+                    <div class="fg lockable" id="fg-batch">
+                        <div class="lock-tag">🔒 ไม่จำเป็นต้องกรอก</div>
                         <label class="lbl">รุ่นที่ / ปีที่จบ</label>
                         <input type="text" id="f-batch" placeholder="เช่น รุ่นที่ 5 หรือ 2557">
                     </div>
@@ -409,46 +346,47 @@
                     </div>
                 </div>
 
-                <!-- Zone -->
-                <div class="sec-lbl">โซนที่สะดวกเดินทาง <span class="req">*</span></div>
-                <div class="zone-grid">
-                    <div class="zopt">
-                        <input type="radio" name="zone" id="z1" value="ฝั่งธนบุรี">
-                        <label for="z1"><span class="zi">🌉</span>ฝั่งธนบุรี</label>
-                    </div>
-                    <div class="zopt">
-                        <input type="radio" name="zone" id="z2" value="ฝั่งพระนคร">
-                        <label for="z2"><span class="zi">🏛️</span>ฝั่งพระนคร</label>
-                    </div>
-                    <div class="zopt">
-                        <input type="radio" name="zone" id="z3" value="ยังไม่แน่ใจ">
-                        <label for="z3"><span class="zi">❓</span>ยังไม่แน่ใจ</label>
+                <!-- ZONE -->
+                <div class="lockable" id="zoneSec">
+                    <div class="sec-lbl">โซนที่สะดวกเดินทาง <span class="req">*</span></div>
+                    <div class="lock-tag">🔒 ไม่จำเป็นต้องกรอก</div>
+                    <div class="zone-grid">
+                        <div class="zopt"><input type="radio" name="zone" id="z1" value="ฝั่งธนบุรี"><label for="z1"><span class="zi">🌉</span>ฝั่งธนบุรี</label></div>
+                        <div class="zopt"><input type="radio" name="zone" id="z2" value="ฝั่งพระนคร"><label for="z2"><span class="zi">🏛️</span>ฝั่งพระนคร</label></div>
+                        <div class="zopt"><input type="radio" name="zone" id="z3" value="ยังไม่แน่ใจ"><label for="z3"><span class="zi">❓</span>ยังไม่แน่ใจ</label></div>
                     </div>
                 </div>
 
-                <!-- Group size -->
-                <div class="sec-lbl">จำนวนคนที่จะมาทั้งหมด (รวมตัวเอง) <span class="req">*</span></div>
-                <div class="grp-grid">
-                    <div class="gopt"><input type="radio" name="grp" id="g1" value="1"><label for="g1"><span class="gnum">1</span><span class="gsub">มาคนเดียว</span></label></div>
-                    <div class="gopt"><input type="radio" name="grp" id="g2" value="2"><label for="g2"><span class="gnum">2</span><span class="gsub">พาแฟน/<br>คู่ชีวิต</span></label></div>
-                    <div class="gopt"><input type="radio" name="grp" id="g3" value="3"><label for="g3"><span class="gnum">3</span><span class="gsub">พาลูก<br>1 คน</span></label></div>
-                    <div class="gopt"><input type="radio" name="grp" id="g4" value="4"><label for="g4"><span class="gnum">4</span><span class="gsub">ครอบครัว<br>4 คน</span></label></div>
-                    <div class="gopt"><input type="radio" name="grp" id="g5" value="5"><label for="g5"><span class="gnum">5+</span><span class="gsub">มากกว่า<br>5 คน</span></label></div>
+                <!-- GROUP SIZE -->
+                <div class="lockable" id="grpSec">
+                    <div class="sec-lbl">จำนวนคนที่จะมาทั้งหมด (รวมตัวเอง) <span class="req">*</span></div>
+                    <div class="lock-tag">🔒 ไม่จำเป็นต้องกรอก</div>
+                    <div class="grp-grid">
+                        <div class="gopt"><input type="radio" name="grp" id="g1" value="1"><label for="g1"><span class="gnum">1</span><span class="gsub">มาคนเดียว</span></label></div>
+                        <div class="gopt"><input type="radio" name="grp" id="g2" value="2"><label for="g2"><span class="gnum">2</span><span class="gsub">พาแฟน/<br>คู่ชีวิต</span></label></div>
+                        <div class="gopt"><input type="radio" name="grp" id="g3" value="3"><label for="g3"><span class="gnum">3</span><span class="gsub">พาลูก<br>1 คน</span></label></div>
+                        <div class="gopt"><input type="radio" name="grp" id="g4" value="4"><label for="g4"><span class="gnum">4</span><span class="gsub">ครอบครัว<br>4 คน</span></label></div>
+                        <div class="gopt"><input type="radio" name="grp" id="g5" value="5"><label for="g5"><span class="gnum">5+</span><span class="gsub">มากกว่า<br>5 คน</span></label></div>
+                    </div>
                 </div>
 
-                <!-- Note -->
-                <div class="sec-lbl">ข้อมูลเพิ่มเติม</div>
-                <div class="fg full">
-                    <label class="lbl">ฝากข้อความถึงเพื่อนๆ (ไม่บังคับ)</label>
-                    <textarea id="f-note" placeholder="ข้อความ, หมายเหตุ, หรืออยากบอกอะไรเพื่อน..."></textarea>
+                <!-- NOTE -->
+                <div class="lockable" id="noteSec">
+                    <div class="sec-lbl">ข้อความเพิ่มเติม</div>
+                    <div class="lock-tag">🔒 ไม่จำเป็นต้องกรอก</div>
+                    <div class="fg full">
+                        <label class="lbl">ฝากข้อความถึงเพื่อนๆ (ไม่บังคับ)</label>
+                        <textarea id="f-note" placeholder="ข้อความ, หมายเหตุ..."></textarea>
+                    </div>
                 </div>
 
-                <!-- Terms -->
-                <div style="margin-top:1.5rem">
+                <!-- TERMS -->
+                <div class="lockable" id="termsSec" style="margin-top:1.5rem">
+                    <div class="lock-tag">🔒 ไม่จำเป็นต้องยืนยัน</div>
                     <label class="terms-box" for="termsChk">
                         <input type="checkbox" id="termsChk">
                         <span class="terms-txt">
-                            ข้าพเจ้ารับทราบและยอมรับเงื่อนไขว่า
+                            ข้าพเจ้ารับทราบและยอมรับว่า
                             <strong>หากลงทะเบียนและชำระเงินแล้ว ทางผู้จัดงานขอสงวนสิทธิ์ไม่คืนเงินทุกกรณี</strong>
                         </span>
                     </label>
@@ -461,7 +399,7 @@
         <div class="card" style="text-align:center;padding:1.4rem 2rem">
             <div style="font-size:1.8rem;letter-spacing:.6rem;color:var(--gold);margin-bottom:.5rem">♩ ♪ ♫ ♬</div>
             <p style="color:var(--text-3);font-size:.88rem;line-height:1.8">
-                ขอขอบคุณทุกท่านที่สละเวลามาร่วมงาน<br>
+                ขอขอบคุณทุกท่านที่สละเวลา<br>
                 <strong style="color:var(--navy)">"คืนแห่งความทรงจำที่ไม่มีวันลืม"</strong>
             </p>
         </div>
@@ -469,16 +407,15 @@
 
     <!-- ===== DASHBOARD ===== -->
     <section class="sec" id="sec-dashboard">
-
         <div class="dash-grid">
-            <div class="sc dark"><div class="sc-icon">👥</div><div class="sc-num" id="sc-total">0</div><div class="sc-lbl">ผู้ลงทะเบียน</div></div>
-            <div class="sc"><div class="sc-icon">🎟️</div><div class="sc-num" id="sc-people">0</div><div class="sc-lbl">คนทั้งหมด</div></div>
-            <div class="sc"><div class="sc-icon">🌉</div><div class="sc-num" id="sc-thon">0</div><div class="sc-lbl">ฝั่งธนบุรี</div></div>
-            <div class="sc"><div class="sc-icon">🏛️</div><div class="sc-num" id="sc-phra">0</div><div class="sc-lbl">ฝั่งพระนคร</div></div>
+            <div class="sc dark"><div class="sc-icon">👥</div><div class="sc-num" id="sc-total">0</div><div class="sc-lbl">ผู้ลงทะเบียนทั้งหมด</div></div>
+            <div class="sc gn">  <div class="sc-icon">✅</div><div class="sc-num" id="sc-attend">0</div><div class="sc-lbl">ยืนยันเข้าร่วม</div></div>
+            <div class="sc">     <div class="sc-icon">🌉</div><div class="sc-num" id="sc-thon">0</div><div class="sc-lbl">ฝั่งธนบุรี</div></div>
+            <div class="sc">     <div class="sc-icon">🏛️</div><div class="sc-num" id="sc-phra">0</div><div class="sc-lbl">ฝั่งพระนคร</div></div>
         </div>
 
         <div class="zone-card">
-            <div class="zone-card-ttl">สัดส่วนโซนที่สะดวกเดินทาง</div>
+            <div class="zone-card-ttl">สัดส่วนโซนที่สะดวกเดินทาง (เฉพาะผู้ที่เข้าร่วม)</div>
             <div class="zbar-wrap">
                 <div class="zbseg thon"  id="zb-thon"  style="width:0%"></div>
                 <div class="zbseg phra"  id="zb-phra"  style="width:0%"></div>
@@ -488,6 +425,7 @@
                 <div class="zlitem"><div class="zldot" style="background:#1a2d4a"></div><span id="leg-thon">ฝั่งธนบุรี (0)</span></div>
                 <div class="zlitem"><div class="zldot" style="background:#b8921f"></div><span id="leg-phra">ฝั่งพระนคร (0)</span></div>
                 <div class="zlitem"><div class="zldot" style="background:#c4bfd0"></div><span id="leg-other">ยังไม่แน่ใจ (0)</span></div>
+                <div class="zlitem" style="margin-left:auto"><div class="zldot" style="background:#eee;border:1px solid #ccc"></div><span id="leg-noattend" style="color:var(--text-3)">ไม่เข้าร่วม (0)</span></div>
             </div>
         </div>
 
@@ -497,25 +435,23 @@
             </div>
             <div class="toolbar">
                 <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ, รุ่น, เบอร์..." oninput="renderDash()" autocomplete="off">
-                <button class="btn-ol btn-green" onclick="exportCSV()">⬇️ ส่งออก CSV</button>
-                <button class="btn-ol btn-red" onclick="showModal()">🗑️ ล้างข้อมูล</button>
+                <button class="btn-ol btn-green" onclick="exportCSV()">⬇️ CSV</button>
+                <button class="btn-ol btn-red"   onclick="showModal()">🗑️ ล้าง</button>
             </div>
             <div class="sumrow">
                 <span>แสดง</span>
                 <span class="bdg" id="listCount">0</span>
                 <span>รายการ</span>
-                <span class="sumright" id="listPeople">คนทั้งหมด 0 คน</span>
+                <span class="sumright" id="listSub">คนทั้งหมด 0 คน</span>
             </div>
             <div id="attList">
                 <div class="loading-row"><span class="spinner-dk"></span><span>กำลังโหลด...</span></div>
             </div>
         </div>
     </section>
-
 </main>
 
 <footer class="footer">♩ ♪ ♫ ♬ &nbsp; งานเลี้ยงคืนสู่เหย้า ศิษย์เก่าดุริยางค์ พตพ | "12 ปีที่คิดถึง"</footer>
-
 <div class="toast" id="toast"></div>
 
 <div class="modal-ov" id="clearModal">
@@ -523,8 +459,8 @@
         <h3>⚠️ ยืนยันการล้างข้อมูล</h3>
         <p>จะลบรายชื่อผู้ลงทะเบียน<strong>ทั้งหมด</strong> และไม่สามารถกู้คืนได้</p>
         <div class="modal-btns">
-            <button class="btn-danger" onclick="clearAll()">ลบทั้งหมด</button>
-            <button class="btn-cancel" onclick="hideModal()">ยกเลิก</button>
+            <button class="btn-danger"  onclick="clearAll()">ลบทั้งหมด</button>
+            <button class="btn-cancel2" onclick="hideModal()">ยกเลิก</button>
         </div>
     </div>
 </div>
@@ -544,6 +480,7 @@
     const COL = 'alumni_reunion_ptpt';
     let all = [];
 
+    /* ── Real-time listener ── */
     db.collection(COL).orderBy('createdAt','asc').onSnapshot(
         snap => {
             setLive(true);
@@ -558,7 +495,7 @@
             updHdr();
             if (document.getElementById('sec-dashboard').classList.contains('active')) renderDash();
         },
-        () => setLive(false)
+        err => { console.error('Firestore:', err); setLive(false); }
     );
 
     function setLive(on) {
@@ -568,10 +505,40 @@
     }
 
     function updHdr() {
-        const ppl = all.reduce((s,a) => s + parseInt(a.groupSize||1), 0);
-        sx('hdrCount', all.length); sx('hdrPeople', ppl);
+        const attending = all.filter(a => a.attendance === 'yes').length;
+        sx('hdrCount', all.length);
+        sx('hdrAttend', attending);
     }
 
+    /* ── Attendance toggle ── */
+    function onAttendChange() {
+        const notComing = document.getElementById('a-no').checked;
+
+        // Lock/unlock full sections
+        ['zoneSec','grpSec','noteSec','termsSec'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            notComing ? el.classList.add('locked') : el.classList.remove('locked');
+            el.querySelectorAll('input,select,textarea').forEach(i => i.disabled = notComing);
+        });
+
+        // Lock batch field
+        const batchFg = document.getElementById('fg-batch');
+        if (batchFg) {
+            notComing ? batchFg.classList.add('locked') : batchFg.classList.remove('locked');
+            const batchInput = document.getElementById('f-batch');
+            if (batchInput) batchInput.disabled = notComing;
+        }
+
+        // Update button style
+        const btn = document.getElementById('submitBtn');
+        if (btn) {
+            btn.className = notComing ? 'btn-submit gray' : 'btn-submit';
+            btn.innerHTML = notComing ? '📋 บันทึก (ไม่เข้าร่วม)' : '✅ ยืนยันการลงทะเบียน';
+        }
+    }
+
+    /* ── Tab switch ── */
     function switchTab(tab) {
         document.querySelectorAll('.ntab').forEach((t,i) => {
             t.classList.toggle('active', (tab==='register'&&i===0)||(tab==='dashboard'&&i===1));
@@ -581,57 +548,111 @@
         if (tab==='dashboard') renderDash();
     }
 
+    /* ── Submit ── */
     async function handleSubmit(e) {
         e.preventDefault();
-        const title = gv('f-title'), fname = gv('f-fname'), lname = gv('f-lname'),
-              batch = gv('f-batch'), phone = gv('f-phone'), note  = gv('f-note');
-        const zone  = document.querySelector('input[name="zone"]:checked')?.value || '';
-        const grp   = document.querySelector('input[name="grp"]:checked')?.value  || '';
-        const terms = document.getElementById('termsChk').checked;
 
-        if (!title||!fname||!lname||!phone) { toast('กรุณากรอกข้อมูลที่จำเป็นให้ครบ','error'); return; }
+        const attend = document.querySelector('input[name="attend"]:checked')?.value || '';
+        if (!attend) { toast('กรุณาเลือกว่าจะมาร่วมงานหรือไม่', 'error'); return; }
+
+        const title = gv('f-title'), fname = gv('f-fname'), lname = gv('f-lname');
+        const batch = gv('f-batch'), phone = gv('f-phone'), note  = gv('f-note');
+
+        if (!title || !fname || !lname || !phone) {
+            toast('กรุณากรอกชื่อ นามสกุล และเบอร์โทรให้ครบ', 'error'); return;
+        }
         const pc = phone.replace(/\D/g,'');
         if (pc.length < 9) { toast('เบอร์โทรศัพท์ไม่ถูกต้อง','error'); return; }
-        if (!zone)  { toast('กรุณาเลือกโซนที่สะดวกเดินทาง','error'); return; }
-        if (!grp)   { toast('กรุณาเลือกจำนวนคนที่จะมา','error'); return; }
-        if (!terms) { toast('กรุณายืนยันการรับทราบเงื่อนไข','error'); return; }
-        if (all.some(a => (a.phone||'').replace(/\D/g,'')===pc)) { toast('เบอร์โทรนี้ลงทะเบียนแล้ว','error'); return; }
+
+        // Extra validation for attending only
+        if (attend === 'yes') {
+            const zone = document.querySelector('input[name="zone"]:checked')?.value || '';
+            const grp  = document.querySelector('input[name="grp"]:checked')?.value  || '';
+            const terms = document.getElementById('termsChk').checked;
+            if (!zone)  { toast('กรุณาเลือกโซนที่สะดวกเดินทาง','error'); return; }
+            if (!grp)   { toast('กรุณาเลือกจำนวนคนที่จะมา','error'); return; }
+            if (!terms) { toast('กรุณายืนยันการรับทราบเงื่อนไข','error'); return; }
+        }
+
+        if (all.some(a => (a.phone||'').replace(/\D/g,'') === pc)) {
+            toast('เบอร์โทรนี้ลงทะเบียนแล้ว','error'); return;
+        }
 
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>กำลังบันทึก...';
+
         try {
+            const zone = document.querySelector('input[name="zone"]:checked')?.value || '';
+            const grp  = document.querySelector('input[name="grp"]:checked')?.value  || '';
             await db.collection(COL).add({
-                title, fname, lname, batch, phone:pc, zone, groupSize:grp, note,
+                title, fname, lname, batch, phone: pc,
+                attendance: attend,
+                zone: attend === 'yes' ? zone : '',
+                groupSize: attend === 'yes' ? grp : '',
+                note: attend === 'yes' ? note : '',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             document.getElementById('regForm').reset();
-            toast(`✅ ลงทะเบียนสำเร็จ! ยินดีต้อนรับ ${title}${fname}`);
+            // Reset locked state
+            ['zoneSec','grpSec','noteSec','termsSec'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.classList.remove('locked'); el.querySelectorAll('input,select,textarea').forEach(i => i.disabled = false); }
+            });
+            const bFg = document.getElementById('fg-batch');
+            if (bFg) { bFg.classList.remove('locked'); document.getElementById('f-batch').disabled = false; }
+
+            const msg = attend === 'yes'
+                ? `✅ ลงทะเบียนสำเร็จ! ยินดีต้อนรับ ${title}${fname}`
+                : `📋 บันทึกแล้ว ขอบคุณที่แจ้ง ${title}${fname}`;
+            toast(msg);
             setTimeout(() => switchTab('dashboard'), 1600);
-        } catch { toast('เกิดข้อผิดพลาด กรุณาลองใหม่','error'); }
-        finally { btn.disabled=false; btn.innerHTML='✅ ยืนยันการลงทะเบียน'; }
+        } catch(err) {
+            console.error('Firestore error:', err);
+            const code = err.code || '';
+            if (code === 'permission-denied') {
+                toast('ไม่มีสิทธิ์บันทึก — กรุณาตรวจสอบ Firestore Rules', 'error');
+            } else {
+                toast('เกิดข้อผิดพลาด: ' + (code || err.message), 'error');
+            }
+        } finally {
+            btn.disabled = false;
+            const isNo = document.getElementById('a-no').checked;
+            btn.className = isNo ? 'btn-submit gray' : 'btn-submit';
+            btn.innerHTML = isNo ? '📋 บันทึก (ไม่เข้าร่วม)' : '✅ ยืนยันการลงทะเบียน';
+        }
     }
 
+    /* ── Render dashboard ── */
     function renderDash() {
         const q = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
         const fil = q ? all.filter(a => `${a.title}${a.fname}${a.lname}${a.batch}${a.phone}`.toLowerCase().includes(q)) : all;
 
-        const ppl   = fil.reduce((s,a)=>s+parseInt(a.groupSize||1),0);
-        const thon  = fil.filter(a=>a.zone==='ฝั่งธนบุรี').length;
-        const phra  = fil.filter(a=>a.zone==='ฝั่งพระนคร').length;
-        const other = fil.filter(a=>!a.zone||a.zone==='ยังไม่แน่ใจ').length;
-        const tot   = fil.length;
+        const attending = fil.filter(a => a.attendance === 'yes');
+        const ppl    = attending.reduce((s,a) => s + parseInt(a.groupSize||1), 0);
+        const thon   = attending.filter(a => a.zone==='ฝั่งธนบุรี').length;
+        const phra   = attending.filter(a => a.zone==='ฝั่งพระนคร').length;
+        const other  = attending.filter(a => !a.zone || a.zone==='ยังไม่แน่ใจ').length;
+        const noAtt  = fil.filter(a => a.attendance !== 'yes').length;
+        const attTot = attending.length;
 
-        sx('sc-total',tot); sx('sc-people',ppl); sx('sc-thon',thon); sx('sc-phra',phra);
-        sx('listCount',tot); sx('listPeople',`คนทั้งหมด ${ppl} คน`);
-        sx('leg-thon',`ฝั่งธนบุรี (${thon})`); sx('leg-phra',`ฝั่งพระนคร (${phra})`); sx('leg-other',`ยังไม่แน่ใจ (${other})`);
+        sx('sc-total',  fil.length);
+        sx('sc-attend', attTot);
+        sx('sc-thon',   thon);
+        sx('sc-phra',   phra);
+        sx('listCount', fil.length);
+        sx('listSub',   `เข้าร่วม ${attTot} คน · คนทั้งหมด ${ppl} คน`);
+        sx('leg-thon',  `ฝั่งธนบุรี (${thon})`);
+        sx('leg-phra',  `ฝั่งพระนคร (${phra})`);
+        sx('leg-other', `ยังไม่แน่ใจ (${other})`);
+        sx('leg-noattend', `ไม่เข้าร่วม (${noAtt})`);
 
-        if (tot > 0) {
-            const pct = n => `${Math.round(n/tot*100)}%`;
-            stl('zb-thon','width',pct(thon));  stl('zb-phra','width',pct(phra)); stl('zb-other','width',pct(other));
-            document.getElementById('zb-thon').textContent  = thon  > 0 ? `ธน ${Math.round(thon/tot*100)}%` : '';
-            document.getElementById('zb-phra').textContent  = phra  > 0 ? `พระนคร ${Math.round(phra/tot*100)}%` : '';
-            document.getElementById('zb-other').textContent = other > 0 ? `? ${Math.round(other/tot*100)}%` : '';
+        if (attTot > 0) {
+            const pct = n => `${Math.round(n/attTot*100)}%`;
+            stl('zb-thon','width', pct(thon)); stl('zb-phra','width', pct(phra)); stl('zb-other','width', pct(other));
+            document.getElementById('zb-thon').textContent  = thon  > 0 ? `ธน ${Math.round(thon/attTot*100)}%` : '';
+            document.getElementById('zb-phra').textContent  = phra  > 0 ? `พระนคร ${Math.round(phra/attTot*100)}%` : '';
+            document.getElementById('zb-other').textContent = other > 0 ? `? ${Math.round(other/attTot*100)}%` : '';
         } else {
             stl('zb-thon','width','0%'); stl('zb-phra','width','0%'); stl('zb-other','width','100%');
             document.getElementById('zb-other').textContent = 'รอข้อมูล';
@@ -643,18 +664,24 @@
             return;
         }
         container.innerHTML = fil.map((a,i) => {
-            const bTxt = a.batch ? `รุ่น ${esc(a.batch)} · ` : '';
-            const nTxt = a.note  ? `<br>💬 ${esc(a.note)}` : '';
-            const zcls = a.zone==='ฝั่งธนบุรี'?'tz-thon':a.zone==='ฝั่งพระนคร'?'tz-phra':'tz-other';
-            return `<div class="att-item">
-                <div class="att-num">${i+1}</div>
+            const isAtt = a.attendance === 'yes';
+            const bTxt  = a.batch ? `รุ่น ${esc(a.batch)} · ` : '';
+            const nTxt  = a.note  ? `<br>💬 ${esc(a.note)}`  : '';
+            const zcls  = a.zone==='ฝั่งธนบุรี'?'tz-thon':a.zone==='ฝั่งพระนคร'?'tz-phra':'tz-other';
+            const attendTag = isAtt
+                ? `<span class="tag" style="background:#f0fdf4;color:#15803d">✅ เข้าร่วม</span>`
+                : `<span class="tag tg-no">❌ ไม่เข้าร่วม</span>`;
+            const extraTags = isAtt ? `
+                <span class="tag ${zcls}">${esc(a.zone||'ยังไม่แน่ใจ')}</span>
+                <span class="tag tg-grp">${a.groupSize||1} คน</span>` : '';
+            return `<div class="att-item${isAtt?'':' no-attend'}">
+                <div class="att-num${isAtt?'':' no'}">${i+1}</div>
                 <div class="att-main">
                     <div class="att-name">${esc(a.title)}${esc(a.fname)} ${esc(a.lname)}</div>
                     <div class="att-det">${bTxt}📞 ${fmtP(a.phone||'')}${nTxt}</div>
                 </div>
                 <div class="att-tags">
-                    <span class="tag ${zcls}">${esc(a.zone||'ยังไม่แน่ใจ')}</span>
-                    <span class="tag tg-grp">${a.groupSize||1} คน</span>
+                    ${attendTag}${extraTags}
                     <div class="att-date">${esc(a.dateStr)}</div>
                 </div>
             </div>`;
@@ -663,8 +690,8 @@
 
     function exportCSV() {
         if (!all.length) { toast('ยังไม่มีข้อมูล','error'); return; }
-        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','รุ่น','เบอร์โทร','โซน','จำนวนคน','หมายเหตุ','วันที่ลงทะเบียน'];
-        const rows = all.map((a,i)=>[i+1,a.title,a.fname,a.lname,a.batch,fmtP(a.phone||''),a.zone,a.groupSize,a.note,a.dateStr]);
+        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','รุ่น','เบอร์โทร','สถานะเข้าร่วม','โซน','จำนวนคน','หมายเหตุ','วันที่ลงทะเบียน'];
+        const rows = all.map((a,i)=>[i+1,a.title,a.fname,a.lname,a.batch,fmtP(a.phone||''),a.attendance==='yes'?'เข้าร่วม':'ไม่เข้าร่วม',a.zone,a.groupSize,a.note,a.dateStr]);
         const csv = '﻿'+[hdr,...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
         const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
         const a = document.createElement('a'); a.href=url; a.download='รายชื่อผู้ร่วมงาน.csv'; a.click(); URL.revokeObjectURL(url);
@@ -679,20 +706,20 @@
             const snap = await db.collection(COL).get();
             const b = db.batch(); snap.docs.forEach(d=>b.delete(d.ref)); await b.commit();
             toast('ล้างข้อมูลทั้งหมดแล้ว','info');
-        } catch { toast('เกิดข้อผิดพลาด','error'); }
+        } catch(err) { toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error'); }
     }
 
     let tt;
     function toast(msg, type='success') {
         const el = document.getElementById('toast');
         el.textContent=msg; el.className=`toast ${type} show`;
-        clearTimeout(tt); tt=setTimeout(()=>{el.className='toast';},4000);
+        clearTimeout(tt); tt=setTimeout(()=>{el.className='toast';},4500);
     }
-    function gv(id)    { return document.getElementById(id)?.value.trim()||''; }
-    function sx(id,v)  { const e=document.getElementById(id); if(e) e.textContent=v; }
+    function gv(id)     { return document.getElementById(id)?.value.trim()||''; }
+    function sx(id,v)   { const e=document.getElementById(id); if(e) e.textContent=v; }
     function stl(id,p,v){ const e=document.getElementById(id); if(e) e.style[p]=v; }
-    function esc(s)    { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    function fmtP(p)   { const d=p.replace(/\D/g,''); return d.length===10?`${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`:p; }
+    function esc(s)     { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function fmtP(p)    { const d=p.replace(/\D/g,''); return d.length===10?`${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`:p; }
 </script>
 </body>
 </html>
