@@ -34,7 +34,12 @@
         body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; -webkit-font-smoothing:antialiased; }
 
         /* ── HEADER ── */
-        .hdr { background:linear-gradient(160deg,#0f1d33 0%,#1a2d4a 60%,#1e3456 100%); padding:3rem 1.5rem 2.5rem; text-align:center; position:relative; overflow:hidden; }
+        .hdr {
+            background:
+                linear-gradient(160deg, rgba(10,18,33,.82) 0%, rgba(26,45,74,.72) 55%, rgba(15,29,51,.85) 100%),
+                url('assets/hero-bg.png') center 30% / cover no-repeat;
+            padding:3rem 1.5rem 2.5rem; text-align:center; position:relative; overflow:hidden;
+        }
         .hdr::before { content:'♫'; position:absolute; font-size:260px; color:rgba(201,162,39,.04); top:-50px; left:-30px; pointer-events:none; }
         .hdr::after  { content:'♬'; position:absolute; font-size:260px; color:rgba(201,162,39,.04); bottom:-70px; right:-30px; pointer-events:none; }
         .hdr-chip { display:inline-block; border:1px solid rgba(201,162,39,.4); color:#c9a227; padding:.3rem 1.2rem; border-radius:20px; font-size:.78rem; font-weight:600; letter-spacing:.14em; margin-bottom:1.2rem; background:rgba(201,162,39,.08); }
@@ -361,13 +366,6 @@
                             <option value="">— เลือกรุ่น —</option>
                         </select>
                     </div>
-                    <div class="fg lockable" id="fg-year">
-                        <div class="lock-tag">🔒 ไม่จำเป็นต้องกรอก</div>
-                        <label class="lbl">ปี พ.ศ. ที่จบ</label>
-                        <select id="f-year">
-                            <option value="">— เลือกปี —</option>
-                        </select>
-                    </div>
                     <div class="fg">
                         <label class="lbl">เบอร์โทรศัพท์ <span class="req">*</span></label>
                         <input type="tel" id="f-phone" placeholder="08x-xxx-xxxx" required>
@@ -566,15 +564,6 @@
             sel.appendChild(opt);
         }
     })();
-    (function initYearOptions() {
-        const sel = document.getElementById('f-year');
-        for (let y = 2500; y <= 2575; y++) {
-            const opt = document.createElement('option');
-            opt.value = y;
-            opt.textContent = `พ.ศ. ${y}`;
-            sel.appendChild(opt);
-        }
-    })();
     applyStaffView();
 
     /* ── Real-time listener ── */
@@ -630,8 +619,8 @@
             el.querySelectorAll('input,select,textarea').forEach(i => i.disabled = notComing);
         });
 
-        // Lock batch / year fields
-        ['fg-batch','fg-year'].forEach(fgId => {
+        // Lock batch field
+        ['fg-batch'].forEach(fgId => {
             const fg = document.getElementById(fgId);
             if (!fg) return;
             notComing ? fg.classList.add('locked') : fg.classList.remove('locked');
@@ -696,7 +685,7 @@
         if (!attend) { toast('กรุณาเลือกว่าจะมาร่วมงานหรือไม่', 'error'); return; }
 
         const title = gv('f-title'), fname = gv('f-fname'), lname = gv('f-lname'), nick = gv('f-nick');
-        const batch = gv('f-batch'), gradYear = gv('f-year'), phone = gv('f-phone'), note  = gv('f-note');
+        const batch = gv('f-batch'), phone = gv('f-phone'), note  = gv('f-note');
 
         if (!title || !fname || !lname || !phone) {
             toast('กรุณากรอกชื่อ นามสกุล และเบอร์โทรให้ครบ', 'error'); return;
@@ -728,7 +717,7 @@
             const instSel = document.querySelector('input[name="inst"]:checked');
             const instruments = instSel ? [instSel.value] : [];
             await db.collection(COL).add({
-                title, fname, lname, nick, batch, gradYear, phone: pc,
+                title, fname, lname, nick, batch, phone: pc,
                 attendance: attend,
                 instruments,
                 zone: attend === 'yes' ? zone : '',
@@ -739,7 +728,7 @@
             document.getElementById('regForm').reset();
             lastInst = null;
             // Reset locked state
-            ['zoneSec','grpSec','noteSec','termsSec','fg-batch','fg-year'].forEach(id => {
+            ['zoneSec','grpSec','noteSec','termsSec','fg-batch'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) { el.classList.remove('locked'); el.querySelectorAll('input,select,textarea').forEach(i => i.disabled = false); }
             });
@@ -814,7 +803,7 @@
     function renderDash() {
         renderChart();
         const q = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
-        let fil = q ? all.filter(a => `${a.title}${a.fname}${a.lname}${a.nick}${a.batch}${a.gradYear}${a.phone}`.toLowerCase().includes(q)) : all;
+        let fil = q ? all.filter(a => `${a.title}${a.fname}${a.lname}${a.nick}${a.batch}${a.phone}`.toLowerCase().includes(q)) : all;
         if (!isStaff) fil = fil.filter(a => a.attendance === 'yes');
 
         const attending = fil.filter(a => a.attendance === 'yes');
@@ -854,10 +843,7 @@
         }
         container.innerHTML = fil.map((a,i) => {
             const isAtt = a.attendance === 'yes';
-            const bParts = [];
-            if (a.batch)    bParts.push(`รุ่น ${esc(a.batch)}`);
-            if (a.gradYear) bParts.push(`พ.ศ. ${esc(a.gradYear)}`);
-            const bTxt  = bParts.join(' · ');
+            const bTxt  = a.batch ? `รุ่น ${esc(a.batch)}` : '';
             const nickTxt = a.nick ? ` (${esc(a.nick)})` : '';
 
             if (!isStaff) {
@@ -896,8 +882,8 @@
     function exportCSV() {
         if (!isStaff) { toast('เฉพาะทีมงานเท่านั้นที่ดาวน์โหลดได้','error'); return; }
         if (!all.length) { toast('ยังไม่มีข้อมูล','error'); return; }
-        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','ชื่อเล่น','รุ่น','พ.ศ.','เบอร์โทร','สถานะเข้าร่วม','เครื่องดนตรี','โซน','จำนวนคน','หมายเหตุ','วันที่ลงทะเบียน'];
-        const rows = all.map((a,i)=>[i+1,a.title,a.fname,a.lname,a.nick,a.batch,a.gradYear,fmtP(a.phone||''),a.attendance==='yes'?'เข้าร่วม':'ไม่เข้าร่วม',(a.instruments||[]).join(', '),a.zone,a.groupSize,a.note,a.dateStr]);
+        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','ชื่อเล่น','รุ่น','เบอร์โทร','สถานะเข้าร่วม','เครื่องดนตรี','โซน','จำนวนคน','หมายเหตุ','วันที่ลงทะเบียน'];
+        const rows = all.map((a,i)=>[i+1,a.title,a.fname,a.lname,a.nick,a.batch,fmtP(a.phone||''),a.attendance==='yes'?'เข้าร่วม':'ไม่เข้าร่วม',(a.instruments||[]).join(', '),a.zone,a.groupSize,a.note,a.dateStr]);
         const csv = '﻿'+[hdr,...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
         const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
         const a = document.createElement('a'); a.href=url; a.download='รายชื่อผู้ร่วมงาน.csv'; a.click(); URL.revokeObjectURL(url);
