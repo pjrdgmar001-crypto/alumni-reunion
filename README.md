@@ -123,6 +123,18 @@ service cloud.firestore {
 > รหัสผ่านทีมงานในหน้า admin เป็นเพียงการกันไม่ให้คนทั่วไปเข้าหน้าหลังบ้านโดยบังเอิญเท่านั้น
 > ไม่ใช่การรักษาความปลอดภัยระดับฐานข้อมูล หากต้องการความปลอดภัยสูงขึ้นควรทำ Firebase Authentication เพิ่มเติม
 
+## Security Headers
+
+ทุกหน้า (`index.html`, `tickets.html`, `admin-tickets.html`) มี
+`<meta http-equiv="Content-Security-Policy">` และ `<meta name="referrer">`
+ฝังไว้ใน `<head>` เพื่อจำกัดแหล่งที่มาของสคริปต์/สไตล์/รูปภาพที่อนุญาต และลดความเสี่ยง XSS
+
+> หมายเหตุ: GitHub Pages เป็น static hosting ไม่สามารถตั้งค่า HTTP response header
+> เช่น `X-Frame-Options`, `X-Content-Type-Options`, `Permissions-Policy` ได้โดยตรง
+> (ตั้งได้เฉพาะผ่าน `<meta>` ซึ่งรองรับแค่บางหัวข้อ เช่น CSP/Referrer-Policy)
+> หากต้องการ header ครบถ้วนระดับ A ต้องย้ายไปโฮสต์บนบริการที่ตั้งค่า header เองได้
+> เช่น Cloudflare Pages / Netlify / Vercel (ใช้ไฟล์ `_headers` หรือ `vercel.json`)
+
 ## วิธีเผยแพร่ออนไลน์ด้วย GitHub Pages (ฟรี)
 
 1. สร้างบัญชี GitHub (ถ้ายังไม่มี) ที่ https://github.com
