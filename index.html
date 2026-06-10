@@ -350,11 +350,22 @@
                         <label class="lbl">นามสกุล <span class="req">*</span></label>
                         <input type="text" id="f-lname" placeholder="นามสกุล" required>
                     </div>
+                    <div class="fg">
+                        <label class="lbl">ชื่อเล่น</label>
+                        <input type="text" id="f-nick" placeholder="ชื่อเล่น">
+                    </div>
                     <div class="fg lockable" id="fg-batch">
                         <div class="lock-tag">🔒 ไม่จำเป็นต้องกรอก</div>
                         <label class="lbl">รุ่นที่</label>
                         <select id="f-batch">
                             <option value="">— เลือกรุ่น —</option>
+                        </select>
+                    </div>
+                    <div class="fg lockable" id="fg-year">
+                        <div class="lock-tag">🔒 ไม่จำเป็นต้องกรอก</div>
+                        <label class="lbl">ปี พ.ศ. ที่จบ</label>
+                        <select id="f-year">
+                            <option value="">— เลือกปี —</option>
                         </select>
                     </div>
                     <div class="fg">
@@ -545,13 +556,22 @@
     const STAFF_PASS = 'ptpt2569';
     let isStaff = sessionStorage.getItem('staffMode') === '1';
 
-    /* ── Populate รุ่นที่ 1-70 (พ.ศ. 2500 เป็นต้นไป) ── */
+    /* ── Populate รุ่นที่ 1-70 และ พ.ศ. 2500 เป็นต้นไป (แยกกันคนละช่อง) ── */
     (function initBatchOptions() {
         const sel = document.getElementById('f-batch');
         for (let n = 1; n <= 70; n++) {
             const opt = document.createElement('option');
             opt.value = `รุ่นที่ ${n}`;
-            opt.textContent = `รุ่นที่ ${n} (พ.ศ. ${2499 + n})`;
+            opt.textContent = `รุ่นที่ ${n}`;
+            sel.appendChild(opt);
+        }
+    })();
+    (function initYearOptions() {
+        const sel = document.getElementById('f-year');
+        for (let y = 2500; y <= 2575; y++) {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = `พ.ศ. ${y}`;
             sel.appendChild(opt);
         }
     })();
@@ -610,13 +630,13 @@
             el.querySelectorAll('input,select,textarea').forEach(i => i.disabled = notComing);
         });
 
-        // Lock batch field
-        const batchFg = document.getElementById('fg-batch');
-        if (batchFg) {
-            notComing ? batchFg.classList.add('locked') : batchFg.classList.remove('locked');
-            const batchInput = document.getElementById('f-batch');
-            if (batchInput) batchInput.disabled = notComing;
-        }
+        // Lock batch / year fields
+        ['fg-batch','fg-year'].forEach(fgId => {
+            const fg = document.getElementById(fgId);
+            if (!fg) return;
+            notComing ? fg.classList.add('locked') : fg.classList.remove('locked');
+            fg.querySelectorAll('input,select').forEach(i => i.disabled = notComing);
+        });
 
         // Update button style
         const btn = document.getElementById('submitBtn');
@@ -675,8 +695,8 @@
         const attend = document.querySelector('input[name="attend"]:checked')?.value || '';
         if (!attend) { toast('กรุณาเลือกว่าจะมาร่วมงานหรือไม่', 'error'); return; }
 
-        const title = gv('f-title'), fname = gv('f-fname'), lname = gv('f-lname');
-        const batch = gv('f-batch'), phone = gv('f-phone'), note  = gv('f-note');
+        const title = gv('f-title'), fname = gv('f-fname'), lname = gv('f-lname'), nick = gv('f-nick');
+        const batch = gv('f-batch'), gradYear = gv('f-year'), phone = gv('f-phone'), note  = gv('f-note');
 
         if (!title || !fname || !lname || !phone) {
             toast('กรุณากรอกชื่อ นามสกุล และเบอร์โทรให้ครบ', 'error'); return;
@@ -708,7 +728,7 @@
             const instSel = document.querySelector('input[name="inst"]:checked');
             const instruments = instSel ? [instSel.value] : [];
             await db.collection(COL).add({
-                title, fname, lname, batch, phone: pc,
+                title, fname, lname, nick, batch, gradYear, phone: pc,
                 attendance: attend,
                 instruments,
                 zone: attend === 'yes' ? zone : '',
@@ -719,12 +739,10 @@
             document.getElementById('regForm').reset();
             lastInst = null;
             // Reset locked state
-            ['zoneSec','grpSec','noteSec','termsSec'].forEach(id => {
+            ['zoneSec','grpSec','noteSec','termsSec','fg-batch','fg-year'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) { el.classList.remove('locked'); el.querySelectorAll('input,select,textarea').forEach(i => i.disabled = false); }
             });
-            const bFg = document.getElementById('fg-batch');
-            if (bFg) { bFg.classList.remove('locked'); document.getElementById('f-batch').disabled = false; }
 
             const msg = attend === 'yes'
                 ? `✅ ลงทะเบียนสำเร็จ! ยินดีต้อนรับ ${title}${fname}`
@@ -796,7 +814,7 @@
     function renderDash() {
         renderChart();
         const q = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
-        let fil = q ? all.filter(a => `${a.title}${a.fname}${a.lname}${a.batch}${a.phone}`.toLowerCase().includes(q)) : all;
+        let fil = q ? all.filter(a => `${a.title}${a.fname}${a.lname}${a.nick}${a.batch}${a.gradYear}${a.phone}`.toLowerCase().includes(q)) : all;
         if (!isStaff) fil = fil.filter(a => a.attendance === 'yes');
 
         const attending = fil.filter(a => a.attendance === 'yes');
@@ -836,13 +854,17 @@
         }
         container.innerHTML = fil.map((a,i) => {
             const isAtt = a.attendance === 'yes';
-            const bTxt  = a.batch ? `รุ่น ${esc(a.batch)}` : '';
+            const bParts = [];
+            if (a.batch)    bParts.push(`รุ่น ${esc(a.batch)}`);
+            if (a.gradYear) bParts.push(`พ.ศ. ${esc(a.gradYear)}`);
+            const bTxt  = bParts.join(' · ');
+            const nickTxt = a.nick ? ` (${esc(a.nick)})` : '';
 
             if (!isStaff) {
                 return `<div class="att-item">
                     <div class="att-num">${i+1}</div>
                     <div class="att-main">
-                        <div class="att-name">${esc(a.title)}${esc(a.fname)} ${esc(a.lname)}</div>
+                        <div class="att-name">${esc(a.title)}${esc(a.fname)} ${esc(a.lname)}${nickTxt}</div>
                         ${bTxt ? `<div class="att-det">${bTxt}</div>` : ''}
                     </div>
                 </div>`;
@@ -860,7 +882,7 @@
             return `<div class="att-item${isAtt?'':' no-attend'}">
                 <div class="att-num${isAtt?'':' no'}">${i+1}</div>
                 <div class="att-main">
-                    <div class="att-name">${esc(a.title)}${esc(a.fname)} ${esc(a.lname)}</div>
+                    <div class="att-name">${esc(a.title)}${esc(a.fname)} ${esc(a.lname)}${nickTxt}</div>
                     <div class="att-det">${bTxt ? bTxt+' · ' : ''}📞 ${fmtP(a.phone||'')}${instTxt}${nTxt}</div>
                 </div>
                 <div class="att-tags">
@@ -874,8 +896,8 @@
     function exportCSV() {
         if (!isStaff) { toast('เฉพาะทีมงานเท่านั้นที่ดาวน์โหลดได้','error'); return; }
         if (!all.length) { toast('ยังไม่มีข้อมูล','error'); return; }
-        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','รุ่น','เบอร์โทร','สถานะเข้าร่วม','เครื่องดนตรี','โซน','จำนวนคน','หมายเหตุ','วันที่ลงทะเบียน'];
-        const rows = all.map((a,i)=>[i+1,a.title,a.fname,a.lname,a.batch,fmtP(a.phone||''),a.attendance==='yes'?'เข้าร่วม':'ไม่เข้าร่วม',(a.instruments||[]).join(', '),a.zone,a.groupSize,a.note,a.dateStr]);
+        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','ชื่อเล่น','รุ่น','พ.ศ.','เบอร์โทร','สถานะเข้าร่วม','เครื่องดนตรี','โซน','จำนวนคน','หมายเหตุ','วันที่ลงทะเบียน'];
+        const rows = all.map((a,i)=>[i+1,a.title,a.fname,a.lname,a.nick,a.batch,a.gradYear,fmtP(a.phone||''),a.attendance==='yes'?'เข้าร่วม':'ไม่เข้าร่วม',(a.instruments||[]).join(', '),a.zone,a.groupSize,a.note,a.dateStr]);
         const csv = '﻿'+[hdr,...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
         const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
         const a = document.createElement('a'); a.href=url; a.download='รายชื่อผู้ร่วมงาน.csv'; a.click(); URL.revokeObjectURL(url);
