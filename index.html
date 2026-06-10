@@ -161,6 +161,12 @@
         .terms-txt { font-size:.84rem; color:var(--red); line-height:1.65; }
         .terms-txt strong { font-weight:700; }
 
+        /* ── HEALTH CHECKUP ── */
+        .health-box { background:var(--green-bg); border:1.5px solid rgba(21,128,61,.22); border-radius:var(--rs); padding:1rem 1.2rem; display:flex; align-items:flex-start; gap:.8rem; cursor:pointer; }
+        .health-box input[type=checkbox] { width:18px; height:18px; min-width:18px; margin-top:2px; cursor:pointer; accent-color:var(--green); }
+        .health-txt { font-size:.84rem; color:var(--green); line-height:1.65; }
+        .health-txt strong { font-weight:700; }
+
         /* ── SUBMIT ── */
         .btn-submit { width:100%; margin-top:1.5rem; padding:1rem; background:var(--navy); border:none; border-radius:var(--rs); color:#fff; font-size:1rem; font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; transition:all .2s; }
         .btn-submit.gray { background:#888; }
@@ -387,6 +393,7 @@
                     <div class="iopt"><input type="radio" name="inst" id="i-Tb"   value="Tb"   onclick="toggleInst(this)"><label for="i-Tb">Tb<span class="ifull">ทรอมโบน</span></label></div>
                     <div class="iopt"><input type="radio" name="inst" id="i-Eup"  value="Eup"  onclick="toggleInst(this)"><label for="i-Eup">Eup<span class="ifull">ยูโฟเนียม</span></label></div>
                     <div class="iopt"><input type="radio" name="inst" id="i-Tuba" value="Tuba" onclick="toggleInst(this)"><label for="i-Tuba">Tuba<span class="ifull">ทูบา</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-DM"   value="Drum Major" onclick="toggleInst(this)"><label for="i-DM">DM<span class="ifull">ดรัมเมเจอร์</span></label></div>
                 </div>
 
                 <!-- ZONE -->
@@ -411,6 +418,19 @@
                         <div class="gopt"><input type="radio" name="grp" id="g4" value="4"><label for="g4"><span class="gnum">4</span><span class="gsub">ครอบครัว<br>4 คน</span></label></div>
                         <div class="gopt"><input type="radio" name="grp" id="g5" value="5"><label for="g5"><span class="gnum">5+</span><span class="gsub">มากกว่า<br>5 คน</span></label></div>
                     </div>
+                </div>
+
+                <!-- HEALTH CHECKUP -->
+                <div class="lockable" id="healthSec">
+                    <div class="sec-lbl">บริการตรวจสุขภาพในงาน</div>
+                    <div class="lock-tag">🔒 ไม่จำเป็นต้องเลือก</div>
+                    <label class="health-box" for="healthChk">
+                        <input type="checkbox" id="healthChk">
+                        <span class="health-txt">
+                            สนใจรับบริการ<strong>ตรวจสุขภาพเบื้องต้น</strong>ในงาน (สนับสนุนโดยสปอนเซอร์)
+                            เพื่อให้ผู้จัดประเมินจำนวนบุคลากรทางการแพทย์และอุปกรณ์ที่ต้องเตรียม
+                        </span>
+                    </label>
                 </div>
 
                 <!-- NOTE -->
@@ -463,6 +483,7 @@
             <div class="sc dark" id="sc-total-card"><div class="sc-icon">👥</div><div class="sc-num" id="sc-total">0</div><div class="sc-lbl">ผู้ลงทะเบียนทั้งหมด</div></div>
             <div class="sc" id="sc-thon-card">     <div class="sc-icon">🌉</div><div class="sc-num" id="sc-thon">0</div><div class="sc-lbl">ฝั่งธนบุรี</div></div>
             <div class="sc" id="sc-phra-card">     <div class="sc-icon">🏛️</div><div class="sc-num" id="sc-phra">0</div><div class="sc-lbl">ฝั่งพระนคร</div></div>
+            <div class="sc" id="sc-health-card">   <div class="sc-icon">🩺</div><div class="sc-num" id="sc-health">0</div><div class="sc-lbl">ต้องการตรวจสุขภาพ</div></div>
         </div>
 
         <div class="card" style="padding:1.4rem 1.5rem">
@@ -613,7 +634,7 @@
         const notComing = document.getElementById('a-no').checked;
 
         // Lock/unlock full sections
-        ['zoneSec','grpSec','noteSec','termsSec'].forEach(id => {
+        ['zoneSec','grpSec','healthSec','noteSec','termsSec'].forEach(id => {
             const el = document.getElementById(id);
             if (!el) return;
             notComing ? el.classList.add('locked') : el.classList.remove('locked');
@@ -676,6 +697,7 @@
         document.getElementById('sc-total-card').style.display = isStaff ? '' : 'none';
         document.getElementById('sc-thon-card').style.display  = isStaff ? '' : 'none';
         document.getElementById('sc-phra-card').style.display  = isStaff ? '' : 'none';
+        document.getElementById('sc-health-card').style.display = isStaff ? '' : 'none';
     }
 
     /* ── Submit ── */
@@ -717,19 +739,21 @@
             const grp  = document.querySelector('input[name="grp"]:checked')?.value  || '';
             const instSel = document.querySelector('input[name="inst"]:checked');
             const instruments = instSel ? [instSel.value] : [];
+            const healthCheck = document.getElementById('healthChk').checked;
             await db.collection(COL).add({
                 title, fname, lname, nick, batch, phone: pc,
                 attendance: attend,
                 instruments,
                 zone: attend === 'yes' ? zone : '',
                 groupSize: attend === 'yes' ? grp : '',
+                healthCheck: attend === 'yes' ? healthCheck : false,
                 note: attend === 'yes' ? note : '',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             document.getElementById('regForm').reset();
             lastInst = null;
             // Reset locked state
-            ['zoneSec','grpSec','noteSec','termsSec','fg-batch'].forEach(id => {
+            ['zoneSec','grpSec','healthSec','noteSec','termsSec','fg-batch'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) { el.classList.remove('locked'); el.querySelectorAll('input,select,textarea').forEach(i => i.disabled = false); }
             });
@@ -814,11 +838,13 @@
         const other  = attending.filter(a => !a.zone || a.zone==='ยังไม่แน่ใจ').length;
         const noAtt  = fil.filter(a => a.attendance !== 'yes').length;
         const attTot = attending.length;
+        const health = attending.filter(a => a.healthCheck).length;
 
         sx('sc-total',  fil.length);
         sx('sc-attend', attTot);
         sx('sc-thon',   thon);
         sx('sc-phra',   phra);
+        sx('sc-health', health);
         sx('listCount', fil.length);
         sx('listSub',   isStaff ? `เข้าร่วม ${attTot} คน · คนทั้งหมด ${ppl} คน` : `ผู้เข้าร่วมงานทั้งหมด ${attTot} คน`);
         sx('leg-thon',  `ฝั่งธนบุรี (${thon})`);
@@ -863,9 +889,10 @@
             const attendTag = isAtt
                 ? `<span class="tag" style="background:#f0fdf4;color:#15803d">✅ เข้าร่วม</span>`
                 : `<span class="tag tg-no">❌ ไม่เข้าร่วม</span>`;
+            const healthTag = (isAtt && a.healthCheck) ? `<span class="tag" style="background:#f0fdf4;color:#15803d">🩺 ตรวจสุขภาพ</span>` : '';
             const extraTags = isAtt ? `
                 <span class="tag ${zcls}">${esc(a.zone||'ยังไม่แน่ใจ')}</span>
-                <span class="tag tg-grp">${a.groupSize||1} คน</span>` : '';
+                <span class="tag tg-grp">${a.groupSize||1} คน</span>${healthTag}` : '';
             return `<div class="att-item${isAtt?'':' no-attend'}">
                 <div class="att-num${isAtt?'':' no'}">${i+1}</div>
                 <div class="att-main">
@@ -883,8 +910,8 @@
     function exportCSV() {
         if (!isStaff) { toast('เฉพาะทีมงานเท่านั้นที่ดาวน์โหลดได้','error'); return; }
         if (!all.length) { toast('ยังไม่มีข้อมูล','error'); return; }
-        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','ชื่อเล่น','รุ่น','เบอร์โทร','สถานะเข้าร่วม','เครื่องดนตรี','โซน','จำนวนคน','หมายเหตุ','วันที่ลงทะเบียน'];
-        const rows = all.map((a,i)=>[i+1,a.title,a.fname,a.lname,a.nick,a.batch,fmtP(a.phone||''),a.attendance==='yes'?'เข้าร่วม':'ไม่เข้าร่วม',(a.instruments||[]).join(', '),a.zone,a.groupSize,a.note,a.dateStr]);
+        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','ชื่อเล่น','รุ่น','เบอร์โทร','สถานะเข้าร่วม','เครื่องดนตรี','โซน','จำนวนคน','ตรวจสุขภาพ','หมายเหตุ','วันที่ลงทะเบียน'];
+        const rows = all.map((a,i)=>[i+1,a.title,a.fname,a.lname,a.nick,a.batch,fmtP(a.phone||''),a.attendance==='yes'?'เข้าร่วม':'ไม่เข้าร่วม',(a.instruments||[]).join(', '),a.zone,a.groupSize,a.healthCheck?'ต้องการ':'',a.note,a.dateStr]);
         const csv = '﻿'+[hdr,...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
         const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
         const a = document.createElement('a'); a.href=url; a.download='รายชื่อผู้ร่วมงาน.csv'; a.click(); URL.revokeObjectURL(url);
