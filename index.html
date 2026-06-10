@@ -364,19 +364,19 @@
                 </div>
 
                 <!-- INSTRUMENTS -->
-                <div class="sec-lbl">เครื่องดนตรีที่เคยเล่น (เลือกได้มากกว่า 1)</div>
+                <div class="sec-lbl">เครื่องดนตรีที่เคยเล่น (เลือกได้ 1 เครื่อง)</div>
                 <div class="inst-grid" id="instGrid">
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-Per"  value="Per"><label for="i-Per">Per<span class="ifull">เพอร์คัชชัน</span></label></div>
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-Pic"  value="Pic"><label for="i-Pic">Pic<span class="ifull">พิคโคโล</span></label></div>
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-Fl"   value="Fl"><label for="i-Fl">Fl<span class="ifull">ฟลุต</span></label></div>
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-Cl"   value="Cl"><label for="i-Cl">Cl<span class="ifull">คลาริเน็ต</span></label></div>
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-Tp"   value="Tp"><label for="i-Tp">Tp<span class="ifull">ทรัมเป็ต</span></label></div>
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-SA"   value="SA"><label for="i-SA">SA<span class="ifull">อัลโตแซกฯ</span></label></div>
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-Hn"   value="Hn"><label for="i-Hn">Hn<span class="ifull">ฮอร์น</span></label></div>
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-St"   value="St"><label for="i-St">St<span class="ifull">เทเนอร์แซกฯ</span></label></div>
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-Tb"   value="Tb"><label for="i-Tb">Tb<span class="ifull">ทรอมโบน</span></label></div>
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-Eup"  value="Eup"><label for="i-Eup">Eup<span class="ifull">ยูโฟเนียม</span></label></div>
-                    <div class="iopt"><input type="checkbox" name="inst" id="i-Tuba" value="Tuba"><label for="i-Tuba">Tuba<span class="ifull">ทูบา</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-Per"  value="Per"  onclick="toggleInst(this)"><label for="i-Per">Per<span class="ifull">เพอร์คัชชัน</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-Pic"  value="Pic"  onclick="toggleInst(this)"><label for="i-Pic">Pic<span class="ifull">พิคโคโล</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-Fl"   value="Fl"   onclick="toggleInst(this)"><label for="i-Fl">Fl<span class="ifull">ฟลุต</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-Cl"   value="Cl"   onclick="toggleInst(this)"><label for="i-Cl">Cl<span class="ifull">คลาริเน็ต</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-Tp"   value="Tp"   onclick="toggleInst(this)"><label for="i-Tp">Tp<span class="ifull">ทรัมเป็ต</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-SA"   value="SA"   onclick="toggleInst(this)"><label for="i-SA">SA<span class="ifull">อัลโตแซกฯ</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-Hn"   value="Hn"   onclick="toggleInst(this)"><label for="i-Hn">Hn<span class="ifull">ฮอร์น</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-St"   value="St"   onclick="toggleInst(this)"><label for="i-St">St<span class="ifull">เทเนอร์แซกฯ</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-Tb"   value="Tb"   onclick="toggleInst(this)"><label for="i-Tb">Tb<span class="ifull">ทรอมโบน</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-Eup"  value="Eup"  onclick="toggleInst(this)"><label for="i-Eup">Eup<span class="ifull">ยูโฟเนียม</span></label></div>
+                    <div class="iopt"><input type="radio" name="inst" id="i-Tuba" value="Tuba" onclick="toggleInst(this)"><label for="i-Tuba">Tuba<span class="ifull">ทูบา</span></label></div>
                 </div>
 
                 <!-- ZONE -->
@@ -455,6 +455,11 @@
             <div class="sc" id="sc-phra-card">     <div class="sc-icon">🏛️</div><div class="sc-num" id="sc-phra">0</div><div class="sc-lbl">ฝั่งพระนคร</div></div>
         </div>
 
+        <div class="card" style="padding:1.4rem 1.5rem">
+            <div class="zone-card-ttl">📈 แนวโน้มการลงทะเบียน (สะสม)</div>
+            <canvas id="regChart" height="220"></canvas>
+        </div>
+
         <div class="zone-card" id="zoneCard">
             <div class="zone-card-ttl">สัดส่วนโซนที่สะดวกเดินทาง (เฉพาะผู้ที่เข้าร่วม)</div>
             <div class="zbar-wrap">
@@ -522,6 +527,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     firebase.initializeApp({
         apiKey:            "AIzaSyAPJX88snVWdfxWpJjT5BM503Z5u_qqoWg",
@@ -579,6 +585,17 @@
         const attending = all.filter(a => a.attendance === 'yes').length;
         sx('hdrCount', all.length);
         sx('hdrAttend', attending);
+    }
+
+    /* ── Instrument single-select (allow click again to deselect) ── */
+    let lastInst = null;
+    function toggleInst(el) {
+        if (lastInst === el.id) {
+            el.checked = false;
+            lastInst = null;
+        } else {
+            lastInst = el.id;
+        }
     }
 
     /* ── Attendance toggle ── */
@@ -688,7 +705,8 @@
         try {
             const zone = document.querySelector('input[name="zone"]:checked')?.value || '';
             const grp  = document.querySelector('input[name="grp"]:checked')?.value  || '';
-            const instruments = Array.from(document.querySelectorAll('input[name="inst"]:checked')).map(i => i.value);
+            const instSel = document.querySelector('input[name="inst"]:checked');
+            const instruments = instSel ? [instSel.value] : [];
             await db.collection(COL).add({
                 title, fname, lname, batch, phone: pc,
                 attendance: attend,
@@ -699,6 +717,7 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             document.getElementById('regForm').reset();
+            lastInst = null;
             // Reset locked state
             ['zoneSec','grpSec','noteSec','termsSec'].forEach(id => {
                 const el = document.getElementById(id);
@@ -728,8 +747,54 @@
         }
     }
 
+    /* ── Registration trend chart ── */
+    let regChart = null;
+    function renderChart() {
+        const canvas = document.getElementById('regChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        const byDate = {};
+        all.forEach(a => {
+            const d = a.createdAt?.toDate ? a.createdAt.toDate() : new Date();
+            const key = d.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
+            if (!byDate[key]) byDate[key] = { total:0, attend:0, ts:d.getTime() };
+            byDate[key].total++;
+            if (a.attendance === 'yes') byDate[key].attend++;
+        });
+        const dates = Object.keys(byDate).sort((a,b) => byDate[a].ts - byDate[b].ts);
+
+        let cumTotal = 0, cumAttend = 0;
+        const totalData = [], attendData = [];
+        dates.forEach(k => {
+            cumTotal  += byDate[k].total;
+            cumAttend += byDate[k].attend;
+            totalData.push(cumTotal);
+            attendData.push(cumAttend);
+        });
+
+        if (regChart) regChart.destroy();
+        if (!dates.length) return;
+
+        regChart = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    { label:'ผู้ลงทะเบียนสะสม', data: totalData,  borderColor:'#1a2d4a', backgroundColor:'rgba(26,45,74,.08)',  fill:true, tension:.3 },
+                    { label:'ยืนยันเข้าร่วมสะสม', data: attendData, borderColor:'#b8921f', backgroundColor:'rgba(184,146,31,.1)', fill:true, tension:.3 }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position:'bottom', labels:{ font:{ family:"'Sarabun',sans-serif" } } } },
+                scales: { y: { beginAtZero:true, ticks:{ precision:0 } } }
+            }
+        });
+    }
+
     /* ── Render dashboard ── */
     function renderDash() {
+        renderChart();
         const q = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
         let fil = q ? all.filter(a => `${a.title}${a.fname}${a.lname}${a.batch}${a.phone}`.toLowerCase().includes(q)) : all;
         if (!isStaff) fil = fil.filter(a => a.attendance === 'yes');
