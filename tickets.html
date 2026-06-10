@@ -205,7 +205,8 @@ textarea { resize:vertical; min-height:70px; }
     <div class="hdr-chip">♩ ระบบซื้อบัตรออนไลน์ ♩</div>
     <h1 class="hdr-title">งานเลี้ยงคืนสู่เหย้า<br>ศิษย์เก่าดุริยางค์ พตพ.</h1>
     <div class="hdr-quote">"12 ปีที่คิดถึง"</div>
-    <p class="hdr-sub">วันเสาร์ที่ 10 ตุลาคม 2569 &nbsp;|&nbsp; เปิดจำหน่ายบัตรออนไลน์ &amp; หน้างาน</p>
+    <p class="hdr-sub" id="hdrEventDate" style="display:none">วันเสาร์ที่ 10 ตุลาคม 2569 &nbsp;|&nbsp; เปิดจำหน่ายบัตรออนไลน์ &amp; หน้างาน</p>
+    <p class="hdr-sub" id="hdrComingSoon">เปิดจำหน่ายบัตรออนไลน์ &amp; หน้างาน — เร็วๆ นี้</p>
 </header>
 
 <!-- ===== COMING SOON (default view for public) ===== -->
@@ -497,6 +498,9 @@ textarea { resize:vertical; min-height:70px; }
         const open = salesOpen || hasPreviewAccess();
         document.getElementById('comingSoon').style.display = open ? 'none' : '';
         document.getElementById('appGate').style.display = open ? '' : 'none';
+        // ซ่อนวันที่จัดงานในหัวเว็บจนกว่าจะเปิดขายจริง (salesOpen) แม้ทีมงานจะพรีวิวอยู่
+        document.getElementById('hdrEventDate').style.display = salesOpen ? '' : 'none';
+        document.getElementById('hdrComingSoon').style.display = salesOpen ? 'none' : '';
     }
     applyGate();
 
