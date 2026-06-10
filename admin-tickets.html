@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบหลังบ้าน - จัดการบัตร | 12 ปีที่คิดถึง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg:       #f5f3ee;
+    --surface:  #ffffff;
+    --border:   #e5dfd4;
+    --text:     #1a1a28;
+    --text-2:   #555466;
+    --text-3:   #9a98a8;
+    --gold:     #b8921f;
+    --gold-dk:  #8c6e12;
+    --gold-bg:  #fdf8ec;
+    --gold-bd:  #e8d48a;
+    --navy:     #1a2d4a;
+    --navy-2:   #243d62;
+    --green:    #15803d;
+    --green-bg: #f0fdf4;
+    --red:      #dc2626;
+    --red-bg:   #fef2f2;
+    --orange:   #c2740a;
+    --orange-bg:#fff7ed;
+    --sh:       0 2px 12px rgba(0,0,0,.07);
+    --sh-sm:    0 1px 4px rgba(0,0,0,.05);
+    --r:        12px;
+    --rs:       8px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; -webkit-font-smoothing:antialiased; }
+
+.hdr { background:var(--navy); padding:1.6rem 1.5rem; text-align:center; }
+.hdr h1 { color:#fff; font-size:1.3rem; font-weight:800; }
+.hdr p { color:#c9a227; font-size:.85rem; margin-top:.2rem; font-style:italic; }
+
+.nav { background:var(--surface); border-bottom:1.5px solid var(--border); display:flex; justify-content:center; position:sticky; top:0; z-index:100; box-shadow:var(--sh-sm); flex-wrap:wrap; }
+.ntab { padding:1rem 1.6rem; cursor:pointer; font-size:.95rem; font-weight:600; color:var(--text-3); border-bottom:2.5px solid transparent; transition:all .2s; user-select:none; }
+.ntab:hover { color:var(--text-2); }
+.ntab.active { color:var(--navy); border-bottom-color:var(--gold); }
+
+.content { max-width:900px; margin:0 auto; padding:2rem 1rem 4rem; }
+.sec { display:none; } .sec.active { display:block; }
+
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:1.6rem; margin-bottom:1.2rem; box-shadow:var(--sh); }
+.card-title { font-size:1.05rem; font-weight:700; color:var(--navy); margin-bottom:.2rem; }
+.card-sub { font-size:.8rem; color:var(--text-3); margin-bottom:1rem; }
+
+input[type=text], input[type=password] {
+    background:var(--bg); border:1.5px solid var(--border); border-radius:var(--rs);
+    padding:.7rem .9rem; color:var(--text); font-size:.95rem; font-family:'Sarabun',sans-serif;
+    width:100%; transition:all .2s;
+}
+input:focus { outline:none; border-color:var(--navy); background:var(--surface); box-shadow:0 0 0 3px rgba(26,45,74,.08); }
+
+.btn { padding:.7rem 1.3rem; border-radius:var(--rs); border:none; font-size:.9rem; font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.btn-navy { background:var(--navy); color:#fff; } .btn-navy:hover { background:var(--navy-2); }
+.btn-green { background:var(--green); color:#fff; } .btn-green:hover { background:#0f5c2c; }
+.btn-red { background:var(--red); color:#fff; } .btn-red:hover { background:#b91c1c; }
+.btn-outline { background:transparent; border:1.5px solid var(--navy); color:var(--navy); }
+.btn-outline:hover { background:#eef1f6; }
+.btn:disabled { opacity:.5; cursor:not-allowed; }
+.btn-sm { padding:.4rem .9rem; font-size:.8rem; }
+
+/* ── DASHBOARD ── */
+.dash-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:.8rem; margin-bottom:1.2rem; }
+@media(min-width:600px){ .dash-grid{ grid-template-columns:repeat(4,1fr); } }
+.sc { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:1rem; text-align:center; box-shadow:var(--sh-sm); }
+.sc.dark { background:var(--navy); border-color:var(--navy); }
+.sc.gold { background:var(--gold-bg); border-color:var(--gold-bd); }
+.sc-num { font-size:1.7rem; font-weight:800; color:var(--navy); line-height:1; }
+.sc.dark .sc-num { color:#c9a227; }
+.sc.gold .sc-num { color:var(--gold-dk); }
+.sc-lbl { font-size:.72rem; color:var(--text-3); margin-top:.3rem; font-weight:600; }
+.sc.dark .sc-lbl { color:rgba(255,255,255,.5); }
+
+/* ── ORDER ITEM ── */
+.toolbar { display:flex; gap:.6rem; margin-bottom:1rem; flex-wrap:wrap; }
+.filter-btn { padding:.45rem 1rem; border-radius:20px; border:1.5px solid var(--border); background:var(--surface); font-size:.82rem; font-weight:600; color:var(--text-2); cursor:pointer; font-family:'Sarabun',sans-serif; }
+.filter-btn.active { border-color:var(--navy); background:var(--navy); color:#fff; }
+.toolbar input { flex:1; min-width:160px; }
+
+.order-item { border:1px solid var(--border); border-radius:var(--r); padding:1.1rem; margin-bottom:.9rem; background:var(--surface); }
+.order-item-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem; flex-wrap:wrap; gap:.5rem; }
+.oid { font-family:monospace; font-weight:700; color:var(--navy); font-size:.95rem; }
+.order-detail { font-size:.85rem; color:var(--text-2); line-height:1.8; margin-bottom:.7rem; }
+.order-detail b { color:var(--text); }
+.order-actions { display:flex; gap:.6rem; flex-wrap:wrap; }
+.badge { display:inline-flex; align-items:center; gap:.3rem; padding:.25rem .8rem; border-radius:20px; font-size:.78rem; font-weight:700; }
+.badge.pending  { background:var(--orange-bg); color:var(--orange); }
+.badge.approved { background:var(--green-bg); color:var(--green); }
+.badge.rejected { background:var(--red-bg); color:var(--red); }
+.slip-thumb { max-width:120px; max-height:90px; border-radius:6px; border:1px solid var(--border); cursor:pointer; }
+
+/* ── CHECKIN ── */
+#qr-reader { width:100%; max-width:420px; margin:0 auto; border-radius:var(--r); overflow:hidden; }
+.checkin-result { margin-top:1rem; padding:1.2rem; border-radius:var(--r); text-align:center; font-weight:700; font-size:1.05rem; }
+.checkin-result.ok    { background:var(--green-bg); color:var(--green); border:1.5px solid rgba(21,128,61,.3); }
+.checkin-result.warn  { background:var(--orange-bg); color:var(--orange); border:1.5px solid rgba(194,116,10,.3); }
+.checkin-result.err   { background:var(--red-bg); color:var(--red); border:1.5px solid rgba(220,38,38,.3); }
+.checkin-result .sub { font-weight:400; font-size:.85rem; margin-top:.3rem; }
+
+/* ── MODAL ── */
+.modal-ov { position:fixed; inset:0; background:rgba(0,0,0,.5); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:8000; opacity:0; pointer-events:none; transition:opacity .2s; padding:1rem; }
+.modal-ov.show { opacity:1; pointer-events:all; }
+.modal { background:var(--surface); border-radius:var(--r); padding:1.5rem; max-width:480px; width:100%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+.modal img { max-width:100%; border-radius:var(--rs); }
+.modal-btns { display:flex; gap:.8rem; margin-top:1.2rem; justify-content:center; }
+
+/* ── LOGIN ── */
+.login-wrap { max-width:380px; margin:4rem auto; }
+
+/* ── TOAST ── */
+.toast { position:fixed; bottom:1.5rem; right:1.5rem; left:1.5rem; max-width:340px; margin:0 auto; padding:.85rem 1.3rem; border-radius:var(--rs); font-weight:600; font-size:.9rem; color:#fff; transform:translateY(120%); opacity:0; transition:all .3s cubic-bezier(.34,1.56,.64,1); z-index:9999; box-shadow:0 8px 28px rgba(0,0,0,.15); text-align:center; }
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.success { background:#15803d; }
+.toast.error   { background:var(--red); }
+.toast.info    { background:var(--navy); }
+
+.empty { text-align:center; padding:2.5rem 1rem; color:var(--text-3); }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+    <h1>🔒 ระบบหลังบ้าน — จัดการบัตรเข้างาน</h1>
+    <p>"12 ปีที่คิดถึง" งานเลี้ยงคืนสู่เหย้า ศิษย์เก่าดุริยางค์ พตพ.</p>
+</header>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+    <div class="card">
+        <div class="card-title">เข้าสู่ระบบทีมงาน</div>
+        <div class="card-sub">กรอกรหัสผ่านสำหรับทีมงานฝ่ายเหรัญญิก/ทะเบียน</div>
+        <input type="password" id="adminPass" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter') adminLogin()">
+        <button class="btn btn-navy" style="margin-top:1rem;width:100%" onclick="adminLogin()">เข้าสู่ระบบ</button>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appWrap" style="display:none">
+    <nav class="nav">
+        <div class="ntab active" onclick="switchTab('orders')">📋 คำสั่งซื้อ</div>
+        <div class="ntab" onclick="switchTab('checkin')">📷 เช็คอินหน้างาน</div>
+        <div class="ntab" onclick="adminLogout()">🚪 ออกจากระบบ</div>
+    </nav>
+
+    <main class="content">
+        <!-- ===== ORDERS TAB ===== -->
+        <section class="sec active" id="sec-orders">
+            <div class="card" style="padding:1rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+                <div>
+                    <div class="card-title" style="margin-bottom:.2rem">🛒 หน้าซื้อบัตร (สาธารณะ)</div>
+                    <div class="card-sub" id="salesStatusText">กำลังโหลด...</div>
+                </div>
+                <button class="btn btn-sm" id="salesToggleBtn" onclick="toggleSales()">...</button>
+            </div>
+            <div class="dash-grid">
+                <div class="sc dark"><div class="sc-num" id="sc-revenue">0</div><div class="sc-lbl">ยอดขายที่อนุมัติแล้ว (฿)</div></div>
+                <div class="sc"><div class="sc-num" id="sc-pending">0</div><div class="sc-lbl">รอตรวจสอบ</div></div>
+                <div class="sc gold"><div class="sc-num" id="sc-tickets">0</div><div class="sc-lbl">บัตรที่ขายได้ (ใบ)</div></div>
+                <div class="sc"><div class="sc-num" id="sc-checkedin">0</div><div class="sc-lbl">เช็คอินแล้ว / ทั้งหมด</div></div>
+            </div>
+            <div class="card" style="padding:1rem 1.2rem; margin-bottom:1.2rem">
+                <div style="font-size:.8rem;color:var(--text-2);display:flex;gap:1.2rem;flex-wrap:wrap">
+                    <span>🧑 ผู้ใหญ่: <b id="cnt-adult">0</b></span>
+                    <span>🧒 เด็ก: <b id="cnt-child">0</b></span>
+                    <span>👶 เด็กเล็ก: <b id="cnt-baby">0</b></span>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <button class="filter-btn active" data-f="all" onclick="setFilter('all')">ทั้งหมด</button>
+                <button class="filter-btn" data-f="pending" onclick="setFilter('pending')">⏳ รอตรวจสอบ</button>
+                <button class="filter-btn" data-f="approved" onclick="setFilter('approved')">✅ อนุมัติแล้ว</button>
+                <button class="filter-btn" data-f="rejected" onclick="setFilter('rejected')">❌ ไม่ผ่าน</button>
+                <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ/เบอร์/รหัส" oninput="renderOrders()">
+            </div>
+
+            <div id="ordersList"><div class="empty">⏳ กำลังโหลด...</div></div>
+        </section>
+
+        <!-- ===== CHECKIN TAB ===== -->
+        <section class="sec" id="sec-checkin">
+            <div class="card">
+                <div class="card-title">📷 สแกน QR เช็คอิน</div>
+                <div class="card-sub">เปิดกล้องเพื่อสแกน QR บนบัตรของผู้เข้าร่วมงาน</div>
+                <div id="qr-reader"></div>
+                <div style="margin-top:1rem;text-align:center">
+                    <button class="btn btn-outline btn-sm" id="scanToggleBtn" onclick="toggleScanner()">▶️ เริ่มสแกน</button>
+                </div>
+                <div id="checkinResult"></div>
+
+                <div class="card-title" style="margin-top:1.5rem">⌨️ หรือกรอกรหัสบัตรด้วยตนเอง</div>
+                <div style="display:flex;gap:.6rem;margin-top:.5rem">
+                    <input type="text" id="manualCode" placeholder="เช่น A7K2M9" style="text-transform:uppercase">
+                    <button class="btn btn-navy" onclick="manualCheckin()">ตรวจสอบ</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- SLIP MODAL -->
+<div class="modal-ov" id="slipModal" onclick="if(event.target===this) hideSlip()">
+    <div class="modal">
+        <img id="slipModalImg" src="">
+        <div class="modal-btns">
+            <button class="btn btn-outline" onclick="hideSlip()">ปิด</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+    firebase.initializeApp({
+        apiKey:            "AIzaSyAPJX88snVWdfxWpJjT5BM503Z5u_qqoWg",
+        authDomain:        "alumni-reunion-ptpt.firebaseapp.com",
+        projectId:         "alumni-reunion-ptpt",
+        storageBucket:     "alumni-reunion-ptpt.firebasestorage.app",
+        messagingSenderId: "33108782517",
+        appId:             "1:33108782517:web:e13caa0cf8f361e18e7dfc"
+    });
+    const db = firebase.firestore();
+    const ORDERS_COL  = 'ptpt_ticket_orders';
+    const TICKETS_COL = 'ptpt_tickets';
+    const CONFIG_COL  = 'ptpt_config';
+    const TYPE_LABEL = { adult: 'ผู้ใหญ่', child: 'เด็ก (≤140 ซม.)', baby: 'เด็กเล็ก/เบบี๋' };
+
+    const ADMIN_PASS = 'ptpt-ticket-2569';
+    let isAdmin = sessionStorage.getItem('ticketAdmin') === '1';
+
+    let orders = [];
+    let tickets = [];
+    let curFilter = 'all';
+
+    /* ── Login ── */
+    function adminLogin() {
+        const v = document.getElementById('adminPass').value;
+        if (v === ADMIN_PASS) {
+            isAdmin = true;
+            sessionStorage.setItem('ticketAdmin','1');
+            initApp();
+        } else {
+            toast('รหัสผ่านไม่ถูกต้อง','error');
+        }
+    }
+    function adminLogout() {
+        isAdmin = false;
+        sessionStorage.removeItem('ticketAdmin');
+        location.reload();
+    }
+    function initApp() {
+        document.getElementById('loginWrap').style.display = 'none';
+        document.getElementById('appWrap').style.display = 'block';
+        listenOrders();
+        listenTickets();
+        listenSalesConfig();
+    }
+    if (isAdmin) initApp();
+
+    /* ── เปิด/ปิดหน้าซื้อบัตรสำหรับสาธารณะ ── */
+    let salesOpen = false;
+    function listenSalesConfig() {
+        db.collection(CONFIG_COL).doc('ticket_sales').onSnapshot(doc => {
+            salesOpen = !!(doc.exists && doc.data().open);
+            renderSalesToggle();
+        }, err => console.error(err));
+    }
+    function renderSalesToggle() {
+        const btn = document.getElementById('salesToggleBtn');
+        const txt = document.getElementById('salesStatusText');
+        if (salesOpen) {
+            txt.innerHTML = '🟢 เปิดขายแล้ว — คนทั่วไปเห็นหน้าซื้อบัตรจริง';
+            btn.textContent = '⏸️ ปิดการขาย (กลับเป็น Coming Soon)';
+            btn.className = 'btn btn-outline btn-sm';
+        } else {
+            txt.innerHTML = '🟡 ยังไม่เปิดขาย — คนทั่วไปเห็นหน้า "เปิดขายเร็วๆ นี้"';
+            btn.textContent = '🚀 เปิดขายให้คนทั่วไป';
+            btn.className = 'btn btn-green btn-sm';
+        }
+    }
+    async function toggleSales() {
+        try {
+            await db.collection(CONFIG_COL).doc('ticket_sales').set({
+                open: !salesOpen,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            toast(!salesOpen ? '🚀 เปิดขายบัตรให้คนทั่วไปแล้ว' : '⏸️ ปิดหน้าซื้อบัตรชั่วคราวแล้ว');
+        } catch (err) { toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error'); }
+    }
+
+    /* ── Tabs ── */
+    function switchTab(tab) {
+        document.querySelectorAll('.ntab').forEach((t,i) => {
+            t.classList.toggle('active', (tab==='orders'&&i===0)||(tab==='checkin'&&i===1));
+        });
+        document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+        document.getElementById('sec-'+tab).classList.add('active');
+        if (tab !== 'checkin' && scannerRunning) toggleScanner();
+    }
+
+    /* ── Real-time listeners ── */
+    function listenOrders() {
+        db.collection(ORDERS_COL).orderBy('createdAt','desc').onSnapshot(snap => {
+            orders = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+            renderOrders();
+            renderStats();
+        }, err => console.error(err));
+    }
+    function listenTickets() {
+        db.collection(TICKETS_COL).onSnapshot(snap => {
+            tickets = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+            renderStats();
+        }, err => console.error(err));
+    }
+
+    function renderStats() {
+        const approved = orders.filter(o => o.status === 'approved');
+        const revenue  = approved.reduce((s,o) => s + (o.amount||0), 0);
+        const pending  = orders.filter(o => o.status === 'pending').length;
+        const paidTickets = tickets.filter(t => t.paid);
+        const checkedIn = paidTickets.filter(t => t.checkedIn).length;
+
+        sx('sc-revenue', revenue.toLocaleString());
+        sx('sc-pending', pending);
+        sx('sc-tickets', paidTickets.length);
+        sx('sc-checkedin', `${checkedIn} / ${paidTickets.length}`);
+        sx('cnt-adult', paidTickets.filter(t=>t.type==='adult').length);
+        sx('cnt-child', paidTickets.filter(t=>t.type==='child').length);
+        sx('cnt-baby',  paidTickets.filter(t=>t.type==='baby').length);
+    }
+
+    /* ── Filter & render orders ── */
+    function setFilter(f) {
+        curFilter = f;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.f===f));
+        renderOrders();
+    }
+
+    function renderOrders() {
+        const q = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
+        let fil = orders;
+        if (curFilter !== 'all') fil = fil.filter(o => o.status === curFilter);
+        if (q) fil = fil.filter(o =>
+            `${o.buyerName}${o.buyerPhone}${o.id}`.toLowerCase().includes(q)
+        );
+
+        const container = document.getElementById('ordersList');
+        if (!fil.length) {
+            container.innerHTML = `<div class="empty">ไม่มีรายการ</div>`;
+            return;
+        }
+        container.innerHTML = fil.map(o => {
+            const sc = o.id.slice(0,8).toUpperCase();
+            const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}) : '—';
+            const badge = o.status === 'approved'
+                ? '<span class="badge approved">✅ อนุมัติแล้ว</span>'
+                : o.status === 'rejected'
+                    ? '<span class="badge rejected">❌ ไม่ผ่าน</span>'
+                    : '<span class="badge pending">⏳ รอตรวจสอบ</span>';
+            const parts = [];
+            if (o.counts?.adult) parts.push(`ผู้ใหญ่ ${o.counts.adult}`);
+            if (o.counts?.child) parts.push(`เด็ก ${o.counts.child}`);
+            if (o.counts?.baby)  parts.push(`เด็กเล็ก ${o.counts.baby}`);
+            const slip = o.slipImage
+                ? `<img class="slip-thumb" src="${o.slipImage}" onclick="showSlip('${o.id}')">`
+                : `<span style="font-size:.78rem;color:var(--text-3)">ยังไม่แนบสลิป</span>`;
+
+            let actions = '';
+            if (o.status === 'pending') {
+                actions = `
+                    <button class="btn btn-green btn-sm" onclick="approveOrder('${o.id}')">✅ อนุมัติ</button>
+                    <button class="btn btn-red btn-sm" onclick="rejectOrder('${o.id}')">❌ ไม่ผ่าน</button>`;
+            } else if (o.status === 'approved') {
+                actions = `<button class="btn btn-outline btn-sm" onclick="revertOrder('${o.id}')">↩️ ยกเลิกการอนุมัติ</button>`;
+            } else if (o.status === 'rejected') {
+                actions = `<button class="btn btn-outline btn-sm" onclick="approveOrder('${o.id}')">✅ อนุมัติ</button>`;
+            }
+
+            return `<div class="order-item">
+                <div class="order-item-hd">
+                    <span class="oid">#${sc}</span>
+                    ${badge}
+                </div>
+                <div class="order-detail">
+                    <b>${esc(o.buyerName)}</b> · 📞 ${esc(o.buyerPhone)}<br>
+                    ${parts.join(' · ')} — รวม <b>${(o.amount||0).toLocaleString()} ฿</b><br>
+                    ${o.instrument ? `🎵 ${esc(o.instrument)}<br>` : ''}
+                    ${o.note ? `💬 ${esc(o.note)}<br>` : ''}
+                    🕐 ${date}
+                </div>
+                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+                    ${slip}
+                    <div class="order-actions">${actions}</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    /* ── Approve / Reject / Revert ── */
+    async function approveOrder(id) {
+        try {
+            await db.collection(ORDERS_COL).doc(id).update({ status:'approved', approvedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            const snap = await db.collection(TICKETS_COL).where('orderId','==',id).get();
+            const batch = db.batch();
+            snap.docs.forEach(d => batch.update(d.ref, { paid:true }));
+            await batch.commit();
+            toast('อนุมัติคำสั่งซื้อสำเร็จ');
+        } catch (err) { toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error'); }
+    }
+    async function rejectOrder(id) {
+        try {
+            await db.collection(ORDERS_COL).doc(id).update({ status:'rejected', rejectedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            toast('ตั้งสถานะ "ไม่ผ่าน" แล้ว','info');
+        } catch (err) { toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error'); }
+    }
+    async function revertOrder(id) {
+        try {
+            await db.collection(ORDERS_COL).doc(id).update({ status:'pending' });
+            const snap = await db.collection(TICKETS_COL).where('orderId','==',id).get();
+            const batch = db.batch();
+            snap.docs.forEach(d => batch.update(d.ref, { paid:false }));
+            await batch.commit();
+            toast('ยกเลิกการอนุมัติแล้ว','info');
+        } catch (err) { toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error'); }
+    }
+
+    /* ── Slip modal ── */
+    function showSlip(id) {
+        const o = orders.find(x => x.id === id);
+        if (!o?.slipImage) return;
+        document.getElementById('slipModalImg').src = o.slipImage;
+        document.getElementById('slipModal').classList.add('show');
+    }
+    function hideSlip() { document.getElementById('slipModal').classList.remove('show'); }
+
+    /* ── Check-in ── */
+    let html5QrCode = null;
+    let scannerRunning = false;
+
+    function toggleScanner() {
+        const btn = document.getElementById('scanToggleBtn');
+        if (!scannerRunning) {
+            html5QrCode = new Html5Qrcode("qr-reader");
+            const config = { fps: 10, qrbox: 240 };
+            const onStarted = () => {
+                scannerRunning = true;
+                btn.textContent = '⏹️ หยุดสแกน';
+            };
+            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, () => {})
+                .then(onStarted)
+                .catch(() => {
+                    // Fallback: device has no "environment" camera (e.g. only a webcam) —
+                    // try any available camera instead
+                    Html5Qrcode.getCameras().then(cams => {
+                        if (!cams || !cams.length) {
+                            toast('ไม่พบกล้องที่ใช้งานได้', 'error');
+                            return;
+                        }
+                        html5QrCode.start(cams[0].id, config, onScanSuccess, () => {})
+                            .then(onStarted)
+                            .catch(err => {
+                                toast('เปิดกล้องไม่สำเร็จ: ' + err + ' (ลองปิดแอปอื่นที่ใช้กล้องอยู่)', 'error');
+                            });
+                    }).catch(err => {
+                        toast('เปิดกล้องไม่สำเร็จ: ' + err, 'error');
+                    });
+                });
+        } else {
+            html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+                scannerRunning = false;
+                btn.textContent = '▶️ เริ่มสแกน';
+            });
+        }
+    }
+
+    let lastScan = '';
+    let lastScanTime = 0;
+    function onScanSuccess(decodedText) {
+        const now = Date.now();
+        if (decodedText === lastScan && now - lastScanTime < 3000) return;
+        lastScan = decodedText;
+        lastScanTime = now;
+        processCheckin(decodedText.trim().toUpperCase());
+    }
+
+    function manualCheckin() {
+        const code = gv('manualCode').toUpperCase();
+        if (!code) return;
+        processCheckin(code);
+    }
+
+    async function processCheckin(code) {
+        const result = document.getElementById('checkinResult');
+        result.innerHTML = `<div class="checkin-result warn">⏳ กำลังตรวจสอบ ${esc(code)}...</div>`;
+        try {
+            const ref = db.collection(TICKETS_COL).doc(code);
+            const doc = await ref.get();
+            if (!doc.exists) {
+                result.innerHTML = `<div class="checkin-result err">❌ ไม่พบบัตรรหัส ${esc(code)}</div>`;
+                return;
+            }
+            const t = doc.data();
+            if (!t.paid) {
+                result.innerHTML = `<div class="checkin-result err">❌ บัตรนี้ยังไม่ได้รับการอนุมัติการชำระเงิน<div class="sub">${esc(t.buyerName)} — ${esc(TYPE_LABEL[t.type]||t.type)} — ${esc(code)}</div></div>`;
+                return;
+            }
+            if (t.checkedIn) {
+                const time = t.checkedInAt?.toDate ? t.checkedInAt.toDate().toLocaleTimeString('th-TH') : '';
+                result.innerHTML = `<div class="checkin-result warn">⚠️ บัตรนี้เช็คอินไปแล้ว${time?` เมื่อ ${time}`:''}<div class="sub">${esc(t.buyerName)} — ${esc(TYPE_LABEL[t.type]||t.type)} — ${esc(code)}</div></div>`;
+                return;
+            }
+            await ref.update({ checkedIn:true, checkedInAt: firebase.firestore.FieldValue.serverTimestamp() });
+            result.innerHTML = `<div class="checkin-result ok">✅ เช็คอินสำเร็จ!<div class="sub">${esc(t.buyerName)} — ${esc(TYPE_LABEL[t.type]||t.type)} — ${esc(code)}</div></div>`;
+        } catch (err) {
+            result.innerHTML = `<div class="checkin-result err">เกิดข้อผิดพลาด: ${esc(err.code||err.message)}</div>`;
+        }
+    }
+
+    /* ── Helpers ── */
+    let tt;
+    function toast(msg, type='success') {
+        const el = document.getElementById('toast');
+        el.textContent = msg; el.className = `toast ${type} show`;
+        clearTimeout(tt); tt = setTimeout(()=>{ el.className='toast'; }, 4000);
+    }
+    function gv(id) { return document.getElementById(id)?.value.trim() || ''; }
+    function sx(id,v) { const e=document.getElementById(id); if(e) e.textContent=v; }
+    function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
