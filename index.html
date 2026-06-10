@@ -122,6 +122,15 @@
         textarea { resize:vertical; min-height:80px; }
         input:disabled, select:disabled, textarea:disabled { opacity:.5; cursor:not-allowed; }
 
+        /* ── INSTRUMENTS ── */
+        .inst-grid { display:flex; flex-wrap:wrap; gap:.55rem; }
+        .iopt input { display:none; }
+        .iopt label { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.1rem; padding:.6rem .5rem; min-width:62px; border:1.5px solid var(--border); border-radius:var(--rs); cursor:pointer; background:var(--surface); color:var(--text-2); font-size:.85rem; font-weight:700; transition:all .2s; text-align:center; user-select:none; }
+        .iopt label .ifull { font-size:.65rem; font-weight:400; color:var(--text-3); }
+        .iopt input:checked + label { border-color:var(--gold); background:var(--gold-bg); color:var(--gold-dk); box-shadow:0 2px 8px rgba(184,146,31,.18); }
+        .iopt input:checked + label .ifull { color:var(--gold); }
+        .iopt label:hover { border-color:var(--gold); }
+
         /* ── ZONE SELECTOR ── */
         .zone-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; }
         .zopt input { display:none; }
@@ -190,6 +199,12 @@
         .btn-green:hover { background:var(--green-bg); }
         .btn-red   { border:1.5px solid rgba(220,38,38,.35); color:rgba(220,38,38,.7); }
         .btn-red:hover { border-color:var(--red); color:var(--red); background:var(--red-bg); }
+        .btn-navy  { border:1.5px solid var(--navy); color:var(--navy); }
+        .btn-navy:hover { background:#eef1f6; }
+
+        /* ── ACCESS BAR ── */
+        .access-bar { display:flex; align-items:center; justify-content:flex-end; gap:.6rem; margin-bottom:1rem; }
+        .staff-badge { display:inline-flex; align-items:center; gap:.35rem; background:var(--green-bg); border:1px solid rgba(21,128,61,.25); color:var(--green); padding:.35rem .9rem; border-radius:20px; font-size:.78rem; font-weight:700; }
 
         .sumrow { display:flex; align-items:center; gap:.8rem; padding:.65rem 1rem; background:var(--gold-bg); border:1px solid var(--gold-bd); border-radius:var(--rs); margin-bottom:1rem; font-size:.86rem; flex-wrap:wrap; }
         .bdg { background:var(--gold); color:#fff; font-weight:800; padding:.1rem .6rem; border-radius:10px; font-size:.84rem; }
@@ -337,13 +352,31 @@
                     </div>
                     <div class="fg lockable" id="fg-batch">
                         <div class="lock-tag">🔒 ไม่จำเป็นต้องกรอก</div>
-                        <label class="lbl">รุ่นที่ / ปีที่จบ</label>
-                        <input type="text" id="f-batch" placeholder="เช่น รุ่นที่ 5 หรือ 2557">
+                        <label class="lbl">รุ่นที่</label>
+                        <select id="f-batch">
+                            <option value="">— เลือกรุ่น —</option>
+                        </select>
                     </div>
                     <div class="fg">
                         <label class="lbl">เบอร์โทรศัพท์ <span class="req">*</span></label>
                         <input type="tel" id="f-phone" placeholder="08x-xxx-xxxx" required>
                     </div>
+                </div>
+
+                <!-- INSTRUMENTS -->
+                <div class="sec-lbl">เครื่องดนตรีที่เคยเล่น (เลือกได้มากกว่า 1)</div>
+                <div class="inst-grid" id="instGrid">
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-Per"  value="Per"><label for="i-Per">Per<span class="ifull">เพอร์คัชชัน</span></label></div>
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-Pic"  value="Pic"><label for="i-Pic">Pic<span class="ifull">พิคโคโล</span></label></div>
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-Fl"   value="Fl"><label for="i-Fl">Fl<span class="ifull">ฟลุต</span></label></div>
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-Cl"   value="Cl"><label for="i-Cl">Cl<span class="ifull">คลาริเน็ต</span></label></div>
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-Tp"   value="Tp"><label for="i-Tp">Tp<span class="ifull">ทรัมเป็ต</span></label></div>
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-SA"   value="SA"><label for="i-SA">SA<span class="ifull">อัลโตแซกฯ</span></label></div>
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-Hn"   value="Hn"><label for="i-Hn">Hn<span class="ifull">ฮอร์น</span></label></div>
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-St"   value="St"><label for="i-St">St<span class="ifull">เทเนอร์แซกฯ</span></label></div>
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-Tb"   value="Tb"><label for="i-Tb">Tb<span class="ifull">ทรอมโบน</span></label></div>
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-Eup"  value="Eup"><label for="i-Eup">Eup<span class="ifull">ยูโฟเนียม</span></label></div>
+                    <div class="iopt"><input type="checkbox" name="inst" id="i-Tuba" value="Tuba"><label for="i-Tuba">Tuba<span class="ifull">ทูบา</span></label></div>
                 </div>
 
                 <!-- ZONE -->
@@ -407,14 +440,22 @@
 
     <!-- ===== DASHBOARD ===== -->
     <section class="sec" id="sec-dashboard">
-        <div class="dash-grid">
-            <div class="sc dark"><div class="sc-icon">👥</div><div class="sc-num" id="sc-total">0</div><div class="sc-lbl">ผู้ลงทะเบียนทั้งหมด</div></div>
-            <div class="sc gn">  <div class="sc-icon">✅</div><div class="sc-num" id="sc-attend">0</div><div class="sc-lbl">ยืนยันเข้าร่วม</div></div>
-            <div class="sc">     <div class="sc-icon">🌉</div><div class="sc-num" id="sc-thon">0</div><div class="sc-lbl">ฝั่งธนบุรี</div></div>
-            <div class="sc">     <div class="sc-icon">🏛️</div><div class="sc-num" id="sc-phra">0</div><div class="sc-lbl">ฝั่งพระนคร</div></div>
+        <div class="access-bar">
+            <button class="btn-ol btn-navy" id="staffLoginBtn" onclick="showStaffModal()">🔒 เข้าสู่ระบบทีมงาน</button>
+            <span class="staff-badge" id="staffLogoutBtn" style="display:none">
+                👤 โหมดทีมงาน
+                <button class="btn-ol btn-red" style="padding:.2rem .6rem" onclick="staffLogout()">ออกจากระบบ</button>
+            </span>
         </div>
 
-        <div class="zone-card">
+        <div class="dash-grid">
+            <div class="sc gn">  <div class="sc-icon">✅</div><div class="sc-num" id="sc-attend">0</div><div class="sc-lbl">เข้าร่วมงาน</div></div>
+            <div class="sc dark" id="sc-total-card"><div class="sc-icon">👥</div><div class="sc-num" id="sc-total">0</div><div class="sc-lbl">ผู้ลงทะเบียนทั้งหมด</div></div>
+            <div class="sc" id="sc-thon-card">     <div class="sc-icon">🌉</div><div class="sc-num" id="sc-thon">0</div><div class="sc-lbl">ฝั่งธนบุรี</div></div>
+            <div class="sc" id="sc-phra-card">     <div class="sc-icon">🏛️</div><div class="sc-num" id="sc-phra">0</div><div class="sc-lbl">ฝั่งพระนคร</div></div>
+        </div>
+
+        <div class="zone-card" id="zoneCard">
             <div class="zone-card-ttl">สัดส่วนโซนที่สะดวกเดินทาง (เฉพาะผู้ที่เข้าร่วม)</div>
             <div class="zbar-wrap">
                 <div class="zbseg thon"  id="zb-thon"  style="width:0%"></div>
@@ -431,12 +472,12 @@
 
         <div class="card" style="padding:1.5rem">
             <div class="card-hd" style="margin-bottom:1rem">
-                <div class="card-title">รายชื่อผู้ลงทะเบียนทั้งหมด</div>
+                <div class="card-title">รายชื่อผู้ร่วมงาน</div>
             </div>
             <div class="toolbar">
                 <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ, รุ่น, เบอร์..." oninput="renderDash()" autocomplete="off">
-                <button class="btn-ol btn-green" onclick="exportCSV()">⬇️ CSV</button>
-                <button class="btn-ol btn-red"   onclick="showModal()">🗑️ ล้าง</button>
+                <button class="btn-ol btn-green" id="csvBtn"   onclick="exportCSV()" style="display:none">⬇️ CSV</button>
+                <button class="btn-ol btn-red"   id="clearBtn" onclick="showModal()" style="display:none">🗑️ ล้าง</button>
             </div>
             <div class="sumrow">
                 <span>แสดง</span>
@@ -453,6 +494,20 @@
 
 <footer class="footer">♩ ♪ ♫ ♬ &nbsp; งานเลี้ยงคืนสู่เหย้า ศิษย์เก่าดุริยางค์ พตพ | "12 ปีที่คิดถึง"</footer>
 <div class="toast" id="toast"></div>
+
+<div class="modal-ov" id="staffModal">
+    <div class="modal">
+        <h3 style="color:var(--navy)">🔑 เข้าสู่ระบบทีมงาน</h3>
+        <p>กรอกรหัสผ่านทีมงาน เพื่อดูเบอร์โทรและดาวน์โหลดข้อมูล CSV</p>
+        <input type="password" id="staffPass" placeholder="รหัสผ่าน"
+               style="margin-top:1rem;width:100%;padding:.7rem .9rem;border:1.5px solid var(--border);border-radius:8px;font-family:'Sarabun',sans-serif;font-size:.95rem"
+               onkeydown="if(event.key==='Enter') staffLogin()">
+        <div class="modal-btns">
+            <button class="btn-danger" style="background:var(--navy)" onclick="staffLogin()">เข้าสู่ระบบ</button>
+            <button class="btn-cancel2" onclick="hideStaffModal()">ยกเลิก</button>
+        </div>
+    </div>
+</div>
 
 <div class="modal-ov" id="clearModal">
     <div class="modal">
@@ -479,6 +534,22 @@
     const db = firebase.firestore();
     const COL = 'alumni_reunion_ptpt';
     let all = [];
+
+    /* ── Staff access ── */
+    const STAFF_PASS = 'ptpt2569';
+    let isStaff = sessionStorage.getItem('staffMode') === '1';
+
+    /* ── Populate รุ่นที่ 1-70 (พ.ศ. 2500 เป็นต้นไป) ── */
+    (function initBatchOptions() {
+        const sel = document.getElementById('f-batch');
+        for (let n = 1; n <= 70; n++) {
+            const opt = document.createElement('option');
+            opt.value = `รุ่นที่ ${n}`;
+            opt.textContent = `รุ่นที่ ${n} (พ.ศ. ${2499 + n})`;
+            sel.appendChild(opt);
+        }
+    })();
+    applyStaffView();
 
     /* ── Real-time listener ── */
     db.collection(COL).orderBy('createdAt','asc').onSnapshot(
@@ -545,7 +616,39 @@
         });
         document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
         document.getElementById('sec-'+tab).classList.add('active');
-        if (tab==='dashboard') renderDash();
+        if (tab==='dashboard') { applyStaffView(); renderDash(); }
+    }
+
+    /* ── Staff login/logout ── */
+    function showStaffModal() { document.getElementById('staffModal').classList.add('show'); document.getElementById('staffPass').value=''; document.getElementById('staffPass').focus(); }
+    function hideStaffModal() { document.getElementById('staffModal').classList.remove('show'); }
+    function staffLogin() {
+        const v = document.getElementById('staffPass').value;
+        if (v === STAFF_PASS) {
+            isStaff = true;
+            sessionStorage.setItem('staffMode','1');
+            hideStaffModal();
+            toast('เข้าสู่ระบบทีมงานสำเร็จ');
+            applyStaffView(); renderDash();
+        } else {
+            toast('รหัสผ่านไม่ถูกต้อง','error');
+        }
+    }
+    function staffLogout() {
+        isStaff = false;
+        sessionStorage.removeItem('staffMode');
+        toast('ออกจากระบบทีมงานแล้ว','info');
+        applyStaffView(); renderDash();
+    }
+    function applyStaffView() {
+        document.getElementById('staffLoginBtn').style.display  = isStaff ? 'none' : 'inline-flex';
+        document.getElementById('staffLogoutBtn').style.display = isStaff ? 'inline-flex' : 'none';
+        document.getElementById('csvBtn').style.display   = isStaff ? 'inline-block' : 'none';
+        document.getElementById('clearBtn').style.display = isStaff ? 'inline-block' : 'none';
+        document.getElementById('zoneCard').style.display     = isStaff ? 'block' : 'none';
+        document.getElementById('sc-total-card').style.display = isStaff ? '' : 'none';
+        document.getElementById('sc-thon-card').style.display  = isStaff ? '' : 'none';
+        document.getElementById('sc-phra-card').style.display  = isStaff ? '' : 'none';
     }
 
     /* ── Submit ── */
@@ -585,9 +688,11 @@
         try {
             const zone = document.querySelector('input[name="zone"]:checked')?.value || '';
             const grp  = document.querySelector('input[name="grp"]:checked')?.value  || '';
+            const instruments = Array.from(document.querySelectorAll('input[name="inst"]:checked')).map(i => i.value);
             await db.collection(COL).add({
                 title, fname, lname, batch, phone: pc,
                 attendance: attend,
+                instruments,
                 zone: attend === 'yes' ? zone : '',
                 groupSize: attend === 'yes' ? grp : '',
                 note: attend === 'yes' ? note : '',
@@ -626,7 +731,8 @@
     /* ── Render dashboard ── */
     function renderDash() {
         const q = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
-        const fil = q ? all.filter(a => `${a.title}${a.fname}${a.lname}${a.batch}${a.phone}`.toLowerCase().includes(q)) : all;
+        let fil = q ? all.filter(a => `${a.title}${a.fname}${a.lname}${a.batch}${a.phone}`.toLowerCase().includes(q)) : all;
+        if (!isStaff) fil = fil.filter(a => a.attendance === 'yes');
 
         const attending = fil.filter(a => a.attendance === 'yes');
         const ppl    = attending.reduce((s,a) => s + parseInt(a.groupSize||1), 0);
@@ -641,7 +747,7 @@
         sx('sc-thon',   thon);
         sx('sc-phra',   phra);
         sx('listCount', fil.length);
-        sx('listSub',   `เข้าร่วม ${attTot} คน · คนทั้งหมด ${ppl} คน`);
+        sx('listSub',   isStaff ? `เข้าร่วม ${attTot} คน · คนทั้งหมด ${ppl} คน` : `ผู้เข้าร่วมงานทั้งหมด ${attTot} คน`);
         sx('leg-thon',  `ฝั่งธนบุรี (${thon})`);
         sx('leg-phra',  `ฝั่งพระนคร (${phra})`);
         sx('leg-other', `ยังไม่แน่ใจ (${other})`);
@@ -665,8 +771,20 @@
         }
         container.innerHTML = fil.map((a,i) => {
             const isAtt = a.attendance === 'yes';
-            const bTxt  = a.batch ? `รุ่น ${esc(a.batch)} · ` : '';
+            const bTxt  = a.batch ? `รุ่น ${esc(a.batch)}` : '';
+
+            if (!isStaff) {
+                return `<div class="att-item">
+                    <div class="att-num">${i+1}</div>
+                    <div class="att-main">
+                        <div class="att-name">${esc(a.title)}${esc(a.fname)} ${esc(a.lname)}</div>
+                        ${bTxt ? `<div class="att-det">${bTxt}</div>` : ''}
+                    </div>
+                </div>`;
+            }
+
             const nTxt  = a.note  ? `<br>💬 ${esc(a.note)}`  : '';
+            const instTxt = (a.instruments && a.instruments.length) ? ` · 🎵 ${a.instruments.map(esc).join(', ')}` : '';
             const zcls  = a.zone==='ฝั่งธนบุรี'?'tz-thon':a.zone==='ฝั่งพระนคร'?'tz-phra':'tz-other';
             const attendTag = isAtt
                 ? `<span class="tag" style="background:#f0fdf4;color:#15803d">✅ เข้าร่วม</span>`
@@ -678,7 +796,7 @@
                 <div class="att-num${isAtt?'':' no'}">${i+1}</div>
                 <div class="att-main">
                     <div class="att-name">${esc(a.title)}${esc(a.fname)} ${esc(a.lname)}</div>
-                    <div class="att-det">${bTxt}📞 ${fmtP(a.phone||'')}${nTxt}</div>
+                    <div class="att-det">${bTxt ? bTxt+' · ' : ''}📞 ${fmtP(a.phone||'')}${instTxt}${nTxt}</div>
                 </div>
                 <div class="att-tags">
                     ${attendTag}${extraTags}
@@ -689,18 +807,20 @@
     }
 
     function exportCSV() {
+        if (!isStaff) { toast('เฉพาะทีมงานเท่านั้นที่ดาวน์โหลดได้','error'); return; }
         if (!all.length) { toast('ยังไม่มีข้อมูล','error'); return; }
-        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','รุ่น','เบอร์โทร','สถานะเข้าร่วม','โซน','จำนวนคน','หมายเหตุ','วันที่ลงทะเบียน'];
-        const rows = all.map((a,i)=>[i+1,a.title,a.fname,a.lname,a.batch,fmtP(a.phone||''),a.attendance==='yes'?'เข้าร่วม':'ไม่เข้าร่วม',a.zone,a.groupSize,a.note,a.dateStr]);
+        const hdr = ['ลำดับ','คำนำหน้า','ชื่อ','นามสกุล','รุ่น','เบอร์โทร','สถานะเข้าร่วม','เครื่องดนตรี','โซน','จำนวนคน','หมายเหตุ','วันที่ลงทะเบียน'];
+        const rows = all.map((a,i)=>[i+1,a.title,a.fname,a.lname,a.batch,fmtP(a.phone||''),a.attendance==='yes'?'เข้าร่วม':'ไม่เข้าร่วม',(a.instruments||[]).join(', '),a.zone,a.groupSize,a.note,a.dateStr]);
         const csv = '﻿'+[hdr,...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
         const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
         const a = document.createElement('a'); a.href=url; a.download='รายชื่อผู้ร่วมงาน.csv'; a.click(); URL.revokeObjectURL(url);
         toast('ส่งออกไฟล์ CSV สำเร็จ');
     }
 
-    function showModal()  { document.getElementById('clearModal').classList.add('show'); }
+    function showModal()  { if (!isStaff) { toast('เฉพาะทีมงานเท่านั้น','error'); return; } document.getElementById('clearModal').classList.add('show'); }
     function hideModal()  { document.getElementById('clearModal').classList.remove('show'); }
     async function clearAll() {
+        if (!isStaff) { hideModal(); return; }
         hideModal();
         try {
             const snap = await db.collection(COL).get();
