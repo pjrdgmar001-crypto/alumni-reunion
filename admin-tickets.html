@@ -181,6 +181,10 @@ input:focus { outline:none; border-color:var(--navy); background:var(--surface);
                 <button class="filter-btn" data-f="rejected" onclick="setFilter('rejected')">❌ ไม่ผ่าน</button>
                 <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ/เบอร์/รหัส" oninput="renderOrders()">
             </div>
+            <div class="toolbar">
+                <button class="btn btn-outline btn-sm" onclick="exportOrdersCSV()">📥 Export คำสั่งซื้อ (CSV)</button>
+                <button class="btn btn-outline btn-sm" onclick="exportTicketsCSV()">📥 Export รายชื่อผู้ถือบัตร (CSV)</button>
+            </div>
 
             <div id="ordersList"><div class="empty">⏳ กำลังโหลด...</div></div>
         </section>
@@ -451,6 +455,11 @@ input:focus { outline:none; border-color:var(--navy); background:var(--surface);
     function toggleScanner() {
         const btn = document.getElementById('scanToggleBtn');
         if (!scannerRunning) {
+            const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            if (!isSecure) {
+                toast('ต้องเปิดผ่านลิงก์เว็บไซต์จริง (HTTPS) กล้องถึงจะใช้งานได้ กรุณาเปิดผ่าน https://pjrdgmar001-crypto.github.io/alumni-reunion/admin-tickets.html หรือใช้ช่อง "กรอกรหัสบัตรด้วยตนเอง" แทน', 'error');
+                return;
+            }
             html5QrCode = new Html5Qrcode("qr-reader");
             const config = { fps: 10, qrbox: 240 };
             const onStarted = () => {
@@ -526,6 +535,39 @@ input:focus { outline:none; border-color:var(--navy); background:var(--surface);
         } catch (err) {
             result.innerHTML = `<div class="checkin-result err">เกิดข้อผิดพลาด: ${esc(err.code||err.message)}</div>`;
         }
+    }
+
+    /* ── CSV Export ── */
+    const STATUS_LABEL = { pending:'รอตรวจสอบ', approved:'อนุมัติแล้ว', rejected:'ไม่ผ่าน' };
+    function downloadCSV(filename, hdr, rows) {
+        const csv = '﻿' + [hdr, ...rows].map(r => r.map(c => `"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+        const url = URL.createObjectURL(new Blob([csv], { type:'text/csv;charset=utf-8;' }));
+        const a = document.createElement('a');
+        a.href = url; a.download = filename; a.click();
+        URL.revokeObjectURL(url);
+        toast('ส่งออกไฟล์ CSV สำเร็จ');
+    }
+    function exportOrdersCSV() {
+        if (!orders.length) { toast('ยังไม่มีข้อมูล','error'); return; }
+        const hdr = ['รหัสคำสั่งซื้อ','ชื่อผู้สั่งซื้อ','เบอร์โทร','เครื่องดนตรี','ผู้ใหญ่','เด็ก','เด็กเล็ก','ยอดเงิน','สถานะ','หมายเหตุ','วันที่สั่งซื้อ'];
+        const rows = orders.map(o => {
+            const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}) : '';
+            return [
+                o.id.slice(0,8).toUpperCase(), o.buyerName, o.buyerPhone, o.instrument||'',
+                o.counts?.adult||0, o.counts?.child||0, o.counts?.baby||0,
+                o.amount||0, STATUS_LABEL[o.status]||o.status, o.note||'', date
+            ];
+        });
+        downloadCSV('คำสั่งซื้อบัตร.csv', hdr, rows);
+    }
+    function exportTicketsCSV() {
+        if (!tickets.length) { toast('ยังไม่มีข้อมูล','error'); return; }
+        const hdr = ['รหัสบัตร','ประเภทบัตร','ชื่อผู้ถือบัตร','ชื่อผู้สั่งซื้อ','เบอร์โทร','ชำระเงินแล้ว','เช็คอินแล้ว'];
+        const rows = tickets.map(t => [
+            t.code, TYPE_LABEL[t.type]||t.type, t.holderName||t.buyerName, t.buyerName, t.buyerPhone,
+            t.paid ? 'ใช่' : 'ไม่', t.checkedIn ? 'ใช่' : 'ไม่'
+        ]);
+        downloadCSV('รายชื่อผู้ถือบัตร.csv', hdr, rows);
     }
 
     /* ── Helpers ── */

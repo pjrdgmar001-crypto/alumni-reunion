@@ -339,6 +339,15 @@ textarea { resize:vertical; min-height:70px; }
                     </div>
                 </div>
 
+                <div id="extraHoldersSection" style="display:none">
+                    <div class="card-hd" style="margin-top:1.6rem">
+                        <div class="card-title">👥 ข้อมูลผู้ถือบัตรเพิ่มเติม</div>
+                        <div class="card-sub">กรอกชื่อ-นามสกุลของผู้ถือบัตรแต่ละใบ (เช่น แฟน/ลูก) เพื่อพิมพ์บนบัตร</div>
+                    </div>
+                    <div id="extraAdultNames"></div>
+                    <div id="extraChildNames"></div>
+                </div>
+
                 <div class="fg full" style="margin-top:1rem">
                     <label class="lbl">หมายเหตุ (ไม่บังคับ)</label>
                     <textarea id="f-note" placeholder="เช่น ชื่อผู้ร่วมโต๊ะ, ความต้องการพิเศษ..."></textarea>
@@ -524,10 +533,47 @@ textarea { resize:vertical; min-height:70px; }
         qty[type] = Math.max(0, Math.min(99, qty[type] + delta));
         document.getElementById('q-'+type).textContent = qty[type];
         updateTotal();
+        if (type === 'adult' || type === 'child') renderExtraHolders();
     }
     function updateTotal() {
         const total = qty.adult*PRICES.adult + qty.child*PRICES.child + qty.baby*PRICES.baby;
         document.getElementById('totalAmount').textContent = total.toLocaleString() + ' ฿';
+    }
+
+    /* ── Extra ticket-holder name fields (2nd ticket onward of adult/child) ── */
+    let extraNames = { adult: [], child: [] };
+    function renderExtraHolders() {
+        extraNames.adult.length = Math.max(0, qty.adult - 1);
+        extraNames.child.length = Math.max(0, qty.child - 1);
+
+        let adultHtml = '';
+        for (let i = 2; i <= qty.adult; i++) {
+            const v = extraNames.adult[i-2] || '';
+            adultHtml += `<div class="fg full" style="margin-bottom:.7rem">
+                <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
+                <input type="text" class="extra-name-input" data-type="adult" data-idx="${i-2}" placeholder="ชื่อ นามสกุล (เช่น แฟน/ลูก)" value="${esc(v)}">
+            </div>`;
+        }
+        document.getElementById('extraAdultNames').innerHTML = adultHtml;
+
+        let childHtml = '';
+        for (let i = 2; i <= qty.child; i++) {
+            const v = extraNames.child[i-2] || '';
+            childHtml += `<div class="fg full" style="margin-bottom:.7rem">
+                <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรเด็ก ใบที่ ${i} <span class="req">*</span></label>
+                <input type="text" class="extra-name-input" data-type="child" data-idx="${i-2}" placeholder="ชื่อ นามสกุล" value="${esc(v)}">
+            </div>`;
+        }
+        document.getElementById('extraChildNames').innerHTML = childHtml;
+
+        const section = document.getElementById('extraHoldersSection');
+        section.style.display = (adultHtml || childHtml) ? '' : 'none';
+
+        section.querySelectorAll('.extra-name-input').forEach(inp => {
+            inp.addEventListener('input', e => {
+                extraNames[e.target.dataset.type][+e.target.dataset.idx] = e.target.value;
+            });
+        });
     }
 
     /* ── Generate unique ticket code ── */
@@ -565,6 +611,20 @@ textarea { resize:vertical; min-height:70px; }
         if (pc.length < 9) { toast('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง','error'); return; }
         if (total < 1) { toast('กรุณาเลือกจำนวนบัตรอย่างน้อย 1 ใบ','error'); return; }
 
+        // ตรวจสอบชื่อผู้ถือบัตรเพิ่มเติม (ใบที่ 2 เป็นต้นไป)
+        const adultNames = [name];
+        for (let i = 0; i < qty.adult - 1; i++) {
+            const n = (extraNames.adult[i] || '').trim();
+            if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
+            adultNames.push(n);
+        }
+        const childNames = [name];
+        for (let i = 0; i < qty.child - 1; i++) {
+            const n = (extraNames.child[i] || '').trim();
+            if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรเด็ก ใบที่ ${i+2}`,'error'); return; }
+            childNames.push(n);
+        }
+
         const amount = qty.adult*PRICES.adult + qty.child*PRICES.child + qty.baby*PRICES.baby;
         const btn = document.getElementById('submitOrderBtn');
         btn.disabled = true;
@@ -576,6 +636,7 @@ textarea { resize:vertical; min-height:70px; }
                 buyerPhone: pc,
                 instrument,
                 counts: { ...qty },
+                holderNames: { adult: adultNames, child: childNames },
                 amount,
                 note,
                 status: 'pending',
@@ -586,13 +647,15 @@ textarea { resize:vertical; min-height:70px; }
             // Create individual ticket docs
             const batch = db.batch();
             const typeMap = { adult: 'A', child: 'C', baby: 'B' };
+            const namesMap = { adult: adultNames, child: childNames, baby: [] };
             for (const type of ['adult','child','baby']) {
                 for (let i = 0; i < qty[type]; i++) {
                     const code = genCode(typeMap[type]);
                     const tRef = db.collection(TICKETS_COL).doc(code);
+                    const holderName = namesMap[type][i] || name;
                     batch.set(tRef, {
                         code, orderId: orderRef.id, type,
-                        buyerName: name, buyerPhone: pc,
+                        buyerName: name, buyerPhone: pc, holderName,
                         paid: false, checkedIn: false, checkedInAt: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
@@ -758,9 +821,9 @@ textarea { resize:vertical; min-height:70px; }
             html += `<div class="tkt-row">
                 <div>
                     <div class="tn">🎫 ${esc(TYPE_LABEL[t.type])}${checkedTag}</div>
-                    <div class="tc">${esc(t.code)}</div>
+                    <div class="tc">${esc(t.code)} · ${esc(t.holderName || t.buyerName)}</div>
                 </div>
-                <button class="btn-dl" onclick="downloadTicket('${esc(t.code)}','${esc(t.type)}','${esc(t.buyerName)}')">⬇️ ดาวน์โหลด</button>
+                <button class="btn-dl" onclick="downloadTicket('${esc(t.code)}','${esc(t.type)}','${esc(t.holderName || t.buyerName)}')">⬇️ ดาวน์โหลด</button>
             </div>`;
         });
         html += `</div>`;
