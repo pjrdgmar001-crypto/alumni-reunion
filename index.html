@@ -512,8 +512,10 @@
             </div>
             <div class="toolbar">
                 <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ, รุ่น, เบอร์..." oninput="renderDash()" autocomplete="off">
-                <button class="btn-ol btn-green" id="csvBtn"   onclick="exportCSV()" style="display:none">⬇️ CSV</button>
-                <button class="btn-ol btn-red"   id="clearBtn" onclick="showModal()" style="display:none">🗑️ ล้าง</button>
+                <button class="btn-ol btn-green" id="csvBtn"    onclick="exportCSV()" style="display:none">⬇️ CSV</button>
+                <input type="file" id="csvUpload" accept=".csv" style="display:none" onchange="handleCSVUpload(event)">
+                <button class="btn-ol btn-navy"  id="uploadBtn" onclick="document.getElementById('csvUpload').click()" style="display:none">📤 อัปโหลด CSV</button>
+                <button class="btn-ol btn-red"   id="clearBtn"  onclick="showModal()" style="display:none">🗑️ ล้าง</button>
             </div>
             <div class="sumrow">
                 <span>แสดง</span>
@@ -691,8 +693,9 @@
     function applyStaffView() {
         document.getElementById('staffLoginBtn').style.display  = isStaff ? 'none' : 'inline-flex';
         document.getElementById('staffLogoutBtn').style.display = isStaff ? 'inline-flex' : 'none';
-        document.getElementById('csvBtn').style.display   = isStaff ? 'inline-block' : 'none';
-        document.getElementById('clearBtn').style.display = isStaff ? 'inline-block' : 'none';
+        document.getElementById('csvBtn').style.display    = isStaff ? 'inline-block' : 'none';
+        document.getElementById('uploadBtn').style.display = isStaff ? 'inline-block' : 'none';
+        document.getElementById('clearBtn').style.display  = isStaff ? 'inline-block' : 'none';
         document.getElementById('zoneCard').style.display     = isStaff ? 'block' : 'none';
         document.getElementById('sc-total-card').style.display = isStaff ? '' : 'none';
         document.getElementById('sc-thon-card').style.display  = isStaff ? '' : 'none';
@@ -916,6 +919,75 @@
         const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
         const a = document.createElement('a'); a.href=url; a.download='รายชื่อผู้ร่วมงาน.csv'; a.click(); URL.revokeObjectURL(url);
         toast('ส่งออกไฟล์ CSV สำเร็จ');
+    }
+
+    /* ── Parse CSV text into rows of cells (handles quotes, BOM) ── */
+    function parseCSV(text) {
+        text = text.replace(/^﻿/, '');
+        const rows = [];
+        let row = [], field = '', inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+            const c = text[i], next = text[i+1];
+            if (inQuotes) {
+                if (c === '"' && next === '"') { field += '"'; i++; }
+                else if (c === '"') { inQuotes = false; }
+                else { field += c; }
+            } else {
+                if (c === '"') inQuotes = true;
+                else if (c === ',') { row.push(field); field = ''; }
+                else if (c === '\r') { /* skip */ }
+                else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+                else field += c;
+            }
+        }
+        if (field.length || row.length) { row.push(field); rows.push(row); }
+        return rows.filter(r => !(r.length === 1 && r[0] === ''));
+    }
+
+    /* ── Upload CSV: update healthCheck (ตรวจสุขภาพ) by matching เบอร์โทร ── */
+    function handleCSVUpload(e) {
+        if (!isStaff) { toast('เฉพาะทีมงานเท่านั้น','error'); e.target.value=''; return; }
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            try {
+                const rows = parseCSV(ev.target.result);
+                if (rows.length < 2) { toast('ไฟล์ CSV ไม่มีข้อมูล','error'); return; }
+
+                const hdr = rows[0].map(h => h.trim());
+                const phoneIdx  = hdr.indexOf('เบอร์โทร');
+                const healthIdx = hdr.indexOf('ตรวจสุขภาพ');
+                if (phoneIdx === -1 || healthIdx === -1) {
+                    toast('ไฟล์ต้องมีคอลัมน์ "เบอร์โทร" และ "ตรวจสุขภาพ"','error'); return;
+                }
+
+                const batch = db.batch();
+                let updated = 0, notFound = 0;
+                for (let i = 1; i < rows.length; i++) {
+                    const r = rows[i];
+                    if (!r[phoneIdx]) continue;
+                    const phone = r[phoneIdx].replace(/\D/g,'');
+                    const match = all.find(a => (a.phone||'').replace(/\D/g,'') === phone);
+                    if (!match) { notFound++; continue; }
+                    const val = (r[healthIdx]||'').trim();
+                    const healthCheck = /ต้องการ|yes|y|1|true|ใช่|✓|✔/i.test(val);
+                    batch.update(db.collection(COL).doc(match.id), { healthCheck });
+                    updated++;
+                }
+
+                if (updated === 0) { toast('ไม่พบข้อมูลที่ตรงกัน (ตรวจสอบคอลัมน์เบอร์โทร)','error'); return; }
+                await batch.commit();
+                toast(`อัปเดตข้อมูลตรวจสุขภาพสำเร็จ ${updated} รายการ${notFound ? ` (ไม่พบ ${notFound} รายการ)` : ''}`);
+            } catch (err) {
+                console.error('CSV upload error:', err);
+                toast('เกิดข้อผิดพลาดในการอ่านไฟล์ CSV','error');
+            } finally {
+                e.target.value = '';
+            }
+        };
+        reader.readAsText(file, 'utf-8');
     }
 
     function showModal()  { if (!isStaff) { toast('เฉพาะทีมงานเท่านั้น','error'); return; } document.getElementById('clearModal').classList.add('show'); }
