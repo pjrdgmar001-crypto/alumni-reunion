@@ -346,6 +346,7 @@ textarea { resize:vertical; min-height:70px; }
                     </div>
                     <div id="extraAdultNames"></div>
                     <div id="extraChildNames"></div>
+                    <div id="extraBabyNames"></div>
                 </div>
 
                 <div class="fg full" style="margin-top:1rem">
@@ -533,18 +534,21 @@ textarea { resize:vertical; min-height:70px; }
         qty[type] = Math.max(0, Math.min(99, qty[type] + delta));
         document.getElementById('q-'+type).textContent = qty[type];
         updateTotal();
-        if (type === 'adult' || type === 'child') renderExtraHolders();
+        renderExtraHolders();
     }
     function updateTotal() {
         const total = qty.adult*PRICES.adult + qty.child*PRICES.child + qty.baby*PRICES.baby;
         document.getElementById('totalAmount').textContent = total.toLocaleString() + ' ฿';
     }
 
-    /* ── Extra ticket-holder name fields (2nd ticket onward of adult/child) ── */
-    let extraNames = { adult: [], child: [] };
+    /* ── Extra ticket-holder name fields ──
+       ผู้ใหญ่: ใบที่ 1 = ผู้สั่งซื้อ, ใบที่ 2 เป็นต้นไป = กรอกชื่อเพิ่ม
+       เด็ก/เด็กเล็ก: กรอกชื่อทุกใบ (ไม่ใช้ชื่อผู้สั่งซื้อแทน) */
+    let extraNames = { adult: [], child: [], baby: [] };
     function renderExtraHolders() {
         extraNames.adult.length = Math.max(0, qty.adult - 1);
-        extraNames.child.length = Math.max(0, qty.child - 1);
+        extraNames.child.length = qty.child;
+        extraNames.baby.length = qty.baby;
 
         let adultHtml = '';
         for (let i = 2; i <= qty.adult; i++) {
@@ -557,17 +561,27 @@ textarea { resize:vertical; min-height:70px; }
         document.getElementById('extraAdultNames').innerHTML = adultHtml;
 
         let childHtml = '';
-        for (let i = 2; i <= qty.child; i++) {
-            const v = extraNames.child[i-2] || '';
+        for (let i = 1; i <= qty.child; i++) {
+            const v = extraNames.child[i-1] || '';
             childHtml += `<div class="fg full" style="margin-bottom:.7rem">
                 <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรเด็ก ใบที่ ${i} <span class="req">*</span></label>
-                <input type="text" class="extra-name-input" data-type="child" data-idx="${i-2}" placeholder="ชื่อ นามสกุล" value="${esc(v)}">
+                <input type="text" class="extra-name-input" data-type="child" data-idx="${i-1}" placeholder="ชื่อ นามสกุล" value="${esc(v)}">
             </div>`;
         }
         document.getElementById('extraChildNames').innerHTML = childHtml;
 
+        let babyHtml = '';
+        for (let i = 1; i <= qty.baby; i++) {
+            const v = extraNames.baby[i-1] || '';
+            babyHtml += `<div class="fg full" style="margin-bottom:.7rem">
+                <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i} <span class="req">*</span></label>
+                <input type="text" class="extra-name-input" data-type="baby" data-idx="${i-1}" placeholder="ชื่อ นามสกุล" value="${esc(v)}">
+            </div>`;
+        }
+        document.getElementById('extraBabyNames').innerHTML = babyHtml;
+
         const section = document.getElementById('extraHoldersSection');
-        section.style.display = (adultHtml || childHtml) ? '' : 'none';
+        section.style.display = (adultHtml || childHtml || babyHtml) ? '' : 'none';
 
         section.querySelectorAll('.extra-name-input').forEach(inp => {
             inp.addEventListener('input', e => {
@@ -611,18 +625,26 @@ textarea { resize:vertical; min-height:70px; }
         if (pc.length < 9) { toast('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง','error'); return; }
         if (total < 1) { toast('กรุณาเลือกจำนวนบัตรอย่างน้อย 1 ใบ','error'); return; }
 
-        // ตรวจสอบชื่อผู้ถือบัตรเพิ่มเติม (ใบที่ 2 เป็นต้นไป)
+        // ตรวจสอบชื่อผู้ถือบัตรเพิ่มเติม
+        // ผู้ใหญ่ ใบที่ 1 = ผู้สั่งซื้อ, ใบที่ 2 เป็นต้นไป = กรอกชื่อเพิ่ม
         const adultNames = [name];
         for (let i = 0; i < qty.adult - 1; i++) {
             const n = (extraNames.adult[i] || '').trim();
             if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
             adultNames.push(n);
         }
-        const childNames = [name];
-        for (let i = 0; i < qty.child - 1; i++) {
+        // เด็ก / เด็กเล็ก กรอกชื่อทุกใบ
+        const childNames = [];
+        for (let i = 0; i < qty.child; i++) {
             const n = (extraNames.child[i] || '').trim();
-            if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรเด็ก ใบที่ ${i+2}`,'error'); return; }
+            if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรเด็ก ใบที่ ${i+1}`,'error'); return; }
             childNames.push(n);
+        }
+        const babyNames = [];
+        for (let i = 0; i < qty.baby; i++) {
+            const n = (extraNames.baby[i] || '').trim();
+            if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i+1}`,'error'); return; }
+            babyNames.push(n);
         }
 
         const amount = qty.adult*PRICES.adult + qty.child*PRICES.child + qty.baby*PRICES.baby;
@@ -636,7 +658,7 @@ textarea { resize:vertical; min-height:70px; }
                 buyerPhone: pc,
                 instrument,
                 counts: { ...qty },
-                holderNames: { adult: adultNames, child: childNames },
+                holderNames: { adult: adultNames, child: childNames, baby: babyNames },
                 amount,
                 note,
                 status: 'pending',
@@ -647,7 +669,7 @@ textarea { resize:vertical; min-height:70px; }
             // Create individual ticket docs
             const batch = db.batch();
             const typeMap = { adult: 'A', child: 'C', baby: 'B' };
-            const namesMap = { adult: adultNames, child: childNames, baby: [] };
+            const namesMap = { adult: adultNames, child: childNames, baby: babyNames };
             for (const type of ['adult','child','baby']) {
                 for (let i = 0; i < qty[type]; i++) {
                     const code = genCode(typeMap[type]);
