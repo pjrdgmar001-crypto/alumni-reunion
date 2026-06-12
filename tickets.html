@@ -189,6 +189,7 @@ textarea { resize:vertical; min-height:70px; }
 .tkt-type-child { background:#b8921f; color:#fff; }
 .tkt-type-baby  { background:#15803d; color:#fff; }
 .tkt-code { font-size:16px; font-family:monospace; letter-spacing:.2em; color:rgba(255,255,255,.55); margin-top:10px; }
+.tkt-meta { font-size:15px; color:rgba(255,255,255,.65); margin-top:6px; }
 .tkt-qr { background:#fff; padding:10px; border-radius:10px; display:flex; flex-direction:column; align-items:center; gap:4px; }
 .tkt-qr #tt-qr-canvas { width:120px; height:120px; display:block; }
 .tkt-qr #tt-qr-canvas img, .tkt-qr #tt-qr-canvas canvas { width:120px; height:120px; display:block; }
@@ -282,6 +283,10 @@ textarea { resize:vertical; min-height:70px; }
                     <div class="fg">
                         <label class="lbl">เบอร์โทรศัพท์ <span class="req">*</span></label>
                         <input type="tel" id="f-phone" placeholder="08x-xxx-xxxx">
+                    </div>
+                    <div class="fg">
+                        <label class="lbl">รุ่น <span class="req">*</span></label>
+                        <input type="text" id="f-gen" placeholder="เช่น 12">
                     </div>
                 </div>
 
@@ -446,6 +451,7 @@ textarea { resize:vertical; min-height:70px; }
                     ผู้ถือบัตร
                     <div class="tkt-name" id="tt-name">—</div>
                     <span class="tkt-type-pill" id="tt-type-pill">—</span>
+                    <div class="tkt-meta" id="tt-meta"></div>
                     <div class="tkt-code" id="tt-code">—</div>
                 </div>
                 <div class="tkt-qr">
@@ -476,6 +482,11 @@ textarea { resize:vertical; min-height:70px; }
     const PRICES = { adult: 990, child: 250, baby: 0 };
     const TYPE_LABEL = { adult: 'ผู้ใหญ่', child: 'เด็ก (5-15 ปี)', baby: 'เด็กเล็ก/เบบี๋' };
     const TYPE_PILL  = { adult: 'ผู้ใหญ่', child: 'เด็ก', baby: 'เด็กเล็ก' };
+    const INSTRUMENT_LABEL = {
+        Per:'เพอร์คัชชัน', Pic:'พิคโคโล', Fl:'ฟลุต', Cl:'คลาริเน็ต', Tp:'ทรัมเป็ต',
+        SA:'อัลโตแซกฯ', Hn:'ฮอร์น', St:'เทเนอร์แซกฯ', Tb:'ทรอมโบน', Eup:'ยูโฟเนียม',
+        Baritone:'บาริโทน', Tuba:'ทูบา', 'Drum Major':'ดรัมเมเจอร์', 'ไม่ได้เล่นเครื่องดนตรี':'ไม่ได้เล่นเครื่องดนตรี'
+    };
 
     let qty = { adult: 0, child: 0, baby: 0 };
     let currentSlipDataUrl = null;
@@ -617,6 +628,7 @@ textarea { resize:vertical; min-height:70px; }
     async function submitOrder() {
         const name  = gv('f-name');
         const phone = gv('f-phone');
+        const generation = gv('f-gen');
         const note  = gv('f-note');
         const instEl = document.querySelector('input[name="inst"]:checked');
         const instrument = instEl ? instEl.value : '';
@@ -625,6 +637,7 @@ textarea { resize:vertical; min-height:70px; }
         if (!name) { toast('กรุณากรอกชื่อ-นามสกุล','error'); return; }
         const pc = phone.replace(/\D/g,'');
         if (pc.length < 9) { toast('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง','error'); return; }
+        if (!generation) { toast('กรุณากรอกรุ่น','error'); return; }
         if (total < 1) { toast('กรุณาเลือกจำนวนบัตรอย่างน้อย 1 ใบ','error'); return; }
 
         // ตรวจสอบชื่อผู้ถือบัตรเพิ่มเติม
@@ -658,6 +671,7 @@ textarea { resize:vertical; min-height:70px; }
             const orderRef = await db.collection(ORDERS_COL).add({
                 buyerName: name,
                 buyerPhone: pc,
+                generation,
                 instrument,
                 counts: { ...qty },
                 holderNames: { adult: adultNames, child: childNames, baby: babyNames },
@@ -680,6 +694,7 @@ textarea { resize:vertical; min-height:70px; }
                     batch.set(tRef, {
                         code, orderId: orderRef.id, type,
                         buyerName: name, buyerPhone: pc, holderName,
+                        generation, instrument,
                         paid: false, checkedIn: false, checkedInAt: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
@@ -760,6 +775,7 @@ textarea { resize:vertical; min-height:70px; }
         updateTotal();
         document.getElementById('f-name').value = '';
         document.getElementById('f-phone').value = '';
+        document.getElementById('f-gen').value = '';
         document.getElementById('f-note').value = '';
         currentSlipDataUrl = null;
         currentOrderId = null;
@@ -847,7 +863,7 @@ textarea { resize:vertical; min-height:70px; }
                     <div class="tn">🎫 ${esc(TYPE_LABEL[t.type])}${checkedTag}</div>
                     <div class="tc">${esc(t.code)} · ${esc(t.holderName || t.buyerName)}</div>
                 </div>
-                <button class="btn-dl" onclick="downloadTicket('${esc(t.code)}','${esc(t.type)}','${esc(t.holderName || t.buyerName)}')">⬇️ ดาวน์โหลด</button>
+                <button class="btn-dl" onclick="downloadTicket('${esc(t.code)}','${esc(t.type)}','${esc(t.holderName || t.buyerName)}','${esc(t.generation||'')}','${esc(t.instrument||'')}')">⬇️ ดาวน์โหลด</button>
             </div>`;
         });
         html += `</div>`;
@@ -855,7 +871,7 @@ textarea { resize:vertical; min-height:70px; }
     }
 
     /* ── Generate & download ticket image ── */
-    async function downloadTicket(code, type, name) {
+    async function downloadTicket(code, type, name, generation, instrument) {
         toast('กำลังสร้างบัตร...', 'info');
         try {
             const qrEl = document.getElementById('tt-qr-canvas');
@@ -867,6 +883,11 @@ textarea { resize:vertical; min-height:70px; }
             const pill = document.getElementById('tt-type-pill');
             pill.textContent = TYPE_PILL[type] || type;
             pill.className = 'tkt-type-pill tkt-type-' + type;
+
+            const metaParts = [];
+            if (generation) metaParts.push(`รุ่น ${generation}`);
+            if (instrument) metaParts.push(INSTRUMENT_LABEL[instrument] || instrument);
+            document.getElementById('tt-meta').textContent = metaParts.join(' · ');
 
             // give the QR library a tick to render its canvas/image
             await new Promise(res => setTimeout(res, 150));

@@ -96,6 +96,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
 .order-actions { display:flex; gap:.6rem; flex-wrap:wrap; }
 .badge { display:inline-flex; align-items:center; gap:.3rem; padding:.25rem .8rem; border-radius:20px; font-size:.78rem; font-weight:700; }
 .badge.pending  { background:var(--orange-bg); color:var(--orange); }
+.badge.verified { background:var(--gold-bg); color:var(--gold-dk); }
 .badge.approved { background:var(--green-bg); color:var(--green); }
 .badge.rejected { background:var(--red-bg); color:var(--red); }
 .slip-thumb { max-width:120px; max-height:90px; border-radius:6px; border:1px solid var(--border); cursor:pointer; }
@@ -152,6 +153,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         <div class="ntab" onclick="switchTab('checkin')">📷 เช็คอินหน้างาน</div>
         <div class="ntab" onclick="adminLogout()">🚪 ออกจากระบบ</div>
     </nav>
+    <div id="roleBadge" style="text-align:center;padding:.4rem;font-size:.78rem;font-weight:700"></div>
 
     <main class="content">
         <!-- ===== ORDERS TAB ===== -->
@@ -180,6 +182,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             <div class="toolbar">
                 <button class="filter-btn active" data-f="all" onclick="setFilter('all')">ทั้งหมด</button>
                 <button class="filter-btn" data-f="pending" onclick="setFilter('pending')">⏳ รอตรวจสอบ</button>
+                <button class="filter-btn" data-f="verified" onclick="setFilter('verified')">🟡 รอประธานอนุมัติ</button>
                 <button class="filter-btn" data-f="approved" onclick="setFilter('approved')">✅ อนุมัติแล้ว</button>
                 <button class="filter-btn" data-f="rejected" onclick="setFilter('rejected')">❌ ไม่ผ่าน</button>
                 <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ/เบอร์/รหัส" oninput="renderOrders()">
@@ -239,6 +242,10 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             </div>
         </div>
         <div style="margin-top:.8rem">
+            <label class="lbl">รุ่น</label>
+            <input type="text" id="ed-generation">
+        </div>
+        <div style="margin-top:.8rem">
             <label class="lbl">เครื่องดนตรี</label>
             <select id="ed-instrument"></select>
         </div>
@@ -284,8 +291,10 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     const CONFIG_COL  = 'ptpt_config';
     const TYPE_LABEL = { adult: 'ผู้ใหญ่', child: 'เด็ก (5-15 ปี)', baby: 'เด็กเล็ก/เบบี๋' };
 
-    const ADMIN_PASS = 'ptpt-ticket-2569';
-    let isAdmin = sessionStorage.getItem('ticketAdmin') === '1';
+    const ADMIN_PASS    = 'ptpt-ticket-2569';
+    const CHAIRMAN_PASS = 'ptpt-president-2569';
+    let isAdmin    = sessionStorage.getItem('ticketAdmin') === '1';
+    let isChairman = sessionStorage.getItem('ticketChairman') === '1';
 
     let orders = [];
     let tickets = [];
@@ -294,9 +303,17 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     /* ── Login ── */
     function adminLogin() {
         const v = document.getElementById('adminPass').value;
-        if (v === ADMIN_PASS) {
+        if (v === CHAIRMAN_PASS) {
             isAdmin = true;
+            isChairman = true;
             sessionStorage.setItem('ticketAdmin','1');
+            sessionStorage.setItem('ticketChairman','1');
+            initApp();
+        } else if (v === ADMIN_PASS) {
+            isAdmin = true;
+            isChairman = false;
+            sessionStorage.setItem('ticketAdmin','1');
+            sessionStorage.removeItem('ticketChairman');
             initApp();
         } else {
             toast('รหัสผ่านไม่ถูกต้อง','error');
@@ -304,12 +321,22 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     }
     function adminLogout() {
         isAdmin = false;
+        isChairman = false;
         sessionStorage.removeItem('ticketAdmin');
+        sessionStorage.removeItem('ticketChairman');
         location.reload();
     }
     function initApp() {
         document.getElementById('loginWrap').style.display = 'none';
         document.getElementById('appWrap').style.display = 'block';
+        const roleEl = document.getElementById('roleBadge');
+        if (isChairman) {
+            roleEl.textContent = '⭐ เข้าสู่ระบบในสิทธิ์ "ประธาน" — สามารถอนุมัติคำสั่งซื้อขั้นสุดท้ายได้';
+            roleEl.style.color = 'var(--gold-dk)';
+        } else {
+            roleEl.textContent = '👤 เข้าสู่ระบบในสิทธิ์ "ทีมงาน" — ตรวจสอบสลิปและส่งให้ประธานอนุมัติ';
+            roleEl.style.color = 'var(--text-2)';
+        }
         listenOrders();
         listenTickets();
         listenSalesConfig();
@@ -375,7 +402,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     function renderStats() {
         const approved = orders.filter(o => o.status === 'approved');
         const revenue  = approved.reduce((s,o) => s + (o.amount||0), 0);
-        const pending  = orders.filter(o => o.status === 'pending').length;
+        const pending  = orders.filter(o => o.status === 'pending' || o.status === 'verified').length;
         const paidTickets = tickets.filter(t => t.paid);
         const checkedIn = paidTickets.filter(t => t.checkedIn).length;
 
@@ -415,7 +442,9 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 ? '<span class="badge approved">✅ อนุมัติแล้ว</span>'
                 : o.status === 'rejected'
                     ? '<span class="badge rejected">❌ ไม่ผ่าน</span>'
-                    : '<span class="badge pending">⏳ รอตรวจสอบ</span>';
+                    : o.status === 'verified'
+                        ? '<span class="badge verified">🟡 ตรวจสอบแล้ว รอประธานอนุมัติ</span>'
+                        : '<span class="badge pending">⏳ รอตรวจสอบ</span>';
             const parts = [];
             if (o.counts?.adult) parts.push(`ผู้ใหญ่ ${o.counts.adult}`);
             if (o.counts?.child) parts.push(`เด็ก ${o.counts.child}`);
@@ -427,12 +456,30 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             let actions = '';
             if (o.status === 'pending') {
                 actions = `
-                    <button class="btn btn-green btn-sm" onclick="approveOrder('${o.id}')">✅ อนุมัติ</button>
+                    <button class="btn btn-green btn-sm" onclick="verifyOrder('${o.id}')">✅ ตรวจสอบแล้ว (ส่งให้ประธานอนุมัติ)</button>`;
+                if (isChairman) {
+                    actions += `
+                    <button class="btn btn-navy btn-sm" onclick="approveOrder('${o.id}')">⭐ อนุมัติทันที (ประธาน)</button>`;
+                }
+                actions += `
+                    <button class="btn btn-red btn-sm" onclick="rejectOrder('${o.id}')">❌ ไม่ผ่าน</button>`;
+            } else if (o.status === 'verified') {
+                if (isChairman) {
+                    actions += `
+                    <button class="btn btn-green btn-sm" onclick="approveOrder('${o.id}')">⭐ อนุมัติ (ขั้นสุดท้าย)</button>`;
+                }
+                actions += `
+                    <button class="btn btn-outline btn-sm" onclick="revertToPending('${o.id}')">↩️ ย้อนกลับเป็นรอตรวจสอบ</button>
                     <button class="btn btn-red btn-sm" onclick="rejectOrder('${o.id}')">❌ ไม่ผ่าน</button>`;
             } else if (o.status === 'approved') {
                 actions = `<button class="btn btn-outline btn-sm" onclick="revertOrder('${o.id}')">↩️ ยกเลิกการอนุมัติ</button>`;
             } else if (o.status === 'rejected') {
-                actions = `<button class="btn btn-outline btn-sm" onclick="approveOrder('${o.id}')">✅ อนุมัติ</button>`;
+                actions = `
+                    <button class="btn btn-green btn-sm" onclick="verifyOrder('${o.id}')">✅ ตรวจสอบแล้ว (ส่งให้ประธานอนุมัติ)</button>`;
+                if (isChairman) {
+                    actions += `
+                    <button class="btn btn-navy btn-sm" onclick="approveOrder('${o.id}')">⭐ อนุมัติทันที (ประธาน)</button>`;
+                }
             }
             actions += `
                 <button class="btn btn-outline btn-sm" onclick="openEditModal('${o.id}')">✏️ แก้ไข</button>
@@ -444,7 +491,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                     ${badge}
                 </div>
                 <div class="order-detail">
-                    <b>${esc(o.buyerName)}</b> · 📞 ${esc(o.buyerPhone)}<br>
+                    <b>${esc(o.buyerName)}</b> · 📞 ${esc(o.buyerPhone)}${o.generation ? ` · 🎓 รุ่น ${esc(o.generation)}` : ''}<br>
                     ${parts.join(' · ')} — รวม <b>${(o.amount||0).toLocaleString()} ฿</b><br>
                     ${o.instrument ? `🎵 ${esc(o.instrument)}<br>` : ''}
                     ${o.note ? `💬 ${esc(o.note)}<br>` : ''}
@@ -458,8 +505,21 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         }).join('');
     }
 
-    /* ── Approve / Reject / Revert ── */
+    /* ── Verify / Approve / Reject / Revert ── */
+    async function verifyOrder(id) {
+        try {
+            await db.collection(ORDERS_COL).doc(id).update({ status:'verified', verifiedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            toast('ตรวจสอบแล้ว — ส่งให้ประธานอนุมัติขั้นสุดท้าย','info');
+        } catch (err) { toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error'); }
+    }
+    async function revertToPending(id) {
+        try {
+            await db.collection(ORDERS_COL).doc(id).update({ status:'pending' });
+            toast('ย้อนกลับเป็น "รอตรวจสอบ" แล้ว','info');
+        } catch (err) { toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error'); }
+    }
     async function approveOrder(id) {
+        if (!isChairman) { toast('เฉพาะประธานเท่านั้นที่สามารถอนุมัติขั้นสุดท้ายได้','error'); return; }
         try {
             await db.collection(ORDERS_COL).doc(id).update({ status:'approved', approvedAt: firebase.firestore.FieldValue.serverTimestamp() });
             const snap = await db.collection(TICKETS_COL).where('orderId','==',id).get();
@@ -530,6 +590,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         document.getElementById('editOrderCode').textContent = id.slice(0,8).toUpperCase();
         document.getElementById('ed-name').value = o.buyerName || '';
         document.getElementById('ed-phone').value = o.buyerPhone || '';
+        document.getElementById('ed-generation').value = o.generation || '';
         document.getElementById('ed-note').value = o.note || '';
         document.getElementById('ed-amount').value = o.amount || 0;
 
@@ -608,6 +669,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             }
         }
 
+        const generation = gv('ed-generation');
         const instrument = document.getElementById('ed-instrument').value;
         const note = gv('ed-note');
         let amount = parseInt(gv('ed-amount'), 10);
@@ -631,17 +693,20 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                     toRemove.forEach(t => batch.delete(db.collection(TICKETS_COL).doc(t.id)));
                     const keep = existing.filter(t => !toRemove.includes(t));
                     keep.forEach((t,i) => batch.update(db.collection(TICKETS_COL).doc(t.id), {
-                        holderName: editHolders[type][i] || name, buyerName: name, buyerPhone: pc
+                        holderName: editHolders[type][i] || name, buyerName: name, buyerPhone: pc,
+                        generation, instrument
                     }));
                 } else {
                     existing.forEach((t,i) => batch.update(db.collection(TICKETS_COL).doc(t.id), {
-                        holderName: editHolders[type][i] || name, buyerName: name, buyerPhone: pc
+                        holderName: editHolders[type][i] || name, buyerName: name, buyerPhone: pc,
+                        generation, instrument
                     }));
                     for (let i = existing.length; i < newCount; i++) {
                         const code = genCode(typeMap[type]);
                         batch.set(db.collection(TICKETS_COL).doc(code), {
                             code, orderId: editingOrderId, type,
                             buyerName: name, buyerPhone: pc, holderName: editHolders[type][i] || name,
+                            generation, instrument,
                             paid: o.status === 'approved', checkedIn:false, checkedInAt:null,
                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
@@ -650,7 +715,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             }
 
             batch.update(db.collection(ORDERS_COL).doc(editingOrderId), {
-                buyerName: name, buyerPhone: pc, instrument, note,
+                buyerName: name, buyerPhone: pc, generation, instrument, note,
                 counts: { ...editQty }, holderNames: { ...editHolders },
                 amount
             });
@@ -760,7 +825,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     }
 
     /* ── CSV Export ── */
-    const STATUS_LABEL = { pending:'รอตรวจสอบ', approved:'อนุมัติแล้ว', rejected:'ไม่ผ่าน' };
+    const STATUS_LABEL = { pending:'รอตรวจสอบ', verified:'ตรวจสอบแล้ว รอประธานอนุมัติ', approved:'อนุมัติแล้ว', rejected:'ไม่ผ่าน' };
     function downloadCSV(filename, hdr, rows) {
         const csv = '﻿' + [hdr, ...rows].map(r => r.map(c => `"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
         const url = URL.createObjectURL(new Blob([csv], { type:'text/csv;charset=utf-8;' }));
@@ -771,11 +836,11 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     }
     function exportOrdersCSV() {
         if (!orders.length) { toast('ยังไม่มีข้อมูล','error'); return; }
-        const hdr = ['รหัสคำสั่งซื้อ','ชื่อผู้สั่งซื้อ','เบอร์โทร','เครื่องดนตรี','ผู้ใหญ่','เด็ก','เด็กเล็ก','ยอดเงิน','สถานะ','หมายเหตุ','วันที่สั่งซื้อ'];
+        const hdr = ['รหัสคำสั่งซื้อ','ชื่อผู้สั่งซื้อ','เบอร์โทร','รุ่น','เครื่องดนตรี','ผู้ใหญ่','เด็ก','เด็กเล็ก','ยอดเงิน','สถานะ','หมายเหตุ','วันที่สั่งซื้อ'];
         const rows = orders.map(o => {
             const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}) : '';
             return [
-                o.id.slice(0,8).toUpperCase(), o.buyerName, o.buyerPhone, o.instrument||'',
+                o.id.slice(0,8).toUpperCase(), o.buyerName, o.buyerPhone, o.generation||'', o.instrument||'',
                 o.counts?.adult||0, o.counts?.child||0, o.counts?.baby||0,
                 o.amount||0, STATUS_LABEL[o.status]||o.status, o.note||'', date
             ];
@@ -784,9 +849,9 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     }
     function exportTicketsCSV() {
         if (!tickets.length) { toast('ยังไม่มีข้อมูล','error'); return; }
-        const hdr = ['รหัสบัตร','ประเภทบัตร','ชื่อผู้ถือบัตร','ชื่อผู้สั่งซื้อ','เบอร์โทร','ชำระเงินแล้ว','เช็คอินแล้ว'];
+        const hdr = ['รหัสบัตร','ประเภทบัตร','ชื่อผู้ถือบัตร','รุ่น','เครื่องดนตรี','ชื่อผู้สั่งซื้อ','เบอร์โทร','ชำระเงินแล้ว','เช็คอินแล้ว'];
         const rows = tickets.map(t => [
-            t.code, TYPE_LABEL[t.type]||t.type, t.holderName||t.buyerName, t.buyerName, t.buyerPhone,
+            t.code, TYPE_LABEL[t.type]||t.type, t.holderName||t.buyerName, t.generation||'', t.instrument||'', t.buyerName, t.buyerPhone,
             t.paid ? 'ใช่' : 'ไม่', t.checkedIn ? 'ใช่' : 'ไม่'
         ]);
         downloadCSV('รายชื่อผู้ถือบัตร.csv', hdr, rows);
