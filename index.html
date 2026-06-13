@@ -971,7 +971,29 @@
         return rows.filter(r => !(r.length === 1 && r[0] === ''));
     }
 
-    /* ── Upload CSV: update healthCheck (ตรวจสุขภาพ) by matching เบอร์โทร ── */
+    /* ── Upload CSV: update any recognized column by matching เบอร์โทร ── */
+    const CSV_FIELD_MAP = {
+        'คำนำหน้า':       'title',
+        'ชื่อ':           'fname',
+        'นามสกุล':        'lname',
+        'ชื่อเล่น':        'nick',
+        'รุ่น':           'batch',
+        'สถานะเข้าร่วม':   'attendance',
+        'เครื่องดนตรี':    'instruments',
+        'โซน':           'zone',
+        'จำนวนคน':       'groupSize',
+        'ตรวจสุขภาพ':     'healthCheck',
+        'หมายเหตุ':       'note'
+    };
+    function csvCellToField(field, val) {
+        val = (val||'').trim();
+        switch (field) {
+            case 'attendance':  return val === 'เข้าร่วม' ? 'yes' : 'no';
+            case 'instruments': return val ? val.split(',').map(s=>s.trim()).filter(Boolean) : [];
+            case 'healthCheck': return /ต้องการ|yes|y|1|true|ใช่|✓|✔/i.test(val);
+            default:            return val;
+        }
+    }
     function handleCSVUpload(e) {
         if (!isStaff) { toast('เฉพาะทีมงานเท่านั้น','error'); e.target.value=''; return; }
         const file = e.target.files[0];
@@ -984,10 +1006,15 @@
                 if (rows.length < 2) { toast('ไฟล์ CSV ไม่มีข้อมูล','error'); return; }
 
                 const hdr = rows[0].map(h => h.trim());
-                const phoneIdx  = hdr.indexOf('เบอร์โทร');
-                const healthIdx = hdr.indexOf('ตรวจสุขภาพ');
-                if (phoneIdx === -1 || healthIdx === -1) {
-                    toast('ไฟล์ต้องมีคอลัมน์ "เบอร์โทร" และ "ตรวจสุขภาพ"','error'); return;
+                const phoneIdx = hdr.indexOf('เบอร์โทร');
+                if (phoneIdx === -1) {
+                    toast('ไฟล์ต้องมีคอลัมน์ "เบอร์โทร"','error'); return;
+                }
+                const fieldCols = hdr
+                    .map((h,idx) => ({ idx, field: CSV_FIELD_MAP[h] }))
+                    .filter(c => c.field);
+                if (!fieldCols.length) {
+                    toast('ไม่พบคอลัมน์ที่รองรับการอัปเดต','error'); return;
                 }
 
                 const batch = db.batch();
@@ -998,15 +1025,15 @@
                     const phone = r[phoneIdx].replace(/\D/g,'');
                     const match = all.find(a => (a.phone||'').replace(/\D/g,'') === phone);
                     if (!match) { notFound++; continue; }
-                    const val = (r[healthIdx]||'').trim();
-                    const healthCheck = /ต้องการ|yes|y|1|true|ใช่|✓|✔/i.test(val);
-                    batch.update(db.collection(COL).doc(match.id), { healthCheck });
+                    const update = {};
+                    fieldCols.forEach(({idx, field}) => { update[field] = csvCellToField(field, r[idx]); });
+                    batch.update(db.collection(COL).doc(match.id), update);
                     updated++;
                 }
 
                 if (updated === 0) { toast('ไม่พบข้อมูลที่ตรงกัน (ตรวจสอบคอลัมน์เบอร์โทร)','error'); return; }
                 await batch.commit();
-                toast(`อัปเดตข้อมูลตรวจสุขภาพสำเร็จ ${updated} รายการ${notFound ? ` (ไม่พบ ${notFound} รายการ)` : ''}`);
+                toast(`อัปเดตข้อมูลสำเร็จ ${updated} รายการ${notFound ? ` (ไม่พบ ${notFound} รายการ)` : ''}`);
             } catch (err) {
                 console.error('CSV upload error:', err);
                 toast('เกิดข้อผิดพลาดในการอ่านไฟล์ CSV','error');
