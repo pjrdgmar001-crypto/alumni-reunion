@@ -308,6 +308,15 @@
 
     <!-- ===== REGISTER ===== -->
     <section class="sec active" id="sec-register">
+        <div class="card" id="regClosedCard" style="display:none; text-align:center; padding:3rem 2rem">
+            <div style="font-size:2.8rem; margin-bottom:.8rem">⏸️</div>
+            <div class="card-title" style="margin-bottom:.5rem">ปิดรับลงทะเบียนชั่วคราว</div>
+            <p style="color:var(--text-3); font-size:.92rem; line-height:1.8">
+                ขณะนี้ทีมงานปิดรับลงทะเบียนชั่วคราว<br>
+                โปรดติดตามประกาศเปิดรับลงทะเบียนอีกครั้งผ่านช่องทางของศิษย์เก่าดุริยางค์ พตพ
+            </p>
+        </div>
+        <div id="regOpenWrap">
         <div class="card">
             <div class="card-hd">
                 <div class="card-title">📝 แบบฟอร์มลงทะเบียน</div>
@@ -470,6 +479,7 @@
                 <strong style="color:var(--navy)">"คืนแห่งความทรงจำที่ไม่มีวันลืม"</strong>
             </p>
         </div>
+        </div>
     </section>
 
     <!-- ===== DASHBOARD ===== -->
@@ -576,7 +586,20 @@
     });
     const db = firebase.firestore();
     const COL = 'alumni_reunion_ptpt';
+    const CONFIG_COL = 'ptpt_config';
     let all = [];
+
+    /* ── เปิด/ปิดรับลงทะเบียน (ควบคุมจากหน้าหลังบ้าน admin-tickets.html) ── */
+    let regOpen = true;
+    db.collection(CONFIG_COL).doc('registration').onSnapshot(doc => {
+        regOpen = !(doc.exists && doc.data().open === false);
+        applyRegState();
+    }, err => console.error('Firestore (registration config):', err));
+
+    function applyRegState() {
+        document.getElementById('regClosedCard').style.display = regOpen ? 'none' : '';
+        document.getElementById('regOpenWrap').style.display    = regOpen ? '' : 'none';
+    }
 
     /* ── Staff access ── */
     const STAFF_PASS = 'ptpt2569';

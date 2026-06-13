@@ -165,6 +165,13 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 </div>
                 <button class="btn btn-sm" id="salesToggleBtn" onclick="toggleSales()">...</button>
             </div>
+            <div class="card" style="padding:1rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+                <div>
+                    <div class="card-title" style="margin-bottom:.2rem">📝 หน้าลงทะเบียน (สาธารณะ)</div>
+                    <div class="card-sub" id="regStatusText">กำลังโหลด...</div>
+                </div>
+                <button class="btn btn-sm" id="regToggleBtn" onclick="toggleRegistration()">...</button>
+            </div>
             <div class="dash-grid">
                 <div class="sc dark"><div class="sc-num" id="sc-revenue">0</div><div class="sc-lbl">ยอดขายที่อนุมัติแล้ว (฿)</div></div>
                 <div class="sc"><div class="sc-num" id="sc-pending">0</div><div class="sc-lbl">รอตรวจสอบ</div></div>
@@ -340,6 +347,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         listenOrders();
         listenTickets();
         listenSalesConfig();
+        listenRegConfig();
     }
     if (isAdmin) initApp();
 
@@ -371,6 +379,37 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
             toast(!salesOpen ? '🚀 เปิดขายบัตรให้คนทั่วไปแล้ว' : '⏸️ ปิดหน้าซื้อบัตรชั่วคราวแล้ว');
+        } catch (err) { toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error'); }
+    }
+
+    /* ── เปิด/ปิดรับลงทะเบียน (หน้า index.html) ── */
+    let regOpen = true;
+    function listenRegConfig() {
+        db.collection(CONFIG_COL).doc('registration').onSnapshot(doc => {
+            regOpen = !(doc.exists && doc.data().open === false);
+            renderRegToggle();
+        }, err => console.error(err));
+    }
+    function renderRegToggle() {
+        const btn = document.getElementById('regToggleBtn');
+        const txt = document.getElementById('regStatusText');
+        if (regOpen) {
+            txt.innerHTML = '🟢 เปิดรับลงทะเบียน — คนทั่วไปเห็นแบบฟอร์มลงทะเบียน';
+            btn.textContent = '⏸️ ปิดรับลงทะเบียน';
+            btn.className = 'btn btn-outline btn-sm';
+        } else {
+            txt.innerHTML = '🔴 ปิดรับลงทะเบียนแล้ว — คนทั่วไปเห็นข้อความปิดรับลงทะเบียน';
+            btn.textContent = '🟢 เปิดรับลงทะเบียน';
+            btn.className = 'btn btn-green btn-sm';
+        }
+    }
+    async function toggleRegistration() {
+        try {
+            await db.collection(CONFIG_COL).doc('registration').set({
+                open: !regOpen,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            toast(!regOpen ? '🟢 เปิดรับลงทะเบียนแล้ว' : '🔴 ปิดรับลงทะเบียนแล้ว');
         } catch (err) { toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error'); }
     }
 
