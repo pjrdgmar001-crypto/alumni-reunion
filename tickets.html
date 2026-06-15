@@ -85,25 +85,23 @@ body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text)
 
 /* ── FORM ── */
 .sec-lbl { font-size:.72rem; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.1em; margin:1.6rem 0 .9rem; }
-.inst-grid { display:flex; flex-wrap:wrap; gap:.55rem; }
-.iopt input { display:none; }
-.iopt label { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.1rem; padding:.6rem .5rem; min-width:62px; border:1.5px solid var(--border); border-radius:var(--rs); cursor:pointer; background:var(--surface); color:var(--text-2); font-size:.85rem; font-weight:700; transition:all .2s; text-align:center; user-select:none; }
-.iopt label .ifull { font-size:.65rem; font-weight:400; color:var(--text-3); }
-.iopt input:checked + label { border-color:var(--gold); background:var(--gold-bg); color:var(--gold-dk); box-shadow:0 2px 8px rgba(184,146,31,.18); }
-.iopt input:checked + label .ifull { color:var(--gold); }
-.iopt label:hover { border-color:var(--gold); }
 .fgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
 .fg { display:flex; flex-direction:column; gap:.35rem; }
 .fg.full { grid-column:1/-1; }
 .lbl { font-size:.82rem; font-weight:600; color:var(--text-2); }
 .lbl .req { color:var(--red); margin-left:2px; }
-input[type=text], input[type=tel], textarea {
+input[type=text], input[type=tel], select, textarea {
     background:var(--bg); border:1.5px solid var(--border); border-radius:var(--rs);
     padding:.7rem .9rem; color:var(--text); font-size:.95rem; font-family:'Sarabun',sans-serif;
     width:100%; transition:all .2s;
 }
-input:focus, textarea:focus { outline:none; border-color:var(--navy); background:var(--surface); box-shadow:0 0 0 3px rgba(26,45,74,.08); }
+input:focus, select:focus, textarea:focus { outline:none; border-color:var(--navy); background:var(--surface); box-shadow:0 0 0 3px rgba(26,45,74,.08); }
 textarea { resize:vertical; min-height:70px; }
+
+/* ── WARNING BOX ── */
+.warn-box { background:var(--red-bg); border:1.5px solid rgba(220,38,38,.25); border-radius:var(--r); padding:1rem 1.2rem; margin:1.2rem 0; font-size:.84rem; color:var(--red); line-height:1.8; }
+.warn-box b { font-weight:800; }
+.warn-box .wt { font-weight:800; font-size:.92rem; margin-bottom:.3rem; display:block; }
 
 /* ── QTY STEPPER ── */
 .qty-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 1.2rem; border:1.5px solid var(--border); border-radius:var(--r); margin-bottom:.7rem; background:var(--surface); }
@@ -131,6 +129,24 @@ textarea { resize:vertical; min-height:70px; }
 .btn-gold:disabled { opacity:.5; cursor:not-allowed; }
 .spinner { display:inline-block; width:15px; height:15px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:6px; }
 @keyframes spin { to{transform:rotate(360deg)} }
+
+/* ── TERMS CHECKBOX ── */
+.terms-row { display:flex; align-items:flex-start; gap:.65rem; margin:1.2rem 0; font-size:.86rem; color:var(--text-2); line-height:1.6; cursor:pointer; }
+.terms-row input[type=checkbox] { margin-top:.2rem; width:18px; height:18px; flex-shrink:0; accent-color:var(--navy); cursor:pointer; }
+.terms-row a { color:var(--navy); font-weight:700; text-decoration:underline; }
+
+/* ── MODAL ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(15,20,35,.55); display:none; align-items:center; justify-content:center; z-index:2000; padding:1.2rem; }
+.modal-overlay.active { display:flex; }
+.modal-box { background:var(--surface); border-radius:var(--r); max-width:520px; width:100%; max-height:85vh; overflow-y:auto; box-shadow:0 12px 40px rgba(0,0,0,.25); }
+.modal-hd { padding:1.3rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.modal-hd h3 { font-size:1.05rem; font-weight:800; color:var(--navy); }
+.modal-close { background:none; border:none; font-size:1.4rem; line-height:1; color:var(--text-3); cursor:pointer; padding:0; }
+.modal-body { padding:1.3rem 1.5rem; font-size:.86rem; color:var(--text-2); line-height:1.85; }
+.modal-body h4 { font-size:.92rem; font-weight:800; color:var(--navy); margin:1rem 0 .3rem; }
+.modal-body h4:first-child { margin-top:0; }
+.modal-ft { padding:1.1rem 1.5rem; border-top:1px solid var(--border); display:flex; gap:.8rem; }
+.modal-ft .btn-outline, .modal-ft .btn-submit { margin:0; }
 
 /* ── PAYMENT STEP ── */
 .order-code-box { text-align:center; padding:1.2rem; background:var(--navy); border-radius:var(--r); color:#fff; margin-bottom:1.2rem; }
@@ -281,32 +297,40 @@ textarea { resize:vertical; min-height:70px; }
                         <input type="text" id="f-name" placeholder="ชื่อ นามสกุล">
                     </div>
                     <div class="fg">
+                        <label class="lbl">ชื่อเล่น <span class="req">*</span></label>
+                        <input type="text" id="f-nickname" placeholder="เช่น เอ, บีม">
+                    </div>
+                    <div class="fg">
                         <label class="lbl">เบอร์โทรศัพท์ <span class="req">*</span></label>
                         <input type="tel" id="f-phone" placeholder="08x-xxx-xxxx">
                     </div>
                     <div class="fg">
-                        <label class="lbl">รุ่น <span class="req">*</span></label>
-                        <input type="text" id="f-gen" placeholder="เช่น 12">
+                        <label class="lbl">รุ่นที่ <span class="req">*</span></label>
+                        <select id="f-gen">
+                            <option value="" disabled selected>เลือกรุ่น</option>
+                            <option value="ไม่ระบุรุ่น">ไม่ระบุรุ่น</option>
+                        </select>
                     </div>
-                </div>
-
-                <!-- INSTRUMENTS -->
-                <div class="sec-lbl">เครื่องดนตรีที่เคยเล่น (เลือกได้ 1 เครื่อง)</div>
-                <div class="inst-grid" id="instGrid">
-                    <div class="iopt"><input type="radio" name="inst" id="i-Per"  value="Per"  onclick="toggleInst(this)"><label for="i-Per">Per<span class="ifull">เพอร์คัชชัน</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-Pic"  value="Pic"  onclick="toggleInst(this)"><label for="i-Pic">Pic<span class="ifull">พิคโคโล</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-Fl"   value="Fl"   onclick="toggleInst(this)"><label for="i-Fl">Fl<span class="ifull">ฟลุต</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-Cl"   value="Cl"   onclick="toggleInst(this)"><label for="i-Cl">Cl<span class="ifull">คลาริเน็ต</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-Tp"   value="Tp"   onclick="toggleInst(this)"><label for="i-Tp">Tp<span class="ifull">ทรัมเป็ต</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-SA"   value="SA"   onclick="toggleInst(this)"><label for="i-SA">SA<span class="ifull">อัลโตแซกฯ</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-Hn"   value="Hn"   onclick="toggleInst(this)"><label for="i-Hn">Hn<span class="ifull">ฮอร์น</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-St"   value="St"   onclick="toggleInst(this)"><label for="i-St">St<span class="ifull">เทเนอร์แซกฯ</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-Tb"   value="Tb"   onclick="toggleInst(this)"><label for="i-Tb">Tb<span class="ifull">ทรอมโบน</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-Eup"  value="Eup"  onclick="toggleInst(this)"><label for="i-Eup">Eup<span class="ifull">ยูโฟเนียม</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-Bar"  value="Baritone" onclick="toggleInst(this)"><label for="i-Bar">Bar<span class="ifull">บาริโทน</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-Tuba" value="Tuba" onclick="toggleInst(this)"><label for="i-Tuba">Tuba<span class="ifull">ทูบา</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-DM"   value="Drum Major" onclick="toggleInst(this)"><label for="i-DM">DM<span class="ifull">ดรัมเมเจอร์</span></label></div>
-                    <div class="iopt"><input type="radio" name="inst" id="i-None" value="ไม่ได้เล่นเครื่องดนตรี" onclick="toggleInst(this)"><label for="i-None">—<span class="ifull">ไม่ได้เล่น</span></label></div>
+                    <div class="fg">
+                        <label class="lbl">เครื่องดนตรีหลัก <span class="req">*</span></label>
+                        <select id="f-inst">
+                            <option value="" disabled selected>เลือกเครื่องดนตรี</option>
+                            <option value="Per">Per (เพอร์คัชชัน)</option>
+                            <option value="Tp">Tp (ทรัมเป็ต)</option>
+                            <option value="Cl">Cl (คลาริเน็ต)</option>
+                            <option value="SA">SA (อัลโตแซกฯ)</option>
+                            <option value="Eup">Eup (ยูโฟเนียม)</option>
+                            <option value="Tb">Tb (ทรอมโบน)</option>
+                            <option value="Fl">Fl (ฟลุต)</option>
+                            <option value="St">St (เทเนอร์แซกฯ)</option>
+                            <option value="Pic">Pic (พิคโคโล)</option>
+                            <option value="Hn">Hn (ฮอร์น)</option>
+                            <option value="Tuba">Tuba (ทูบา)</option>
+                            <option value="Drum Major">Drum Major (ดรัมเมเจอร์)</option>
+                            <option value="Baritone">Baritone (บาริโทน)</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="card-hd" style="margin-top:1.6rem">
@@ -357,9 +381,92 @@ textarea { resize:vertical; min-height:70px; }
                 </div>
 
                 <div class="fg full" style="margin-top:1rem">
-                    <label class="lbl">หมายเหตุ (ไม่บังคับ)</label>
-                    <textarea id="f-note" placeholder="เช่น ชื่อผู้ร่วมโต๊ะ, ความต้องการพิเศษ..."></textarea>
+                    <label class="lbl">กรณีมาเป็นกลุ่ม/ต้องการนั่งร่วมโต๊ะกับใคร (ไม่บังคับ)</label>
+                    <textarea id="f-seating" placeholder="ระบุชื่อเพื่อนหรือรุ่นที่ต้องการนั่งร่วมโต๊ะ"></textarea>
                 </div>
+
+                <div class="fg full" style="margin-top:1rem">
+                    <label class="lbl">หมายเหตุ (ไม่บังคับ)</label>
+                    <textarea id="f-note" placeholder="เช่น ความต้องการพิเศษ..."></textarea>
+                </div>
+
+                <div class="card-hd" style="margin-top:1.6rem">
+                    <div class="card-title">👕 สั่งจองเสื้อยืดที่ระลึก "12 ปีที่คิดถึง" (ไม่บังคับ)</div>
+                    <div class="card-sub">ราคา 350 บาท / ตัว — เลือกไซส์และจำนวนที่ต้องการ</div>
+                </div>
+                <div class="qty-row">
+                    <div class="qty-info">
+                        <div class="qn">เสื้อไซส์ S</div>
+                        <div class="qp">350 บาท / ตัว</div>
+                    </div>
+                    <div class="qty-ctrl">
+                        <div class="qty-btn" onclick="changeMerchQty('S',-1)">−</div>
+                        <div class="qty-val" id="m-S">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('S',1)">+</div>
+                    </div>
+                </div>
+                <div class="qty-row">
+                    <div class="qty-info">
+                        <div class="qn">เสื้อไซส์ M</div>
+                        <div class="qp">350 บาท / ตัว</div>
+                    </div>
+                    <div class="qty-ctrl">
+                        <div class="qty-btn" onclick="changeMerchQty('M',-1)">−</div>
+                        <div class="qty-val" id="m-M">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('M',1)">+</div>
+                    </div>
+                </div>
+                <div class="qty-row">
+                    <div class="qty-info">
+                        <div class="qn">เสื้อไซส์ L</div>
+                        <div class="qp">350 บาท / ตัว</div>
+                    </div>
+                    <div class="qty-ctrl">
+                        <div class="qty-btn" onclick="changeMerchQty('L',-1)">−</div>
+                        <div class="qty-val" id="m-L">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('L',1)">+</div>
+                    </div>
+                </div>
+                <div class="qty-row">
+                    <div class="qty-info">
+                        <div class="qn">เสื้อไซส์ XL</div>
+                        <div class="qp">350 บาท / ตัว</div>
+                    </div>
+                    <div class="qty-ctrl">
+                        <div class="qty-btn" onclick="changeMerchQty('XL',-1)">−</div>
+                        <div class="qty-val" id="m-XL">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('XL',1)">+</div>
+                    </div>
+                </div>
+                <div class="qty-row">
+                    <div class="qty-info">
+                        <div class="qn">เสื้อไซส์ XXL</div>
+                        <div class="qp">350 บาท / ตัว</div>
+                    </div>
+                    <div class="qty-ctrl">
+                        <div class="qty-btn" onclick="changeMerchQty('XXL',-1)">−</div>
+                        <div class="qty-val" id="m-XXL">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('XXL',1)">+</div>
+                    </div>
+                </div>
+                <div class="fg full" style="margin-top:.3rem;flex-direction:row;justify-content:space-between;align-items:center">
+                    <span class="lbl" style="font-weight:700">ยอดรวมค่าเสื้อยืด</span>
+                    <span class="lbl" style="font-weight:700;color:var(--gold-dk)" id="merchTotal">0 ฿</span>
+                </div>
+                <div class="fg full" style="margin-top:.3rem">
+                    <span style="font-size:.8rem;color:var(--text-2);line-height:1.7"><b>หมายเหตุ:</b> สินค้าเสื้อยืดที่ระลึกทั้งหมด สามารถติดต่อรับได้ ณ จุดลงทะเบียนในวันจัดงาน ณ เรือนนพเก้า เท่านั้น (ไม่มีบริการจัดส่งทางไปรษณีย์)</span>
+                </div>
+
+                <div class="warn-box">
+                    <span class="wt">⚠️ ข้อกำหนดและเงื่อนไข</span>
+                    <b>เมื่อชำระเงินและออกบัตรเรียบร้อยแล้ว ไม่สามารถเปลี่ยนประเภทบัตรหรือคืนเงินได้ทุกกรณี</b><br>
+                    กรุณาแนบสลิปการโอนเงินภายใน <b>24 ชั่วโมง</b> หลังจากกดสั่งซื้อ มิฉะนั้นระบบจะยกเลิกคำสั่งซื้ออัตโนมัติและคืนโควต้าบัตรกลับสู่ระบบ
+                </div>
+
+                <label class="terms-row">
+                    <input type="checkbox" id="f-terms">
+                    <span>ฉันได้อ่านและยอมรับ <a href="#" onclick="openTermsModal(event)">"เงื่อนไขการเข้างานและนโยบายการซื้อบัตร"</a> เรียบร้อยแล้ว <span class="req">*</span></span>
+                </label>
 
                 <div class="total-box">
                     <span class="tl">ยอดชำระทั้งหมด</span>
@@ -435,6 +542,51 @@ textarea { resize:vertical; min-height:70px; }
 </footer>
 <div class="toast" id="toast"></div>
 
+<!-- TERMS & CONDITIONS MODAL -->
+<div class="modal-overlay" id="termsModal">
+    <div class="modal-box">
+        <div class="modal-hd">
+            <h3>📋 เงื่อนไขการเข้างานและนโยบายการซื้อบัตร</h3>
+            <button class="modal-close" onclick="closeTermsModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h4>1. เงื่อนไขการซื้อบัตร</h4>
+            เมื่อชำระเงินและระบบออกบัตรเสร็จสิ้นแล้ว จะไม่สามารถขอเปลี่ยนประเภทบัตร หรือคืนเงิน (Non-refundable) ได้ทุกกรณี
+
+            <h4>2. การจำกัดเวลาชำระเงิน</h4>
+            ผู้จองจะต้องแนบสลิปโอนเงินภายใน <b>24 ชั่วโมง</b> หลังจากกดจอง หากเกินเวลาทางระบบจะทำการยกเลิกตั๋วโดยอัตโนมัติ และคืนโควต้าบัตรกลับสู่ระบบ
+
+            <h4>3. กฎระเบียบและค่าชดเชยภายในงาน</h4>
+            ห้ามนำอาวุธและสารเสพติดเข้ามาในงานเด็ดขาด กรณีทำแก้วน้ำหรือทรัพย์สินของสถานที่ชำรุด จะต้องชดเชยตามราคาประเมินจริงของทางสถานที่
+
+            <h4>4. มาตรการรักษาความสะอาด ณ เรือนนพเก้า</h4>
+            กรณีดื่มแอลกอฮอล์จนไม่สามารถควบคุมสติได้ และเกิดการอาเจียนภายในพื้นที่จัดงาน อาคาร หรือห้องน้ำ ทางสถานที่เรือนนพเก้ามีมาตรการปรับจุดละ <b>1,000 บาท</b> โดยผู้กระทำผิดต้องเป็นผู้ชำระค่าปรับนี้ด้วยตนเองทันที คณะผู้จัดงานจะไม่รับผิดชอบใดๆ แทนทุกกรณี
+        </div>
+        <div class="modal-ft">
+            <button class="btn-submit" onclick="closeTermsModal()">รับทราบ</button>
+        </div>
+    </div>
+</div>
+
+<!-- DOUBLE CONFIRMATION MODAL -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+        <div class="modal-hd">
+            <h3>ยืนยันการสั่งซื้อบัตรเข้างาน?</h3>
+            <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:.8rem">โปรดตรวจสอบจำนวนบัตร ไซส์เสื้อ และยอดเงินรวมของท่านให้ถูกต้องก่อนกดยืนยัน</p>
+            <div id="confirmSummary" style="background:var(--bg);border-radius:var(--rs);padding:.9rem 1.1rem;font-size:.86rem"></div>
+            <p style="margin-top:.8rem;color:var(--red);font-weight:700">เมื่อยืนยันแล้วจะไม่สามารถยกเลิกหรือคืนเงินได้ทุกกรณี</p>
+        </div>
+        <div class="modal-ft">
+            <button class="btn-outline" onclick="closeConfirmModal()">ตรวจสอบอีกครั้ง</button>
+            <button class="btn-submit" id="confirmSubmitBtn" onclick="confirmSubmitOrder()">ยืนยันสั่งซื้อ</button>
+        </div>
+    </div>
+</div>
+
 <!-- Off-screen ticket render template -->
 <div id="ticketTemplate">
     <div class="tkt-bg">
@@ -485,12 +637,29 @@ textarea { resize:vertical; min-height:70px; }
     const INSTRUMENT_LABEL = {
         Per:'เพอร์คัชชัน', Pic:'พิคโคโล', Fl:'ฟลุต', Cl:'คลาริเน็ต', Tp:'ทรัมเป็ต',
         SA:'อัลโตแซกฯ', Hn:'ฮอร์น', St:'เทเนอร์แซกฯ', Tb:'ทรอมโบน', Eup:'ยูโฟเนียม',
-        Baritone:'บาริโทน', Tuba:'ทูบา', 'Drum Major':'ดรัมเมเจอร์', 'ไม่ได้เล่นเครื่องดนตรี':'ไม่ได้เล่นเครื่องดนตรี'
+        Baritone:'บาริโทน', Tuba:'ทูบา', 'Drum Major':'ดรัมเมเจอร์', 'อื่นๆ':'อื่นๆ'
     };
+    const SHIRT_PRICE = 350;
+    const SHIRT_SIZES = ['S','M','L','XL','XXL'];
+    const ORDER_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
     let qty = { adult: 0, child: 0, baby: 0 };
+    let merchQty = { S:0, M:0, L:0, XL:0, XXL:0 };
     let currentSlipDataUrl = null;
     let currentOrderId = null;
+    let currentExpiresAt = null;
+    let pendingOrder = null;
+
+    /* ── Populate generation dropdown (1-50 + ไม่ระบุรุ่น) ── */
+    (function populateGenerationOptions() {
+        const sel = document.getElementById('f-gen');
+        for (let i = 1; i <= 50; i++) {
+            const opt = document.createElement('option');
+            opt.value = String(i);
+            opt.textContent = 'รุ่น ' + i;
+            sel.appendChild(opt);
+        }
+    })();
 
     /* ── Coming-soon gate ── */
     const CONFIG_COL = 'ptpt_config';
@@ -544,31 +713,55 @@ textarea { resize:vertical; min-height:70px; }
 
     /* ── Quantity steppers ── */
     function changeQty(type, delta) {
+        if ((type === 'child' || type === 'baby') && delta > 0 && qty.adult === 0) {
+            toast('บัตรเด็ก/เด็กเล็กต้องมาพร้อมผู้ใหญ่อย่างน้อย 1 ใบ','error');
+            return;
+        }
         qty[type] = Math.max(0, Math.min(99, qty[type] + delta));
         document.getElementById('q-'+type).textContent = qty[type];
         updateTotal();
         renderExtraHolders();
     }
+    function changeMerchQty(size, delta) {
+        merchQty[size] = Math.max(0, Math.min(99, merchQty[size] + delta));
+        document.getElementById('m-'+size).textContent = merchQty[size];
+        updateTotal();
+    }
+    function merchAmount() {
+        return SHIRT_SIZES.reduce((sum, s) => sum + merchQty[s]*SHIRT_PRICE, 0);
+    }
     function updateTotal() {
-        const total = qty.adult*PRICES.adult + qty.child*PRICES.child + qty.baby*PRICES.baby;
+        const total = qty.adult*PRICES.adult + qty.child*PRICES.child + qty.baby*PRICES.baby + merchAmount();
         document.getElementById('totalAmount').textContent = total.toLocaleString() + ' ฿';
+        document.getElementById('merchTotal').textContent = merchAmount().toLocaleString() + ' ฿';
     }
 
     /* ── Extra ticket-holder name fields ──
        ผู้ใหญ่: ใบที่ 1 = ผู้สั่งซื้อ, ใบที่ 2 เป็นต้นไป = กรอกชื่อเพิ่ม
        เด็ก/เด็กเล็ก: กรอกชื่อทุกใบ (ไม่ใช้ชื่อผู้สั่งซื้อแทน) */
     let extraNames = { adult: [], child: [], baby: [] };
+    let extraNicknames = { adult: [], child: [], baby: [] };
     function renderExtraHolders() {
         extraNames.adult.length = Math.max(0, qty.adult - 1);
         extraNames.child.length = qty.child;
         extraNames.baby.length = qty.baby;
+        extraNicknames.adult.length = Math.max(0, qty.adult - 1);
+        extraNicknames.child.length = qty.child;
+        extraNicknames.baby.length = qty.baby;
 
         let adultHtml = '';
         for (let i = 2; i <= qty.adult; i++) {
             const v = extraNames.adult[i-2] || '';
-            adultHtml += `<div class="fg full" style="margin-bottom:.7rem">
-                <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
-                <input type="text" class="extra-name-input" data-type="adult" data-idx="${i-2}" placeholder="ชื่อ นามสกุล (เช่น แฟน/ลูก)" value="${esc(v)}">
+            const nv = extraNicknames.adult[i-2] || '';
+            adultHtml += `<div class="fgrid" style="margin-bottom:.7rem">
+                <div class="fg">
+                    <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
+                    <input type="text" class="extra-name-input" data-type="adult" data-idx="${i-2}" placeholder="ชื่อ นามสกุล (เช่น แฟน/ลูก)" value="${esc(v)}">
+                </div>
+                <div class="fg">
+                    <label class="lbl">ชื่อเล่น ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
+                    <input type="text" class="extra-nickname-input" data-type="adult" data-idx="${i-2}" placeholder="ชื่อเล่น" value="${esc(nv)}">
+                </div>
             </div>`;
         }
         document.getElementById('extraAdultNames').innerHTML = adultHtml;
@@ -576,9 +769,16 @@ textarea { resize:vertical; min-height:70px; }
         let childHtml = '';
         for (let i = 1; i <= qty.child; i++) {
             const v = extraNames.child[i-1] || '';
-            childHtml += `<div class="fg full" style="margin-bottom:.7rem">
-                <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรเด็ก ใบที่ ${i} <span class="req">*</span></label>
-                <input type="text" class="extra-name-input" data-type="child" data-idx="${i-1}" placeholder="ชื่อ นามสกุล" value="${esc(v)}">
+            const nv = extraNicknames.child[i-1] || '';
+            childHtml += `<div class="fgrid" style="margin-bottom:.7rem">
+                <div class="fg">
+                    <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรเด็ก ใบที่ ${i} <span class="req">*</span></label>
+                    <input type="text" class="extra-name-input" data-type="child" data-idx="${i-1}" placeholder="ชื่อ นามสกุล" value="${esc(v)}">
+                </div>
+                <div class="fg">
+                    <label class="lbl">ชื่อเล่น ผู้ถือบัตรเด็ก ใบที่ ${i} <span class="req">*</span></label>
+                    <input type="text" class="extra-nickname-input" data-type="child" data-idx="${i-1}" placeholder="ชื่อเล่น" value="${esc(nv)}">
+                </div>
             </div>`;
         }
         document.getElementById('extraChildNames').innerHTML = childHtml;
@@ -586,9 +786,16 @@ textarea { resize:vertical; min-height:70px; }
         let babyHtml = '';
         for (let i = 1; i <= qty.baby; i++) {
             const v = extraNames.baby[i-1] || '';
-            babyHtml += `<div class="fg full" style="margin-bottom:.7rem">
-                <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i} <span class="req">*</span></label>
-                <input type="text" class="extra-name-input" data-type="baby" data-idx="${i-1}" placeholder="ชื่อ นามสกุล" value="${esc(v)}">
+            const nv = extraNicknames.baby[i-1] || '';
+            babyHtml += `<div class="fgrid" style="margin-bottom:.7rem">
+                <div class="fg">
+                    <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i} <span class="req">*</span></label>
+                    <input type="text" class="extra-name-input" data-type="baby" data-idx="${i-1}" placeholder="ชื่อ นามสกุล" value="${esc(v)}">
+                </div>
+                <div class="fg">
+                    <label class="lbl">ชื่อเล่น ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i} <span class="req">*</span></label>
+                    <input type="text" class="extra-nickname-input" data-type="baby" data-idx="${i-1}" placeholder="ชื่อเล่น" value="${esc(nv)}">
+                </div>
             </div>`;
         }
         document.getElementById('extraBabyNames').innerHTML = babyHtml;
@@ -599,6 +806,11 @@ textarea { resize:vertical; min-height:70px; }
         section.querySelectorAll('.extra-name-input').forEach(inp => {
             inp.addEventListener('input', e => {
                 extraNames[e.target.dataset.type][+e.target.dataset.idx] = e.target.value;
+            });
+        });
+        section.querySelectorAll('.extra-nickname-input').forEach(inp => {
+            inp.addEventListener('input', e => {
+                extraNicknames[e.target.dataset.type][+e.target.dataset.idx] = e.target.value;
             });
         });
     }
@@ -613,88 +825,142 @@ textarea { resize:vertical; min-height:70px; }
         return prefix + s;
     }
 
-    /* ── Instrument single-select (allow click again to deselect) ── */
-    let lastInst = null;
-    function toggleInst(el) {
-        if (lastInst === el.id) {
-            el.checked = false;
-            lastInst = null;
-        } else {
-            lastInst = el.id;
-        }
+    /* ── Submit order ── */
+    function openTermsModal(e) {
+        if (e) e.preventDefault();
+        document.getElementById('termsModal').classList.add('active');
+    }
+    function closeTermsModal() {
+        document.getElementById('termsModal').classList.remove('active');
+    }
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').classList.remove('active');
     }
 
-    /* ── Submit order ── */
     async function submitOrder() {
         const name  = gv('f-name');
+        const nickname = gv('f-nickname');
         const phone = gv('f-phone');
         const generation = gv('f-gen');
+        const instrument = gv('f-inst');
         const note  = gv('f-note');
-        const instEl = document.querySelector('input[name="inst"]:checked');
-        const instrument = instEl ? instEl.value : '';
+        const seating = gv('f-seating');
         const total = qty.adult + qty.child + qty.baby;
 
         if (!name) { toast('กรุณากรอกชื่อ-นามสกุล','error'); return; }
+        if (!nickname) { toast('กรุณากรอกชื่อเล่น','error'); return; }
         const pc = phone.replace(/\D/g,'');
         if (pc.length < 9) { toast('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง','error'); return; }
-        if (!generation) { toast('กรุณากรอกรุ่น','error'); return; }
+        if (!generation) { toast('กรุณาเลือกรุ่น','error'); return; }
+        if (!instrument) { toast('กรุณาเลือกเครื่องดนตรีหลัก','error'); return; }
         if (total < 1) { toast('กรุณาเลือกจำนวนบัตรอย่างน้อย 1 ใบ','error'); return; }
+        if ((qty.child > 0 || qty.baby > 0) && qty.adult === 0) {
+            toast('บัตรเด็ก/เด็กเล็กต้องมาพร้อมผู้ใหญ่อย่างน้อย 1 ใบ','error'); return;
+        }
+        if (!document.getElementById('f-terms').checked) {
+            toast('กรุณายอมรับเงื่อนไขการเข้างานและนโยบายการซื้อบัตรก่อนสั่งซื้อ','error'); return;
+        }
 
-        // ตรวจสอบชื่อผู้ถือบัตรเพิ่มเติม
+        // ตรวจสอบชื่อ-ชื่อเล่นผู้ถือบัตรเพิ่มเติม
         // ผู้ใหญ่ ใบที่ 1 = ผู้สั่งซื้อ, ใบที่ 2 เป็นต้นไป = กรอกชื่อเพิ่ม
         const adultNames = [name];
+        const adultNicknames = [nickname];
         for (let i = 0; i < qty.adult - 1; i++) {
             const n = (extraNames.adult[i] || '').trim();
             if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
+            const nn = (extraNicknames.adult[i] || '').trim();
+            if (!nn) { toast(`กรุณากรอกชื่อเล่น ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
             adultNames.push(n);
+            adultNicknames.push(nn);
         }
-        // เด็ก / เด็กเล็ก กรอกชื่อทุกใบ
+        // เด็ก / เด็กเล็ก กรอกชื่อ-ชื่อเล่นทุกใบ
         const childNames = [];
+        const childNicknames = [];
         for (let i = 0; i < qty.child; i++) {
             const n = (extraNames.child[i] || '').trim();
             if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรเด็ก ใบที่ ${i+1}`,'error'); return; }
+            const nn = (extraNicknames.child[i] || '').trim();
+            if (!nn) { toast(`กรุณากรอกชื่อเล่น ผู้ถือบัตรเด็ก ใบที่ ${i+1}`,'error'); return; }
             childNames.push(n);
+            childNicknames.push(nn);
         }
         const babyNames = [];
+        const babyNicknames = [];
         for (let i = 0; i < qty.baby; i++) {
             const n = (extraNames.baby[i] || '').trim();
             if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i+1}`,'error'); return; }
+            const nn = (extraNicknames.baby[i] || '').trim();
+            if (!nn) { toast(`กรุณากรอกชื่อเล่น ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i+1}`,'error'); return; }
             babyNames.push(n);
+            babyNicknames.push(nn);
         }
 
-        const amount = qty.adult*PRICES.adult + qty.child*PRICES.child + qty.baby*PRICES.baby;
+        const ticketAmount = qty.adult*PRICES.adult + qty.child*PRICES.child + qty.baby*PRICES.baby;
+        const merchTotal = merchAmount();
+        const amount = ticketAmount + merchTotal;
+        const expiresAtMs = Date.now() + ORDER_EXPIRY_MS;
+
+        pendingOrder = {
+            name, nickname, pc, generation, instrument, note, seating,
+            adultNames, adultNicknames, childNames, childNicknames, babyNames, babyNicknames,
+            ticketAmount, merchTotal, amount, expiresAtMs
+        };
+
+        const parts = [];
+        if (qty.adult) parts.push(`ผู้ใหญ่ ${qty.adult} ใบ x ${PRICES.adult.toLocaleString()} ฿`);
+        if (qty.child) parts.push(`เด็ก ${qty.child} ใบ x ${PRICES.child.toLocaleString()} ฿`);
+        if (qty.baby)  parts.push(`เด็กเล็ก ${qty.baby} ใบ (ฟรี)`);
+        SHIRT_SIZES.forEach(s => { if (merchQty[s]) parts.push(`เสื้อไซส์ ${s} ${merchQty[s]} ตัว x ${SHIRT_PRICE} ฿`); });
+        document.getElementById('confirmSummary').innerHTML = parts.map(esc).join('<br>') +
+            `<br><br><b>ยอดชำระทั้งหมด: ${amount.toLocaleString()} ฿</b>`;
+        document.getElementById('confirmModal').classList.add('active');
+    }
+
+    async function confirmSubmitOrder() {
+        const d = pendingOrder;
+        if (!d) return;
+        closeConfirmModal();
+
         const btn = document.getElementById('submitOrderBtn');
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>กำลังบันทึก...';
 
         try {
             const orderRef = await db.collection(ORDERS_COL).add({
-                buyerName: name,
-                buyerPhone: pc,
-                generation,
-                instrument,
+                buyerName: d.name,
+                buyerNickname: d.nickname,
+                buyerPhone: d.pc,
+                generation: d.generation,
+                instrument: d.instrument,
                 counts: { ...qty },
-                holderNames: { adult: adultNames, child: childNames, baby: babyNames },
-                amount,
-                note,
+                holderNames: { adult: d.adultNames, child: d.childNames, baby: d.babyNames },
+                holderNicknames: { adult: d.adultNicknames, child: d.childNicknames, baby: d.babyNicknames },
+                merch: { ...merchQty },
+                merchAmount: d.merchTotal,
+                amount: d.amount,
+                note: d.note,
+                seatingPreference: d.seating,
                 status: 'pending',
                 slipImage: null,
+                expiresAt: firebase.firestore.Timestamp.fromMillis(d.expiresAtMs),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
             // Create individual ticket docs
             const batch = db.batch();
             const typeMap = { adult: 'A', child: 'C', baby: 'B' };
-            const namesMap = { adult: adultNames, child: childNames, baby: babyNames };
+            const namesMap = { adult: d.adultNames, child: d.childNames, baby: d.babyNames };
+            const nicknamesMap = { adult: d.adultNicknames, child: d.childNicknames, baby: d.babyNicknames };
             for (const type of ['adult','child','baby']) {
                 for (let i = 0; i < qty[type]; i++) {
                     const code = genCode(typeMap[type]);
                     const tRef = db.collection(TICKETS_COL).doc(code);
-                    const holderName = namesMap[type][i] || name;
+                    const holderName = namesMap[type][i] || d.name;
+                    const holderNickname = nicknamesMap[type][i] || d.nickname;
                     batch.set(tRef, {
                         code, orderId: orderRef.id, type,
-                        buyerName: name, buyerPhone: pc, holderName,
-                        generation, instrument,
+                        buyerName: d.name, buyerPhone: d.pc, holderName, holderNickname,
+                        generation: d.generation, instrument: d.instrument,
                         paid: false, checkedIn: false, checkedInAt: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
@@ -703,7 +969,9 @@ textarea { resize:vertical; min-height:70px; }
             await batch.commit();
 
             currentOrderId = orderRef.id;
-            showPaymentStep(orderRef.id, name, amount);
+            currentExpiresAt = d.expiresAtMs;
+            pendingOrder = null;
+            showPaymentStep(orderRef.id, d.name, d.amount);
         } catch (err) {
             console.error(err);
             toast('เกิดข้อผิดพลาด: ' + (err.code || err.message), 'error');
@@ -726,8 +994,14 @@ textarea { resize:vertical; min-height:70px; }
         if (qty.adult) parts.push(`ผู้ใหญ่ ${qty.adult} ใบ x 990 ฿`);
         if (qty.child) parts.push(`เด็ก ${qty.child} ใบ x 250 ฿`);
         if (qty.baby)  parts.push(`เด็กเล็ก ${qty.baby} ใบ (ฟรี)`);
-        document.getElementById('payOrderDetail').innerHTML =
-            `<b>ผู้สั่งซื้อ:</b> ${esc(name)}<br>` + parts.map(esc).join('<br>');
+        SHIRT_SIZES.forEach(s => { if (merchQty[s]) parts.push(`เสื้อไซส์ ${s} ${merchQty[s]} ตัว x 350 ฿`); });
+        let html = `<b>ผู้สั่งซื้อ:</b> ${esc(name)}<br>` + parts.map(esc).join('<br>');
+        if (currentExpiresAt) {
+            const deadline = new Date(currentExpiresAt).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});
+            html += `<br><br><span style="color:var(--red);font-weight:700">⏰ กรุณาแนบสลิปภายใน: ${esc(deadline)}</span><br>` +
+                `<span style="font-size:.78rem;color:var(--text-3)">หากเกินกำหนด ระบบจะยกเลิกคำสั่งซื้ออัตโนมัติและคืนโควต้าบัตรกลับสู่ระบบ</span>`;
+        }
+        document.getElementById('payOrderDetail').innerHTML = html;
         window.scrollTo({top:0, behavior:'smooth'});
     }
 
@@ -772,18 +1046,52 @@ textarea { resize:vertical; min-height:70px; }
     function resetForm() {
         qty = { adult:0, child:0, baby:0 };
         ['adult','child','baby'].forEach(t => document.getElementById('q-'+t).textContent = '0');
+        merchQty = { S:0, M:0, L:0, XL:0, XXL:0 };
+        SHIRT_SIZES.forEach(s => document.getElementById('m-'+s).textContent = '0');
+        extraNames = { adult: [], child: [], baby: [] };
+        extraNicknames = { adult: [], child: [], baby: [] };
+        renderExtraHolders();
         updateTotal();
         document.getElementById('f-name').value = '';
+        document.getElementById('f-nickname').value = '';
         document.getElementById('f-phone').value = '';
         document.getElementById('f-gen').value = '';
+        document.getElementById('f-inst').value = '';
+        document.getElementById('f-seating').value = '';
         document.getElementById('f-note').value = '';
         currentSlipDataUrl = null;
         currentOrderId = null;
+        currentExpiresAt = null;
+        pendingOrder = null;
+        document.getElementById('f-terms').checked = false;
         document.getElementById('slipPreview').style.display = 'none';
         document.getElementById('uploadPlaceholder').style.display = 'block';
         document.getElementById('slipInput').value = '';
         document.getElementById('step-payment').style.display = 'none';
         document.getElementById('step-form').style.display = 'block';
+    }
+
+    /* ── Lazy auto-cancel: ออเดอร์ pending ที่ไม่แนบสลิปเกิน 24 ชม. ── */
+    async function autoCancelIfExpired(o) {
+        if (o.status !== 'pending' || o.slipImage || !o.expiresAt) return o.status;
+        const expiresMs = o.expiresAt.toMillis ? o.expiresAt.toMillis() : o.expiresAt;
+        if (Date.now() <= expiresMs) return o.status;
+        try {
+            await db.collection(ORDERS_COL).doc(o.id).update({
+                status: 'cancelled',
+                cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            const snap = await db.collection(TICKETS_COL).where('orderId','==',o.id).get();
+            if (!snap.empty) {
+                const batch = db.batch();
+                snap.docs.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+            }
+            return 'cancelled';
+        } catch (err) {
+            console.error(err);
+            return o.status;
+        }
     }
 
     /* ── Check order status ── */
@@ -803,6 +1111,11 @@ textarea { resize:vertical; min-height:70px; }
             const orders = snap.docs.map(d => ({ id:d.id, ...d.data() }))
                 .sort((a,b) => (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
 
+            // ตรวจสอบและยกเลิกออเดอร์ที่หมดเวลาแนบสลิป (lazy auto-cancel)
+            for (const o of orders) {
+                o.status = await autoCancelIfExpired(o);
+            }
+
             let html = '';
             for (const o of orders) {
                 const sc = shortCode(o.id);
@@ -810,7 +1123,9 @@ textarea { resize:vertical; min-height:70px; }
                     ? '<span class="badge approved">✅ ชำระเงินแล้ว</span>'
                     : o.status === 'rejected'
                         ? '<span class="badge rejected">❌ ไม่ผ่านการตรวจสอบ</span>'
-                        : '<span class="badge pending">⏳ รอตรวจสอบ</span>';
+                        : o.status === 'cancelled'
+                            ? '<span class="badge rejected">🚫 ยกเลิกอัตโนมัติ</span>'
+                            : '<span class="badge pending">⏳ รอตรวจสอบ</span>';
 
                 const parts = [];
                 if (o.counts?.adult) parts.push(`ผู้ใหญ่ ${o.counts.adult} ใบ`);
@@ -843,6 +1158,9 @@ textarea { resize:vertical; min-height:70px; }
                 } else if (o.status === 'rejected') {
                     document.getElementById('tickets-'+o.id).innerHTML =
                         `<p style="font-size:.8rem;color:var(--red);margin-top:.6rem">❌ การตรวจสอบสลิปไม่ผ่าน กรุณาติดต่อทีมงานฝ่ายเหรัญญิก</p>`;
+                } else if (o.status === 'cancelled') {
+                    document.getElementById('tickets-'+o.id).innerHTML =
+                        `<p style="font-size:.8rem;color:var(--red);margin-top:.6rem">🚫 คำสั่งซื้อนี้ถูกยกเลิกอัตโนมัติ (ไม่ได้แนบสลิปภายใน 24 ชม.) กรุณาสั่งซื้อใหม่ที่แท็บ "ซื้อบัตร"</p>`;
                 }
             }
         } catch (err) {
@@ -863,7 +1181,7 @@ textarea { resize:vertical; min-height:70px; }
                     <div class="tn">🎫 ${esc(TYPE_LABEL[t.type])}${checkedTag}</div>
                     <div class="tc">${esc(t.code)} · ${esc(t.holderName || t.buyerName)}</div>
                 </div>
-                <button class="btn-dl" onclick="downloadTicket('${esc(t.code)}','${esc(t.type)}','${esc(t.holderName || t.buyerName)}','${esc(t.generation||'')}','${esc(t.instrument||'')}')">⬇️ ดาวน์โหลด</button>
+                <button class="btn-dl" onclick="downloadTicket('${esc(t.code)}','${esc(t.type)}','${esc(t.holderName || t.buyerName)}','${esc(t.holderNickname||'')}','${esc(t.generation||'')}','${esc(t.instrument||'')}')">⬇️ ดาวน์โหลด</button>
             </div>`;
         });
         html += `</div>`;
@@ -871,7 +1189,7 @@ textarea { resize:vertical; min-height:70px; }
     }
 
     /* ── Generate & download ticket image ── */
-    async function downloadTicket(code, type, name, generation, instrument) {
+    async function downloadTicket(code, type, name, nickname, generation, instrument) {
         toast('กำลังสร้างบัตร...', 'info');
         try {
             const qrEl = document.getElementById('tt-qr-canvas');
@@ -885,6 +1203,7 @@ textarea { resize:vertical; min-height:70px; }
             pill.className = 'tkt-type-pill tkt-type-' + type;
 
             const metaParts = [];
+            if (nickname) metaParts.push(`ชื่อเล่น ${nickname}`);
             if (generation) metaParts.push(`รุ่น ${generation}`);
             if (instrument) metaParts.push(INSTRUMENT_LABEL[instrument] || instrument);
             document.getElementById('tt-meta').textContent = metaParts.join(' · ');

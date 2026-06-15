@@ -424,9 +424,33 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     }
 
     /* ── Real-time listeners ── */
+    async function autoCancelExpiredOrders(orderList) {
+        const expired = orderList.filter(o =>
+            o.status === 'pending' && !o.slipImage && o.expiresAt &&
+            Date.now() > (o.expiresAt.toMillis ? o.expiresAt.toMillis() : o.expiresAt)
+        );
+        for (const o of expired) {
+            try {
+                await db.collection(ORDERS_COL).doc(o.id).update({
+                    status: 'cancelled',
+                    cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                o.status = 'cancelled';
+                const snap = await db.collection(TICKETS_COL).where('orderId','==',o.id).get();
+                if (!snap.empty) {
+                    const batch = db.batch();
+                    snap.docs.forEach(d => batch.delete(d.ref));
+                    await batch.commit();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    }
     function listenOrders() {
-        db.collection(ORDERS_COL).orderBy('createdAt','desc').onSnapshot(snap => {
+        db.collection(ORDERS_COL).orderBy('createdAt','desc').onSnapshot(async snap => {
             orders = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+            await autoCancelExpiredOrders(orders);
             renderOrders();
             renderStats();
         }, err => console.error(err));
@@ -483,7 +507,9 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                     ? '<span class="badge rejected">❌ ไม่ผ่าน</span>'
                     : o.status === 'verified'
                         ? '<span class="badge verified">🟡 ตรวจสอบแล้ว รอประธานอนุมัติ</span>'
-                        : '<span class="badge pending">⏳ รอตรวจสอบ</span>';
+                        : o.status === 'cancelled'
+                            ? '<span class="badge rejected">🚫 ยกเลิก (หมดเวลาแนบสลิป)</span>'
+                            : '<span class="badge pending">⏳ รอตรวจสอบ</span>';
             const parts = [];
             if (o.counts?.adult) parts.push(`ผู้ใหญ่ ${o.counts.adult}`);
             if (o.counts?.child) parts.push(`เด็ก ${o.counts.child}`);
@@ -520,9 +546,13 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                     <button class="btn btn-navy btn-sm" onclick="approveOrder('${o.id}')">⭐ อนุมัติทันที (ประธาน)</button>`;
                 }
             }
-            actions += `
+            if (o.status === 'cancelled') {
+                actions = `<button class="btn btn-red btn-sm" onclick="deleteOrder('${o.id}')">🗑️ ลบ</button>`;
+            } else {
+                actions += `
                 <button class="btn btn-outline btn-sm" onclick="openEditModal('${o.id}')">✏️ แก้ไข</button>
                 <button class="btn btn-red btn-sm" onclick="deleteOrder('${o.id}')">🗑️ ลบ</button>`;
+            }
 
             return `<div class="order-item">
                 <div class="order-item-hd">
@@ -864,7 +894,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     }
 
     /* ── CSV Export ── */
-    const STATUS_LABEL = { pending:'รอตรวจสอบ', verified:'ตรวจสอบแล้ว รอประธานอนุมัติ', approved:'อนุมัติแล้ว', rejected:'ไม่ผ่าน' };
+    const STATUS_LABEL = { pending:'รอตรวจสอบ', verified:'ตรวจสอบแล้ว รอประธานอนุมัติ', approved:'อนุมัติแล้ว', rejected:'ไม่ผ่าน', cancelled:'ยกเลิก (หมดเวลาแนบสลิป)' };
     function downloadCSV(filename, hdr, rows) {
         const csv = '﻿' + [hdr, ...rows].map(r => r.map(c => `"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
         const url = URL.createObjectURL(new Blob([csv], { type:'text/csv;charset=utf-8;' }));
