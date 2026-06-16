@@ -387,59 +387,30 @@ textarea { resize:vertical; min-height:70px; }
                     <div class="card-title">👕 สั่งจองเสื้อยืดที่ระลึก "12 ปีที่คิดถึง" (ไม่บังคับ)</div>
                     <div class="card-sub">ราคา 350 บาท / ตัว — เลือกไซส์และจำนวนที่ต้องการ</div>
                 </div>
+                <div style="text-align:center;margin:.8rem 0 1rem">
+                    <img src="assets/tshirt-preview.jpg" alt="ภาพตัวอย่างเสื้อยืดที่ระลึก 12 ปีที่คิดถึง"
+                         style="width:100%;max-width:560px;border-radius:12px;object-fit:cover;box-shadow:0 2px 12px rgba(0,0,0,.15)">
+                </div>
                 <div class="qty-row">
                     <div class="qty-info">
-                        <div class="qn">เสื้อไซส์ S</div>
-                        <div class="qp">350 บาท / ตัว</div>
+                        <div class="qn">Free Size</div>
+                        <div class="qp" style="font-size:.78rem;line-height:1.6">อก 42″ · ยาว 26″ · แขน 7.5″<br>350 บาท / ตัว</div>
                     </div>
                     <div class="qty-ctrl">
-                        <div class="qty-btn" onclick="changeMerchQty('S',-1)">−</div>
-                        <div class="qty-val" id="m-S">0</div>
-                        <div class="qty-btn" onclick="changeMerchQty('S',1)">+</div>
+                        <div class="qty-btn" onclick="changeMerchQty('FS',-1)">−</div>
+                        <div class="qty-val" id="m-FS">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('FS',1)">+</div>
                     </div>
                 </div>
                 <div class="qty-row">
                     <div class="qty-info">
-                        <div class="qn">เสื้อไซส์ M</div>
-                        <div class="qp">350 บาท / ตัว</div>
+                        <div class="qn">Plus Size</div>
+                        <div class="qp" style="font-size:.78rem;line-height:1.6">อก 52″ · ยาว 30″ · แขน 12″<br>350 บาท / ตัว</div>
                     </div>
                     <div class="qty-ctrl">
-                        <div class="qty-btn" onclick="changeMerchQty('M',-1)">−</div>
-                        <div class="qty-val" id="m-M">0</div>
-                        <div class="qty-btn" onclick="changeMerchQty('M',1)">+</div>
-                    </div>
-                </div>
-                <div class="qty-row">
-                    <div class="qty-info">
-                        <div class="qn">เสื้อไซส์ L</div>
-                        <div class="qp">350 บาท / ตัว</div>
-                    </div>
-                    <div class="qty-ctrl">
-                        <div class="qty-btn" onclick="changeMerchQty('L',-1)">−</div>
-                        <div class="qty-val" id="m-L">0</div>
-                        <div class="qty-btn" onclick="changeMerchQty('L',1)">+</div>
-                    </div>
-                </div>
-                <div class="qty-row">
-                    <div class="qty-info">
-                        <div class="qn">เสื้อไซส์ XL</div>
-                        <div class="qp">350 บาท / ตัว</div>
-                    </div>
-                    <div class="qty-ctrl">
-                        <div class="qty-btn" onclick="changeMerchQty('XL',-1)">−</div>
-                        <div class="qty-val" id="m-XL">0</div>
-                        <div class="qty-btn" onclick="changeMerchQty('XL',1)">+</div>
-                    </div>
-                </div>
-                <div class="qty-row">
-                    <div class="qty-info">
-                        <div class="qn">เสื้อไซส์ XXL</div>
-                        <div class="qp">350 บาท / ตัว</div>
-                    </div>
-                    <div class="qty-ctrl">
-                        <div class="qty-btn" onclick="changeMerchQty('XXL',-1)">−</div>
-                        <div class="qty-val" id="m-XXL">0</div>
-                        <div class="qty-btn" onclick="changeMerchQty('XXL',1)">+</div>
+                        <div class="qty-btn" onclick="changeMerchQty('PS',-1)">−</div>
+                        <div class="qty-val" id="m-PS">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('PS',1)">+</div>
                     </div>
                 </div>
                 <div class="fg full" style="margin-top:.3rem;flex-direction:row;justify-content:space-between;align-items:center">
@@ -633,11 +604,11 @@ textarea { resize:vertical; min-height:70px; }
         Baritone:'บาริโทน', Tuba:'ทูบา', 'Drum Major':'ดรัมเมเจอร์', 'อื่นๆ':'อื่นๆ'
     };
     const SHIRT_PRICE = 350;
-    const SHIRT_SIZES = ['S','M','L','XL','XXL'];
+    const SHIRT_SIZES = ['FS','PS'];
     const ORDER_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
     let qty = { adult: 0, child: 0, baby: 0 };
-    let merchQty = { S:0, M:0, L:0, XL:0, XXL:0 };
+    let merchQty = { FS:0, PS:0 };
     let currentSlipDataUrl = null;
     let currentOrderId = null;
     let currentExpiresAt = null;
@@ -759,6 +730,30 @@ textarea { resize:vertical; min-height:70px; }
        เด็ก/เด็กเล็ก: กรอกชื่อทุกใบ (ไม่ใช้ชื่อผู้สั่งซื้อแทน) */
     let extraNames = { adult: [], child: [], baby: [] };
     let extraNicknames = { adult: [], child: [], baby: [] };
+    let extraGenerations = { adult: [] };
+    let extraInstruments = { adult: [] };
+
+    function genGenOptionsHtml(selected) {
+        let opts = `<option value="" disabled${!selected ? ' selected' : ''}>เลือกรุ่น</option>`;
+        opts += `<option value="ไม่ระบุรุ่น"${selected === 'ไม่ระบุรุ่น' ? ' selected' : ''}>ไม่ระบุรุ่น</option>`;
+        for (let i = 1; i <= 50; i++) {
+            opts += `<option value="${i}"${selected === String(i) ? ' selected' : ''}>รุ่น ${i}</option>`;
+        }
+        return opts;
+    }
+    const INST_OPTIONS_HTML = `<option value="" disabled selected>เลือกเครื่องดนตรี</option>
+        <option value="Per">Per (เพอร์คัชชัน)</option><option value="Tp">Tp (ทรัมเป็ต)</option>
+        <option value="Cl">Cl (คลาริเน็ต)</option><option value="SA">SA (อัลโตแซกฯ)</option>
+        <option value="Eup">Eup (ยูโฟเนียม)</option><option value="Tb">Tb (ทรอมโบน)</option>
+        <option value="Fl">Fl (ฟลุต)</option><option value="St">St (เทเนอร์แซกฯ)</option>
+        <option value="Pic">Pic (พิคโคโล)</option><option value="Hn">Hn (ฮอร์น)</option>
+        <option value="Tuba">Tuba (ทูบา)</option><option value="Drum Major">Drum Major (ดรัมเมเจอร์)</option>
+        <option value="Baritone">Baritone (บาริโทน)</option><option value="อื่นๆ">อื่นๆ</option>`;
+    function genInstOptionsHtml(selected) {
+        if (!selected) return INST_OPTIONS_HTML;
+        return INST_OPTIONS_HTML.replace(`value="${selected}"`, `value="${selected}" selected`);
+    }
+
     function renderExtraHolders() {
         extraNames.adult.length = Math.max(0, qty.adult - 1);
         extraNames.child.length = qty.child;
@@ -766,19 +761,32 @@ textarea { resize:vertical; min-height:70px; }
         extraNicknames.adult.length = Math.max(0, qty.adult - 1);
         extraNicknames.child.length = qty.child;
         extraNicknames.baby.length = qty.baby;
+        extraGenerations.adult.length = Math.max(0, qty.adult - 1);
+        extraInstruments.adult.length = Math.max(0, qty.adult - 1);
 
         let adultHtml = '';
         for (let i = 2; i <= qty.adult; i++) {
-            const v = extraNames.adult[i-2] || '';
-            const nv = extraNicknames.adult[i-2] || '';
+            const idx = i - 2;
+            const v  = extraNames.adult[idx] || '';
+            const nv = extraNicknames.adult[idx] || '';
+            const gv = extraGenerations.adult[idx] || '';
+            const iv = extraInstruments.adult[idx] || '';
             adultHtml += `<div class="fgrid" style="margin-bottom:.7rem">
                 <div class="fg">
                     <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
-                    <input type="text" class="extra-name-input" data-type="adult" data-idx="${i-2}" placeholder="ชื่อ นามสกุล (เช่น แฟน/ลูก)" value="${esc(v)}">
+                    <input type="text" class="extra-name-input" data-type="adult" data-idx="${idx}" placeholder="ชื่อ นามสกุล (เช่น แฟน/ลูก)" value="${esc(v)}">
                 </div>
                 <div class="fg">
                     <label class="lbl">ชื่อเล่น ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
-                    <input type="text" class="extra-nickname-input" data-type="adult" data-idx="${i-2}" placeholder="ชื่อเล่น" value="${esc(nv)}">
+                    <input type="text" class="extra-nickname-input" data-type="adult" data-idx="${idx}" placeholder="ชื่อเล่น" value="${esc(nv)}">
+                </div>
+                <div class="fg">
+                    <label class="lbl">รุ่นที่ ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
+                    <select class="extra-gen-select" data-type="adult" data-idx="${idx}">${genGenOptionsHtml(gv)}</select>
+                </div>
+                <div class="fg">
+                    <label class="lbl">เครื่องดนตรีหลัก ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
+                    <select class="extra-inst-select" data-type="adult" data-idx="${idx}">${genInstOptionsHtml(iv)}</select>
                 </div>
             </div>`;
         }
@@ -831,6 +839,16 @@ textarea { resize:vertical; min-height:70px; }
                 extraNicknames[e.target.dataset.type][+e.target.dataset.idx] = e.target.value;
             });
         });
+        section.querySelectorAll('.extra-gen-select').forEach(sel => {
+            sel.addEventListener('change', e => {
+                extraGenerations[e.target.dataset.type][+e.target.dataset.idx] = e.target.value;
+            });
+        });
+        section.querySelectorAll('.extra-inst-select').forEach(sel => {
+            sel.addEventListener('change', e => {
+                extraInstruments[e.target.dataset.type][+e.target.dataset.idx] = e.target.value;
+            });
+        });
     }
 
     /* ── Generate unique ticket code ── */
@@ -878,17 +896,25 @@ textarea { resize:vertical; min-height:70px; }
             toast('กรุณายอมรับเงื่อนไขการเข้างานและนโยบายการซื้อบัตรก่อนสั่งซื้อ','error'); return;
         }
 
-        // ตรวจสอบชื่อ-ชื่อเล่นผู้ถือบัตรเพิ่มเติม
+        // ตรวจสอบชื่อ-ชื่อเล่น-รุ่น-เครื่องดนตรี ผู้ถือบัตรเพิ่มเติม
         // ผู้ใหญ่ ใบที่ 1 = ผู้สั่งซื้อ, ใบที่ 2 เป็นต้นไป = กรอกชื่อเพิ่ม
         const adultNames = [name];
         const adultNicknames = [nickname];
+        const adultGenerations = [generation];
+        const adultInstruments = [instrument];
         for (let i = 0; i < qty.adult - 1; i++) {
             const n = (extraNames.adult[i] || '').trim();
             if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
             const nn = (extraNicknames.adult[i] || '').trim();
             if (!nn) { toast(`กรุณากรอกชื่อเล่น ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
+            const g = (extraGenerations.adult[i] || '').trim();
+            if (!g) { toast(`กรุณาเลือกรุ่น ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
+            const inst = (extraInstruments.adult[i] || '').trim();
+            if (!inst) { toast(`กรุณาเลือกเครื่องดนตรีหลัก ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
             adultNames.push(n);
             adultNicknames.push(nn);
+            adultGenerations.push(g);
+            adultInstruments.push(inst);
         }
         // เด็ก / เด็กเล็ก กรอกชื่อ-ชื่อเล่นทุกใบ
         const childNames = [];
@@ -919,7 +945,8 @@ textarea { resize:vertical; min-height:70px; }
 
         pendingOrder = {
             name, nickname, pc, generation, instrument, note,
-            adultNames, adultNicknames, childNames, childNicknames, babyNames, babyNicknames,
+            adultNames, adultNicknames, adultGenerations, adultInstruments,
+            childNames, childNicknames, babyNames, babyNicknames,
             ticketAmount, merchTotal, amount, expiresAtMs
         };
 
@@ -927,7 +954,8 @@ textarea { resize:vertical; min-height:70px; }
         if (qty.adult) parts.push(`ผู้ใหญ่ ${qty.adult} ใบ x ${PRICES.adult.toLocaleString()} ฿`);
         if (qty.child) parts.push(`เด็ก ${qty.child} ใบ x ${PRICES.child.toLocaleString()} ฿`);
         if (qty.baby)  parts.push(`เด็กเล็ก ${qty.baby} ใบ (ฟรี)`);
-        SHIRT_SIZES.forEach(s => { if (merchQty[s]) parts.push(`เสื้อไซส์ ${s} ${merchQty[s]} ตัว x ${SHIRT_PRICE} ฿`); });
+        const SHIRT_LABEL = { FS: 'Free Size', PS: 'Plus Size' };
+        SHIRT_SIZES.forEach(s => { if (merchQty[s]) parts.push(`เสื้อ${SHIRT_LABEL[s]} ${merchQty[s]} ตัว x ${SHIRT_PRICE} ฿`); });
         document.getElementById('confirmSummary').innerHTML = parts.map(esc).join('<br>') +
             `<br><br><b>ยอดชำระทั้งหมด: ${amount.toLocaleString()} ฿</b>`;
         document.getElementById('confirmModal').classList.add('active');
@@ -952,6 +980,8 @@ textarea { resize:vertical; min-height:70px; }
                 counts: { ...qty },
                 holderNames: { adult: d.adultNames, child: d.childNames, baby: d.babyNames },
                 holderNicknames: { adult: d.adultNicknames, child: d.childNicknames, baby: d.babyNicknames },
+                holderGenerations: { adult: d.adultGenerations },
+                holderInstruments: { adult: d.adultInstruments },
                 merch: { ...merchQty },
                 merchAmount: d.merchTotal,
                 amount: d.amount,
@@ -974,10 +1004,12 @@ textarea { resize:vertical; min-height:70px; }
                     const tRef = db.collection(TICKETS_COL).doc(code);
                     const holderName = namesMap[type][i] || d.name;
                     const holderNickname = nicknamesMap[type][i] || d.nickname;
+                    const holderGen  = type === 'adult' ? (d.adultGenerations[i] || d.generation) : d.generation;
+                    const holderInst = type === 'adult' ? (d.adultInstruments[i] || d.instrument) : d.instrument;
                     batch.set(tRef, {
                         code, orderId: orderRef.id, type,
                         buyerName: d.name, buyerPhone: d.pc, holderName, holderNickname,
-                        generation: d.generation, instrument: d.instrument,
+                        generation: holderGen, instrument: holderInst,
                         paid: false, checkedIn: false, checkedInAt: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
@@ -1011,7 +1043,8 @@ textarea { resize:vertical; min-height:70px; }
         if (qty.adult) parts.push(`ผู้ใหญ่ ${qty.adult} ใบ x 990 ฿`);
         if (qty.child) parts.push(`เด็ก ${qty.child} ใบ x 250 ฿`);
         if (qty.baby)  parts.push(`เด็กเล็ก ${qty.baby} ใบ (ฟรี)`);
-        SHIRT_SIZES.forEach(s => { if (merchQty[s]) parts.push(`เสื้อไซส์ ${s} ${merchQty[s]} ตัว x 350 ฿`); });
+        const SHIRT_LABEL_PAY = { FS: 'Free Size', PS: 'Plus Size' };
+        SHIRT_SIZES.forEach(s => { if (merchQty[s]) parts.push(`เสื้อ${SHIRT_LABEL_PAY[s]} ${merchQty[s]} ตัว x 350 ฿`); });
         let html = `<b>ผู้สั่งซื้อ:</b> ${esc(name)}<br>` + parts.map(esc).join('<br>');
         if (currentExpiresAt) {
             const deadline = new Date(currentExpiresAt).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});
@@ -1067,10 +1100,12 @@ textarea { resize:vertical; min-height:70px; }
         document.getElementById('f-table-booking').checked = false;
         ['adult','child','baby'].forEach(t => document.getElementById('qtyrow-'+t).classList.remove('locked'));
         ['ov-adult','ov-child','ov-baby'].forEach(id => document.getElementById(id).classList.remove('disabled'));
-        merchQty = { S:0, M:0, L:0, XL:0, XXL:0 };
+        merchQty = { FS:0, PS:0 };
         SHIRT_SIZES.forEach(s => document.getElementById('m-'+s).textContent = '0');
         extraNames = { adult: [], child: [], baby: [] };
         extraNicknames = { adult: [], child: [], baby: [] };
+        extraGenerations = { adult: [] };
+        extraInstruments = { adult: [] };
         renderExtraHolders();
         updateTotal();
         document.getElementById('f-name').value = '';
