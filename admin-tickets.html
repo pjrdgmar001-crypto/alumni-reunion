@@ -127,6 +127,16 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
 .toast.info    { background:var(--navy); }
 
 .empty { text-align:center; padding:2.5rem 1rem; color:var(--text-3); }
+
+/* ── SEATING ── */
+.warn-box { background:var(--red-bg); border:1.5px solid rgba(220,38,38,.25); border-radius:var(--r); padding:1rem 1.2rem; margin:.8rem 0; font-size:.84rem; color:var(--red); line-height:1.8; }
+.warn-box .wt { font-weight:800; font-size:.9rem; margin-bottom:.2rem; display:block; }
+.seat-summary { display:flex; gap:1.5rem; flex-wrap:wrap; font-size:.9rem; padding:.7rem 0; }
+.seat-table { width:100%; border-collapse:collapse; font-size:.8rem; margin-top:.5rem; }
+.seat-table th { background:var(--navy); color:#fff; padding:.45rem .6rem; text-align:left; font-weight:700; }
+.seat-table td { padding:.4rem .6rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+.seat-table tr:nth-child(even) td { background:var(--bg); }
+.tbl-chip { display:inline-block; background:var(--navy); color:#fff; padding:.2rem .7rem; border-radius:10px; font-size:.78rem; font-weight:700; white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -152,6 +162,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     <nav class="nav">
         <div class="ntab active" onclick="switchTab('orders')">📋 คำสั่งซื้อ</div>
         <div class="ntab" onclick="switchTab('checkin')">📷 เช็คอินหน้างาน</div>
+        <div class="ntab" onclick="switchTab('seating')">🪑 จัดที่นั่ง</div>
         <div class="ntab" onclick="adminLogout()">🚪 ออกจากระบบ</div>
     </nav>
     <div id="roleBadge" style="text-align:center;padding:.4rem;font-size:.78rem;font-weight:700"></div>
@@ -206,6 +217,32 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             </div>
 
             <div id="ordersList"><div class="empty">⏳ กำลังโหลด...</div></div>
+        </section>
+
+        <!-- ===== SEATING TAB ===== -->
+        <section class="sec" id="sec-seating">
+            <div class="card">
+                <div class="card-title">🗓️ สรุปสถานะการจัดที่นั่ง</div>
+                <div class="card-sub">ข้อมูลจาก Firestore แบบ Real-time</div>
+                <div id="seatingSummary" class="seat-summary">กำลังโหลด...</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⚙️ อัลกอริทึมจัดที่นั่งอัตโนมัติ</div>
+                <div class="card-sub">เรียงรุ่นจากน้อยไปมาก · เหมาโต๊ะได้โต๊ะสะอาด · VIP จัดแยกด้วยมือ</div>
+                <div class="warn-box">
+                    <span class="wt">⚠️ ข้อควรระวัง</span>
+                    การรันจะ<b>เขียนทับ</b>ที่นั่งเดิมทุกใบ — ควรรันหลัง<b>ปิดการขาย</b>แล้วเท่านั้น<br>
+                    ต้องใช้สิทธิ์ <b>"ประธาน"</b> เท่านั้น
+                </div>
+                <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+                    <button class="btn btn-navy" id="runSeatingBtn" onclick="runAutoSeating()">▶️ รันจัดที่นั่งอัตโนมัติ</button>
+                    <button class="btn btn-red btn-sm" id="resetSeatingBtn" onclick="resetSeating()">🗑️ รีเซ็ตที่นั่งทั้งหมด</button>
+                    <button class="btn btn-outline btn-sm" onclick="exportSeatingCSV()">📥 Export ผังที่นั่ง (CSV)</button>
+                </div>
+            </div>
+
+            <div id="seatingResults"></div>
         </section>
 
         <!-- ===== CHECKIN TAB ===== -->
@@ -435,13 +472,15 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     }
 
     /* ── Tabs ── */
+    const TAB_ORDER = ['orders','checkin','seating'];
     function switchTab(tab) {
         document.querySelectorAll('.ntab').forEach((t,i) => {
-            t.classList.toggle('active', (tab==='orders'&&i===0)||(tab==='checkin'&&i===1));
+            t.classList.toggle('active', i < TAB_ORDER.length && TAB_ORDER[i] === tab);
         });
         document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
         document.getElementById('sec-'+tab).classList.add('active');
         if (tab !== 'checkin' && scannerRunning) toggleScanner();
+        if (tab === 'seating') loadSeatingSummary();
     }
 
     /* ── Real-time listeners ── */
@@ -976,6 +1015,218 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             (t.orderId||'').slice(0,8).toUpperCase()
         ]);
         downloadCSV('ป้ายชื่อ-อนุมัติแล้ว.csv', hdr, rows);
+    }
+
+    /* ══════════════════════════════════════════════
+       ── SEATING ALGORITHM ──
+       ════════════════════════════════════════════ */
+
+    /* ผังโต๊ะตามภาพ b8e3cbb5 (VIP จัดมือ ไม่รวมในอัตโนมัติ) */
+    const SEATING_PLAN = [
+        /* ฝั่งซ้าย */
+        'T1','T2','T3','T4','T5','T6','T7','T8','T9','T10',
+        'T11_1','T12_1','T11_2','T12_2','T25',
+        /* ฝั่งขวา */
+        'T13','T14','T15','T16','T17','T18','T19','T20','T21','T22',
+        'T23_1','T24_1','T23_2','T24_2'
+    ];
+    const SEATS_PER_TABLE = 10;
+
+    /* สร้างลิสต์ slot ทั้งหมด [{tableCode, seatNumber (global)}] */
+    function buildSeatSlots() {
+        const slots = [];
+        SEATING_PLAN.forEach((tableCode, tIdx) => {
+            for (let s = 1; s <= SEATS_PER_TABLE; s++) {
+                slots.push({ tableCode, seatNumber: tIdx * SEATS_PER_TABLE + s });
+            }
+        });
+        return slots;
+    }
+
+    async function loadSeatingSummary() {
+        const el = document.getElementById('seatingSummary');
+        try {
+            const snap = await db.collection(TICKETS_COL).where('paid','==',true).get();
+            const paid = snap.docs.map(d => d.data());
+            const withSeat = paid.filter(t => t.tableCode);
+            const usedTables = new Set(withSeat.map(t => t.tableCode));
+            el.innerHTML = `
+                <span>🎫 บัตรอนุมัติแล้ว: <b>${paid.length}</b></span>
+                <span>🪑 มีที่นั่งแล้ว: <b style="color:var(--green)">${withSeat.length}</b></span>
+                <span>⏳ ยังไม่มีที่นั่ง: <b style="color:var(--orange)">${paid.length - withSeat.length}</b></span>
+                <span>🗓️ โต๊ะที่ใช้: <b>${usedTables.size} / ${SEATING_PLAN.length}</b></span>`;
+        } catch(err) {
+            el.textContent = 'โหลดไม่สำเร็จ: ' + (err.code || err.message);
+        }
+    }
+
+    async function runAutoSeating() {
+        if (!isChairman) { toast('เฉพาะประธานเท่านั้นที่สามารถรันการจัดที่นั่งได้','error'); return; }
+
+        const btn = document.getElementById('runSeatingBtn');
+        btn.disabled = true; btn.textContent = '⏳ กำลังประมวลผล...';
+
+        try {
+            /* ── ดึงข้อมูลสด ── */
+            const [ticketsSnap, ordersSnap] = await Promise.all([
+                db.collection(TICKETS_COL).where('paid','==',true).get(),
+                db.collection(ORDERS_COL).where('status','==','approved').get()
+            ]);
+            const paidTickets = ticketsSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+            const ordersMap = {};
+            ordersSnap.docs.forEach(d => { ordersMap[d.id] = { id:d.id, ...d.data() }; });
+
+            /* เตือนถ้ามีที่นั่งเดิม */
+            const alreadySeated = paidTickets.filter(t => t.tableCode).length;
+            if (alreadySeated > 0 && !confirm(`มีบัตร ${alreadySeated} ใบที่จัดที่นั่งไปแล้ว\nการรันใหม่จะเขียนทับทั้งหมด ยืนยันหรือไม่?`)) {
+                btn.disabled = false; btn.textContent = '▶️ รันจัดที่นั่งอัตโนมัติ'; return;
+            }
+
+            /* ── จัดกลุ่มตั๋วตามคำสั่งซื้อ ── */
+            const ticketsByOrder = {};
+            paidTickets.forEach(t => {
+                if (!ticketsByOrder[t.orderId]) ticketsByOrder[t.orderId] = [];
+                ticketsByOrder[t.orderId].push(t);
+            });
+
+            /* ── เรียงลำดับ orderId ตามรุ่น (เหมาโต๊ะในรุ่นเดียวกันมาก่อน) ── */
+            const sortedOrderIds = Object.keys(ticketsByOrder).sort((a, b) => {
+                const gA = parseInt(ordersMap[a]?.generation) || 9999;
+                const gB = parseInt(ordersMap[b]?.generation) || 9999;
+                if (gA !== gB) return gA - gB;
+                /* เหมาโต๊ะมาก่อนในรุ่นเดียวกัน */
+                return (ordersMap[b]?.tableBooking ? 1 : 0) - (ordersMap[a]?.tableBooking ? 1 : 0);
+            });
+
+            /* ── วิ่งจัดที่นั่ง ── */
+            const slots = buildSeatSlots();
+            let ptr = 0;
+            const assignments = [];
+
+            for (const orderId of sortedOrderIds) {
+                const orderTickets = ticketsByOrder[orderId];
+                const order = ordersMap[orderId];
+
+                if (order?.tableBooking) {
+                    /* เหมาโต๊ะ: เลื่อน ptr ไปหัวโต๊ะใหม่ก่อน */
+                    if (ptr % SEATS_PER_TABLE !== 0) {
+                        ptr = Math.ceil(ptr / SEATS_PER_TABLE) * SEATS_PER_TABLE;
+                    }
+                }
+                orderTickets.forEach(t => {
+                    if (ptr < slots.length) {
+                        assignments.push({ ticketId:t.id, tableCode:slots[ptr].tableCode, seatNumber:slots[ptr].seatNumber });
+                        ptr++;
+                    }
+                });
+            }
+
+            /* ── เขียน Firestore (batch ≤499 ต่อรอบ) ── */
+            const BATCH_MAX = 499;
+            for (let i = 0; i < assignments.length; i += BATCH_MAX) {
+                const batch = db.batch();
+                assignments.slice(i, i + BATCH_MAX).forEach(a => {
+                    batch.update(db.collection(TICKETS_COL).doc(a.ticketId), {
+                        tableCode: a.tableCode, seatNumber: a.seatNumber
+                    });
+                });
+                await batch.commit();
+            }
+
+            toast(`✅ จัดที่นั่งสำเร็จ! ${assignments.length} บัตร ใน ${new Set(assignments.map(a=>a.tableCode)).size} โต๊ะ`);
+            loadSeatingSummary();
+            renderSeatingResults(assignments, paidTickets, ordersMap);
+
+        } catch (err) {
+            toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error');
+            console.error(err);
+        } finally {
+            btn.disabled = false; btn.textContent = '▶️ รันจัดที่นั่งอัตโนมัติ';
+        }
+    }
+
+    async function resetSeating() {
+        if (!isChairman) { toast('เฉพาะประธานเท่านั้น','error'); return; }
+        if (!confirm('รีเซ็ตข้อมูลโต๊ะและเลขที่นั่งบนตั๋วทุกใบ?\nการกระทำนี้ไม่สามารถย้อนกลับได้')) return;
+
+        const btn = document.getElementById('resetSeatingBtn');
+        btn.disabled = true; btn.textContent = '⏳ กำลังรีเซ็ต...';
+
+        try {
+            const snap = await db.collection(TICKETS_COL).where('paid','==',true).get();
+            const BATCH_MAX = 499;
+            const docs = snap.docs;
+            for (let i = 0; i < docs.length; i += BATCH_MAX) {
+                const batch = db.batch();
+                docs.slice(i, i + BATCH_MAX).forEach(d => {
+                    batch.update(d.ref, {
+                        tableCode: firebase.firestore.FieldValue.delete(),
+                        seatNumber: firebase.firestore.FieldValue.delete()
+                    });
+                });
+                await batch.commit();
+            }
+            toast('รีเซ็ตการจัดที่นั่งสำเร็จ','info');
+            loadSeatingSummary();
+            document.getElementById('seatingResults').innerHTML = '';
+        } catch (err) {
+            toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error');
+        } finally {
+            btn.disabled = false; btn.textContent = '🗑️ รีเซ็ตที่นั่งทั้งหมด';
+        }
+    }
+
+    function renderSeatingResults(assignments, paidTickets, ordersMap) {
+        const ticketMap = {};
+        paidTickets.forEach(t => { ticketMap[t.id] = t; });
+
+        /* จัดกลุ่มตาม tableCode */
+        const tableGroups = {};
+        SEATING_PLAN.forEach(tc => { tableGroups[tc] = []; });
+        assignments.forEach(a => {
+            if (tableGroups[a.tableCode]) tableGroups[a.tableCode].push({ ...a, ticket: ticketMap[a.ticketId] });
+        });
+
+        let html = `<div class="card" style="padding:1rem 1.2rem">
+            <div class="card-title">📋 ผลการจัดที่นั่ง — รวม ${assignments.length} บัตร</div>
+        </div>`;
+
+        SEATING_PLAN.forEach(tableCode => {
+            const seats = tableGroups[tableCode];
+            if (!seats || !seats.length) return;
+            seats.sort((a,b) => a.seatNumber - b.seatNumber);
+            html += `<div class="card" style="padding:1rem 1.2rem;margin-bottom:.8rem">
+                <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
+                    <span class="tbl-chip">${tableCode}</span>
+                    <span style="font-size:.82rem;color:var(--text-3)">${seats.length}/${SEATS_PER_TABLE} ที่นั่ง</span>
+                </div>
+                <table class="seat-table">
+                    <tr><th>เลขที่นั่ง</th><th>ชื่อผู้ถือบัตร</th><th>รุ่น</th><th>เครื่องดนตรี</th><th>รหัสบัตร</th></tr>
+                    ${seats.map(s => {
+                        const t = s.ticket || {};
+                        return `<tr>
+                            <td><b>${s.seatNumber}</b></td>
+                            <td>${esc(t.holderName||t.buyerName||'—')}</td>
+                            <td>${esc(t.generation||'—')}</td>
+                            <td>${esc(t.instrument||'—')}</td>
+                            <td style="font-family:monospace;font-size:.76rem">${esc(t.code||'—')}</td>
+                        </tr>`;
+                    }).join('')}
+                </table>
+            </div>`;
+        });
+
+        document.getElementById('seatingResults').innerHTML = html;
+    }
+
+    function exportSeatingCSV() {
+        const seated = tickets.filter(t => t.paid && t.tableCode);
+        if (!seated.length) { toast('ยังไม่มีข้อมูลที่นั่ง กรุณารันจัดที่นั่งก่อน','error'); return; }
+        const hdr = ['เลขที่นั่ง','โต๊ะ','รหัสบัตร','ชื่อผู้ถือบัตร','รุ่น','เครื่องดนตรี','ประเภทบัตร'];
+        const rows = seated
+            .slice().sort((a,b) => (a.seatNumber||0) - (b.seatNumber||0))
+            .map(t => [t.seatNumber, t.tableCode, t.code, t.holderName||t.buyerName, t.generation||'', t.instrument||'', TYPE_LABEL[t.type]||t.type]);
+        downloadCSV('ผังที่นั่ง.csv', hdr, rows);
     }
 
     /* ── Helpers ── */
