@@ -488,24 +488,14 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     }
     if (isAdmin) {
         initApp();
-        /* ── ?scan=CODE — staff scans QR → auto check-in ── */
+        /* ── ?scan=CODE — staff opens URL from QR → switch to check-in tab and process ── */
         const _scanParam = new URLSearchParams(window.location.search).get('scan');
         if (_scanParam) {
-            const _autoScan = async () => {
-                const snap = await db.collection('ptpt_tickets').where('code', '==', _scanParam).limit(1).get();
-                if (snap.empty) { toast('ไม่พบรหัสบัตร: ' + _scanParam, 'error'); return; }
-                const tDoc = snap.docs[0];
-                const tData = tDoc.data();
-                if (tData.checkedIn) {
-                    toast('⚠️ บัตรนี้เช็กอินแล้ว (' + (tData.checkedInAt?.toDate?.()?.toLocaleTimeString('th-TH') || '') + ')', 'error');
-                    return;
-                }
-                await tDoc.ref.update({ checkedIn: true, checkedInAt: firebase.firestore.FieldValue.serverTimestamp() });
-                toast('✅ เช็กอินสำเร็จ! รหัส: ' + _scanParam, 'success');
-                /* ล้าง ?scan= ออกจาก URL โดยไม่ reload */
-                history.replaceState(null, '', window.location.pathname);
-            };
-            _autoScan().catch(err => toast('เช็กอินไม่สำเร็จ: ' + err.message, 'error'));
+            history.replaceState(null, '', window.location.pathname);
+            setTimeout(() => {
+                switchTab('checkin');
+                processCheckin(_scanParam.toUpperCase());
+            }, 600);
         }
     }
 
@@ -1037,7 +1027,13 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         if (decodedText === lastScan && now - lastScanTime < 3000) return;
         lastScan = decodedText;
         lastScanTime = now;
-        processCheckin(decodedText.trim().toUpperCase());
+        let code = decodedText.trim();
+        try {
+            const u = new URL(code);
+            const sp = u.searchParams.get('scan');
+            if (sp) code = sp;
+        } catch (e) { /* not a URL — use as-is */ }
+        processCheckin(code.toUpperCase());
     }
 
     function manualCheckin() {
@@ -1057,17 +1053,18 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 return;
             }
             const t = doc.data();
+            const holderDisplay = t.holderName || t.buyerName;
             if (!t.paid) {
-                result.innerHTML = `<div class="checkin-result err">❌ บัตรนี้ยังไม่ได้รับการอนุมัติการชำระเงิน<div class="sub">${esc(t.buyerName)} — ${esc(TYPE_LABEL[t.type]||t.type)} — ${esc(code)}</div></div>`;
+                result.innerHTML = `<div class="checkin-result err">❌ บัตรนี้ยังไม่ได้รับการอนุมัติการชำระเงิน<div class="sub">${esc(holderDisplay)} — ${esc(TYPE_LABEL[t.type]||t.type)} — ${esc(code)}</div></div>`;
                 return;
             }
             if (t.checkedIn) {
                 const time = t.checkedInAt?.toDate ? t.checkedInAt.toDate().toLocaleTimeString('th-TH') : '';
-                result.innerHTML = `<div class="checkin-result warn">⚠️ บัตรนี้เช็คอินไปแล้ว${time?` เมื่อ ${time}`:''}<div class="sub">${esc(t.buyerName)} — ${esc(TYPE_LABEL[t.type]||t.type)} — ${esc(code)}</div></div>`;
+                result.innerHTML = `<div class="checkin-result warn">⚠️ บัตรนี้เช็คอินไปแล้ว${time?` เมื่อ ${time}`:''}<div class="sub">${esc(holderDisplay)} — ${esc(TYPE_LABEL[t.type]||t.type)} — ${esc(code)}</div></div>`;
                 return;
             }
             await ref.update({ checkedIn:true, checkedInAt: firebase.firestore.FieldValue.serverTimestamp() });
-            result.innerHTML = `<div class="checkin-result ok">✅ เช็คอินสำเร็จ!<div class="sub">${esc(t.buyerName)} — ${esc(TYPE_LABEL[t.type]||t.type)} — ${esc(code)}</div></div>`;
+            result.innerHTML = `<div class="checkin-result ok">✅ เช็คอินสำเร็จ!<div class="sub">${esc(holderDisplay)} — ${esc(TYPE_LABEL[t.type]||t.type)} — ${esc(code)}</div></div>`;
         } catch (err) {
             result.innerHTML = `<div class="checkin-result err">เกิดข้อผิดพลาด: ${esc(err.code||err.message)}</div>`;
         }

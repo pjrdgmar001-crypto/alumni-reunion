@@ -1211,8 +1211,7 @@ textarea { resize:vertical; min-height:70px; }
             /* 1. สร้าง QR Code */
             const qrEl = document.getElementById('tt-qr-canvas');
             qrEl.innerHTML = '';
-            const checkInUrl = (window.location.origin + window.location.pathname).replace(/[^/]*$/, 'admin-tickets.html') + '?scan=' + encodeURIComponent(code);
-            new QRCode(qrEl, { text: checkInUrl, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M });
+            new QRCode(qrEl, { text: code, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M });
 
             /* 2. โหลดภาพพื้นหลัง + รอ QR render */
             const [bgImg] = await Promise.all([
@@ -1292,35 +1291,6 @@ textarea { resize:vertical; min-height:70px; }
             ctx.strokeStyle = 'rgba(201,162,39,.3)'; ctx.lineWidth = 1; ctx.setLineDash([5,4]);
             ctx.beginPath(); ctx.moveTo(62, 278); ctx.lineTo(560, 278); ctx.stroke();
             ctx.restore();
-
-            /* ── กล่อง APPROVED (กลางขวา เหนือโปสเตอร์) ── */
-            {
-                const BX = 590, BY = 295, BW = 570, BH = 244, BR = 16;
-                ctx.save();
-                ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 32; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 8;
-                rr(BX, BY, BW, BH, BR);
-                ctx.fillStyle = 'rgba(0,5,15,.82)'; ctx.fill();
-                ctx.restore();
-                ctx.save();
-                rr(BX, BY, BW, BH, BR);
-                ctx.strokeStyle = 'rgba(201,162,39,.75)'; ctx.lineWidth = 2; ctx.stroke();
-                ctx.restore();
-                /* inner gold top bar */
-                rr(BX + 2, BY + 2, BW - 4, 44, BR - 2);
-                ctx.fillStyle = 'rgba(201,162,39,.12)'; ctx.fill();
-                /* checkmark + thai text */
-                const CX = BX + BW / 2;
-                txt('✓  ชำระเงินเรียบร้อยแล้ว', CX, BY + 66, 'bold 28px Sarabun,sans-serif', '#c9a227', 'center');
-                /* horizontal rule */
-                ctx.save();
-                ctx.strokeStyle = 'rgba(201,162,39,.25)'; ctx.lineWidth = 1; ctx.setLineDash([4,3]);
-                ctx.beginPath(); ctx.moveTo(BX + 24, BY + 102); ctx.lineTo(BX + BW - 24, BY + 102); ctx.stroke();
-                ctx.restore();
-                /* APPROVED stamp */
-                txt('APPROVED', CX, BY + 162, 'bold 64px "Courier New",monospace', 'rgba(201,162,39,.90)', 'center');
-                /* bottom stamp line */
-                txt('E-TICKET VERIFIED', CX, BY + BH - 24, '14px "Courier New",monospace', 'rgba(201,162,39,.45)', 'center');
-            }
 
             /* ── 8. ข้อมูลผู้ถือบัตร ── */
             txt('ผู้ถือบัตร', 62, 460, '20px Sarabun,sans-serif', 'rgba(255,255,255,.55)');
