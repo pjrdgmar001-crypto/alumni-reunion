@@ -1285,13 +1285,13 @@ textarea { resize:vertical; min-height:70px; }
 
             /* ชื่องาน (Trirong serif + gold glow) — ขยับลงเล็กน้อย */
             ctx.save();
-            ctx.font = '700 40px "Trirong",Sarabun,sans-serif';
+            ctx.font = '700 52px "Trirong",Sarabun,sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.shadowColor = 'rgba(201,162,39,.4)';
             ctx.shadowBlur = 14;
             ctx.fillStyle = '#ffffff';
-            ctx.fillText('งานเลี้ยงคืนสู่เหย้า ศิษย์เก่าดุริยางค์ พตพ.', CX, 352, 920);
+            ctx.fillText('งานเลี้ยงคืนสู่เหย้า ศิษย์เก่าดุริยางค์ พตพ.', CX, 352, 940);
             ctx.restore();
 
             /* เส้นคั่นทองเล็ก */
@@ -1312,7 +1312,7 @@ textarea { resize:vertical; min-height:70px; }
             txt('วันเสาร์ที่ 1 สิงหาคม พ.ศ. 2569', C1, VY, 'bold 24px Sarabun,sans-serif', '#ffffff', 'center', 290);
 
             txt('เวลาจัดงาน', C2, LY, 'bold 22px Sarabun,sans-serif', '#c9a227', 'center');
-            txt('14:00 - 22:00 น.', C2, VY, 'bold 44px Sarabun,sans-serif', '#ffffff', 'center');
+            txt('14:00 - 22:00 น.', C2, VY, 'bold 28px Sarabun,sans-serif', '#ffffff', 'center');
 
             txt('สถานที่', C3, LY, 'bold 22px Sarabun,sans-serif', '#c9a227', 'center');
             txt('ณ เรือนนพเก้า', C3, VY, 'bold 28px Sarabun,sans-serif', '#ffffff', 'center', 284);
@@ -1336,7 +1336,7 @@ textarea { resize:vertical; min-height:70px; }
 
             /* ─── ซ้าย: ข้อมูลผู้ถือบัตร ─── */
             txt('ผู้ถือบัตร', 52, FY + 14, '14px Sarabun,sans-serif', 'rgba(201,162,39,.75)', 'left');
-            txt(name, 52, FY + 56, 'bold 36px Sarabun,sans-serif', '#ffffff', 'left', 606);
+            txt(name, 52, FY + 56, 'bold 44px Sarabun,sans-serif', '#ffffff', 'left', 612);
 
             /* Type badge */
             const typeLabel = TYPE_PILL[type] || type;
@@ -1356,7 +1356,7 @@ textarea { resize:vertical; min-height:70px; }
             if (nickname)   metaParts.push('ชื่อเล่น: ' + nickname);
             if (generation) metaParts.push('รุ่นที่: ' + generation);
             if (instrument) metaParts.push(INSTRUMENT_LABEL[instrument] || instrument);
-            if (metaParts.length) txt(metaParts.join('  •  '), 52, FY + 140, '17px Sarabun,sans-serif', 'rgba(255,255,255,.78)', 'left', 606);
+            if (metaParts.length) txt(metaParts.join('  •  '), 52, FY + 140, '20px Sarabun,sans-serif', 'rgba(255,255,255,.78)', 'left', 860);
 
             hline(52, 630, FY + 165, 'rgba(201,162,39,.22)', [4,3]);
 
