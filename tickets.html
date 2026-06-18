@@ -1232,8 +1232,10 @@ textarea { resize:vertical; min-height:70px; }
             /* 4. วาดพื้นหลัง */
             ctx.drawImage(bgImg, 0, 0, W, H);
 
-            /* 5. วาด QR Code ลงในกล่องสีขาว (center ≈ x=1190, y=778) */
-            const QR_X = 1063, QR_Y = 651, QR_S = 254;
+            /* 5. วาด QR Code — right:5% w:16% top:67% h:24.5% → canvas 1536×1024 */
+            const QR_S = 246;
+            const QR_X = Math.round(1536 - 0.05*1536 - QR_S); /* 1213 */
+            const QR_Y = Math.round(0.67 * 1024);              /* 686 */
             const qrCanvas = qrEl.querySelector('canvas');
             const qrSrcImg = qrEl.querySelector('img');
             if (qrCanvas) {
@@ -1259,36 +1261,48 @@ textarea { resize:vertical; min-height:70px; }
                 ctx.restore();
             };
 
-            /* ── ข้อมูลงาน (info row — เหนือเส้นประ) ── */
-            /* คอลัมน์ปฏิทิน  center x≈368  |  นาฬิกา center x≈645  |  พิน center x≈876 */
-            txt('วันศุกร์ที่ 1',                    368, 500, 'bold 27px Sarabun,sans-serif', '#c9a227');
-            txt('สิงหาคม 2569',                     368, 531, 'bold 24px Sarabun,sans-serif', '#c9a227');
-            txt('14:00 - 22:00 น.',                 645, 515, 'bold 24px Sarabun,sans-serif', '#c9a227');
-            txt('เรือนนพเก้า',                       876, 500, 'bold 25px Sarabun,sans-serif', '#c9a227');
-            txt('(ตรงข้ามเซ็นทรัลเวสต์วิลล์)',     876, 528, '19px Sarabun,sans-serif',       'rgba(201,162,39,.88)');
+            /*
+             * พิกัดอ้างอิง CSS (container 1200 px wide, image 3:2):
+             *   left%  → x = left%  × 1536 / 100
+             *   top%   → y = top%   × 1024 / 100
+             *   left px (95px) → x = 95 × 1536 / 1200 ≈ 122
+             */
 
-            /* ── ผู้ถือบัตร (ใต้ไอคอนคน) ── */
+            /* ── ข้อมูลงาน (left-aligned เหนือเส้นประ) ── */
+            /* date  left:20.5% top:48.5% → x=315 y=497  (2 บรรทัดแบ่งบน/ล่าง ±11px) */
+            txt('วันศุกร์ที่ 1',  315, 486, 'bold 22px Sarabun,sans-serif', '#c9a227', 'left');
+            txt('สิงหาคม 2569',   315, 509, 'bold 20px Sarabun,sans-serif', '#c9a227', 'left');
+            /* time  left:37.5% top:48.5% → x=576 y=497 */
+            txt('14:00 - 22:00 น.', 576, 497, 'bold 22px Sarabun,sans-serif', '#c9a227', 'left');
+            /* venue left:54.5% top:47.5% → x=837 y=486 */
+            txt('เรือนนพเก้า',                       837, 486, 'bold 20px Sarabun,sans-serif', '#c9a227',              'left');
+            txt('(ตรงข้ามเซ็นทรัลเวสต์วิลล์)',      837, 507, '16px Sarabun,sans-serif',       'rgba(201,162,39,.88)', 'left');
+
+            /* ── ผู้ถือบัตร left:95px/1200→x=122 ── */
             const typeLabel = TYPE_PILL[type] || type;
-            txt(name,                   288, 683, 'bold 32px Sarabun,sans-serif', '#ffffff',              'center', 415);
-            txt('ประเภท: ' + typeLabel, 288, 722, '21px Sarabun,sans-serif',      'rgba(201,162,39,.9)',  'center', 380);
+            /* name  top:73%  → y=748  (ลอยเหนือกรอบมนอันแรก) */
+            txt(name,                   122, 748, 'bold 26px Sarabun,sans-serif', '#ffffff',             'left');
+            /* type  top:77.8%→ y=797  (กึ่งกลางในกรอบมนอันแรก) */
+            txt('ประเภท: ' + typeLabel, 122, 797, '17px Sarabun,sans-serif',      'rgba(201,162,39,.9)', 'left');
 
-            /* ── ข้อมูลเพิ่มเติม (ใต้ไอคอนหมวก) ── */
+            /* ── ข้อมูลเพิ่มเติม top:89.2%→ y=913 (กึ่งกลางในกรอบมนอันสอง) ── */
             const metaParts = [];
             if (nickname)   metaParts.push('ชื่อเล่น ' + nickname);
             if (generation) metaParts.push('รุ่น ' + generation);
             if (instrument) metaParts.push(INSTRUMENT_LABEL[instrument] || instrument);
-            txt(metaParts.join(' • ') || '—', 288, 812, '23px Sarabun,sans-serif', '#c9d4e5', 'center', 415);
+            txt(metaParts.join(' • ') || '—', 122, 913, '17px Sarabun,sans-serif', '#c9d4e5', 'left');
 
-            /* ── ที่นั่ง (กรอบทองกลาง  center x≈762) ── */
+            /* ── ที่นั่ง (กรอบทองกลาง  seat-container top:71.5% left:35.3% w:33.7% h:23%) ── */
+            /* center x = 35.3%×1536 + 33.7%×1536/2 = 542+259 = 801   center y = 71.5%×1024 + 23%×1024/2 = 732+118 = 850 */
             if (tableCode && seatNumber) {
-                txt('โต๊ะ ' + tableCode,      762, 752, 'bold 56px Sarabun,sans-serif', '#c9a227');
-                txt('/ ที่นั่ง ' + seatNumber, 762, 831, 'bold 40px Sarabun,sans-serif', 'rgba(201,162,39,.9)');
+                txt('โต๊ะ ' + tableCode,      801, 820, 'bold 48px Sarabun,sans-serif', '#c9a227');
+                txt('/ ที่นั่ง ' + seatNumber, 801, 875, 'bold 34px Sarabun,sans-serif', 'rgba(201,162,39,.9)');
             } else {
-                txt('(รอการจัดที่นั่ง)', 762, 792, 'italic 27px Sarabun,sans-serif', 'rgba(201,162,39,.4)');
+                txt('(รอการจัดที่นั่ง)', 801, 848, 'italic 26px Sarabun,sans-serif', 'rgba(201,162,39,.4)');
             }
 
-            /* ── รหัสบัตรใต้ QR (center x≈1190) ── */
-            txt(code, 1190, 928, 'bold 20px "Courier New",monospace', 'rgba(255,255,255,.85)');
+            /* ── รหัสบัตรใต้ QR (center x ของช่องขาว = QR_X + QR_S/2) ── */
+            txt(code, QR_X + QR_S/2, QR_Y + QR_S + 14, 'bold 18px "Courier New",monospace', 'rgba(255,255,255,.85)');
 
             /* 6. ดาวน์โหลด */
             canvas.toBlob(blob => {
