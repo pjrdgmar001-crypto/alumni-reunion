@@ -1283,7 +1283,7 @@ textarea { resize:vertical; min-height:70px; }
             ctx.restore();
             txt(CHIP_TXT, chipX + chipW/2, chipCY, 'bold 17px Sarabun,sans-serif', '#c9a227', 'center');
 
-            /* ชื่องาน (Trirong serif ขนาดใหญ่ + gold glow) */
+            /* ชื่องาน (Trirong serif + gold glow) — ขยับลงเล็กน้อย */
             ctx.save();
             ctx.font = '700 40px "Trirong",Sarabun,sans-serif';
             ctx.textAlign = 'center';
@@ -1291,106 +1291,107 @@ textarea { resize:vertical; min-height:70px; }
             ctx.shadowColor = 'rgba(201,162,39,.4)';
             ctx.shadowBlur = 14;
             ctx.fillStyle = '#ffffff';
-            ctx.fillText('งานเลี้ยงคืนสู่เหย้า ศิษย์เก่าดุริยางค์ พตพ.', CX, 322, 920);
+            ctx.fillText('งานเลี้ยงคืนสู่เหย้า ศิษย์เก่าดุริยางค์ พตพ.', CX, 352, 920);
             ctx.restore();
 
             /* เส้นคั่นทองเล็ก */
-            hline(CX - 320, CX + 320, 350, 'rgba(201,162,39,.45)');
+            hline(CX - 320, CX + 320, 386, 'rgba(201,162,39,.45)');
 
-            /* ── 3 คอลัมน์ข้อมูล (centers: 463 / 768 / 1073) ── */
+            /* ── 3 คอลัมน์ข้อมูล (centers: 463 / 768 / 1073) — ขยายใหญ่ + ลงล่าง ── */
             const C1 = 463, C2 = 768, C3 = 1073;
-            const LY = 392, VY = 432, V2Y = 468;
+            const LY = 432, VY = 490, V2Y = 544;
 
             /* เส้นแบ่งคอลัมน์ (ทอง บาง) */
             ctx.save();
             ctx.strokeStyle = 'rgba(201,162,39,.28)'; ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(616, LY - 16); ctx.lineTo(616, V2Y + 16); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(921, LY - 16); ctx.lineTo(921, V2Y + 16); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(616, LY - 18); ctx.lineTo(616, V2Y + 18); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(921, LY - 18); ctx.lineTo(921, V2Y + 18); ctx.stroke();
             ctx.restore();
 
-            txt('วันจัดงาน', C1, LY, '18px Sarabun,sans-serif', '#c9a227', 'center');
-            txt('วันเสาร์ที่ 1 สิงหาคม พ.ศ. 2569', C1, VY, '21px Sarabun,sans-serif', '#ffffff', 'center', 292);
+            txt('วันจัดงาน', C1, LY, 'bold 22px Sarabun,sans-serif', '#c9a227', 'center');
+            txt('วันเสาร์ที่ 1 สิงหาคม พ.ศ. 2569', C1, VY, 'bold 24px Sarabun,sans-serif', '#ffffff', 'center', 290);
 
-            txt('เวลาจัดงาน', C2, LY, '18px Sarabun,sans-serif', '#c9a227', 'center');
-            txt('14:00 - 22:00 น.', C2, VY, '26px Sarabun,sans-serif', '#ffffff', 'center');
+            txt('เวลาจัดงาน', C2, LY, 'bold 22px Sarabun,sans-serif', '#c9a227', 'center');
+            txt('14:00 - 22:00 น.', C2, VY, 'bold 44px Sarabun,sans-serif', '#ffffff', 'center');
 
-            txt('สถานที่', C3, LY, '18px Sarabun,sans-serif', '#c9a227', 'center');
-            txt('ณ เรือนนพเก้า', C3, VY, '22px Sarabun,sans-serif', '#ffffff', 'center', 285);
-            txt('(ตรงข้ามเซ็นทรัลเวสต์วิลล์)', C3, V2Y, '16px Sarabun,sans-serif', 'rgba(255,255,255,.65)', 'center', 285);
+            txt('สถานที่', C3, LY, 'bold 22px Sarabun,sans-serif', '#c9a227', 'center');
+            txt('ณ เรือนนพเก้า', C3, VY, 'bold 28px Sarabun,sans-serif', '#ffffff', 'center', 284);
+            txt('(ตรงข้ามเซ็นทรัลเวสต์วิลล์)', C3, V2Y, '18px Sarabun,sans-serif', 'rgba(255,255,255,.65)', 'center', 284);
 
             /* ════════════════════════════════════════════
-               ส่วนล่าง: frame ทอง  FY=650–1004
+               ส่วนล่าง: frame ทอง  FY=736–1004
+               เส้นประอยู่ที่ ~720 — FY=736 ต่ำกว่า 16px
                แบ่ง 3 โซน: ผู้ถือบัตร | ที่นั่ง | QR
                DIV1=678, DIV2=1040
                ════════════════════════════════════════════ */
-            const FY = 650, FH = 354;  // ต่ำกว่าเส้นประ 100%
+            const FY = 736, FH = 268;
             const DIV1 = 678, DIV2 = 1040;
 
             /* เส้นแบ่งแนวตั้ง (ทอง) */
             ctx.save();
             ctx.strokeStyle = 'rgba(201,162,39,.38)'; ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(DIV1, FY + 16); ctx.lineTo(DIV1, FY + FH - 16); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(DIV2, FY + 16); ctx.lineTo(DIV2, FY + FH - 16); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(DIV1, FY + 12); ctx.lineTo(DIV1, FY + FH - 12); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(DIV2, FY + 12); ctx.lineTo(DIV2, FY + FH - 12); ctx.stroke();
             ctx.restore();
 
-            /* ─── ซ้าย: ข้อมูลผู้ถือบัตร (x: 44–660) ─── */
-            txt('ผู้ถือบัตร', 52, FY + 26, '15px Sarabun,sans-serif', 'rgba(201,162,39,.75)', 'left');
-            txt(name, 52, FY + 82, 'bold 38px Sarabun,sans-serif', '#ffffff', 'left', 600);
+            /* ─── ซ้าย: ข้อมูลผู้ถือบัตร ─── */
+            txt('ผู้ถือบัตร', 52, FY + 14, '14px Sarabun,sans-serif', 'rgba(201,162,39,.75)', 'left');
+            txt(name, 52, FY + 56, 'bold 36px Sarabun,sans-serif', '#ffffff', 'left', 606);
 
             /* Type badge */
             const typeLabel = TYPE_PILL[type] || type;
             const BADGE_COLOR = { adult:'#1d4ed8', child:'#15803d', baby:'#c2410c' };
-            ctx.save(); ctx.font = 'bold 21px Sarabun,sans-serif';
-            const badgeW = ctx.measureText(typeLabel).width + 46;
+            ctx.save(); ctx.font = 'bold 20px Sarabun,sans-serif';
+            const badgeW = ctx.measureText(typeLabel).width + 44;
             ctx.restore();
-            const badgeH = 38, badgeCY = FY + 138;
+            const badgeH = 36, badgeCY = FY + 100;
             ctx.save();
             rr(52, badgeCY - badgeH/2, badgeW, badgeH, badgeH/2);
             ctx.fillStyle = BADGE_COLOR[type] || '#1d4ed8'; ctx.fill();
             ctx.restore();
-            txt(typeLabel, 52 + badgeW/2, badgeCY, 'bold 21px Sarabun,sans-serif', '#ffffff', 'center');
+            txt(typeLabel, 52 + badgeW/2, badgeCY, 'bold 20px Sarabun,sans-serif', '#ffffff', 'center');
 
             /* Meta */
             const metaParts = [];
             if (nickname)   metaParts.push('ชื่อเล่น: ' + nickname);
             if (generation) metaParts.push('รุ่นที่: ' + generation);
             if (instrument) metaParts.push(INSTRUMENT_LABEL[instrument] || instrument);
-            if (metaParts.length) txt(metaParts.join('  •  '), 52, FY + 190, '19px Sarabun,sans-serif', 'rgba(255,255,255,.78)', 'left', 600);
+            if (metaParts.length) txt(metaParts.join('  •  '), 52, FY + 140, '17px Sarabun,sans-serif', 'rgba(255,255,255,.78)', 'left', 606);
 
-            hline(52, 630, FY + 220, 'rgba(201,162,39,.22)', [4,3]);
+            hline(52, 630, FY + 165, 'rgba(201,162,39,.22)', [4,3]);
 
             /* CODE */
-            txt('CODE :  ' + code, 52, FY + 246, 'bold 19px "Courier New",monospace', '#c9a227');
+            txt('CODE :  ' + code, 52, FY + 186, 'bold 17px "Courier New",monospace', '#c9a227');
 
-            /* ─── กลาง: ที่นั่ง (center=(DIV1+DIV2)/2=859) ─── */
+            /* ─── กลาง: ที่นั่ง (center=859) ─── */
             const SCX = (DIV1 + DIV2) / 2;
             if (tableCode && seatNumber) {
-                txt('ที่นั่งของคุณ', SCX, FY + 26, '15px Sarabun,sans-serif', 'rgba(201,162,39,.75)', 'center');
-                hline(SCX - 110, SCX + 110, FY + 48, 'rgba(201,162,39,.25)');
+                txt('ที่นั่งของคุณ', SCX, FY + 14, '14px Sarabun,sans-serif', 'rgba(201,162,39,.75)', 'center');
+                hline(SCX - 100, SCX + 100, FY + 34, 'rgba(201,162,39,.25)');
 
-                txt('โต๊ะ', SCX, FY + 82, 'bold 18px Sarabun,sans-serif', 'rgba(201,162,39,.7)', 'center');
-                txt(String(tableCode), SCX, FY + 140, 'bold 56px "Courier New",monospace', '#c9a227', 'center');
+                txt('โต๊ะ', SCX, FY + 56, 'bold 16px Sarabun,sans-serif', 'rgba(201,162,39,.7)', 'center');
+                txt(String(tableCode), SCX, FY + 104, 'bold 48px "Courier New",monospace', '#c9a227', 'center');
 
-                hline(SCX - 80, SCX + 80, FY + 186, 'rgba(201,162,39,.22)');
+                hline(SCX - 70, SCX + 70, FY + 140, 'rgba(201,162,39,.22)');
 
-                txt('ที่นั่ง', SCX, FY + 218, 'bold 18px Sarabun,sans-serif', 'rgba(201,162,39,.7)', 'center');
-                txt(String(seatNumber), SCX, FY + 290, 'bold 68px "Courier New",monospace', '#c9a227', 'center');
+                txt('ที่นั่ง', SCX, FY + 164, 'bold 16px Sarabun,sans-serif', 'rgba(201,162,39,.7)', 'center');
+                txt(String(seatNumber), SCX, FY + 218, 'bold 52px "Courier New",monospace', '#c9a227', 'center');
             }
 
-            /* ─── ขวา: QR Card (center=(DIV2+W-28)/2≈1280) ─── */
+            /* ─── ขวา: QR Card ─── */
             const QR_CX = Math.round((DIV2 + W - 28) / 2);
-            const QR_S = 248;
-            const CARD_W = QR_S + 44, CARD_H = QR_S + 68;
+            const QR_S = 200;
+            const CARD_W = QR_S + 44, CARD_H = QR_S + 58;
             const CARD_X = Math.round(QR_CX - CARD_W / 2);
             const CARD_Y = FY + Math.round((FH - CARD_H) / 2);
 
             ctx.save();
-            ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 18; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 4;
+            ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 10; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 2;
             rr(CARD_X, CARD_Y, CARD_W, CARD_H, 10);
             ctx.fillStyle = '#ffffff'; ctx.fill();
             ctx.restore();
 
-            const QR_X = CARD_X + 22, QR_Y = CARD_Y + 14;
+            const QR_X = CARD_X + 22, QR_Y = CARD_Y + 12;
             const qrCanvas = qrEl.querySelector('canvas');
             const qrSrcImg = qrEl.querySelector('img');
             if (qrCanvas) {
