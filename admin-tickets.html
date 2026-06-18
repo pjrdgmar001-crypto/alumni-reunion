@@ -137,6 +137,30 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
 .seat-table td { padding:.4rem .6rem; border-bottom:1px solid var(--border); vertical-align:middle; }
 .seat-table tr:nth-child(even) td { background:var(--bg); }
 .tbl-chip { display:inline-block; background:var(--navy); color:#fff; padding:.2rem .7rem; border-radius:10px; font-size:.78rem; font-weight:700; white-space:nowrap; }
+
+/* ── VISUAL SEATING MAP ── */
+.sim-outer{background:#0d1929;border-radius:var(--r);padding:1.2rem .8rem;overflow-x:auto;}
+.sim-inner{min-width:390px;max-width:540px;margin:0 auto;}
+.sim-stage{background:linear-gradient(180deg,#2d4870,#1a2d4a);color:#c9a227;text-align:center;padding:.55rem 1rem;border-radius:8px 8px 0 0;font-weight:800;font-size:.9rem;letter-spacing:.1em;border:1px solid rgba(201,162,39,.4);margin-bottom:.7rem;}
+.sim-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;justify-items:center;align-items:center;padding-bottom:.3rem;}
+.sim-tbl{width:62px;height:62px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:transform .15s;border:2.5px solid;}
+.sim-tbl:hover{transform:scale(1.15);z-index:10;}
+.sim-tbl.s-empty{background:rgba(21,128,61,.2);border-color:#15803d;}
+.sim-tbl.s-partial{background:rgba(194,116,10,.2);border-color:#c2740a;}
+.sim-tbl.s-full{background:rgba(220,38,38,.2);border-color:#dc2626;}
+.sim-tbl.s-vip{background:rgba(201,162,39,.2);border-color:#c9a227;}
+.sim-name{color:#fff;font-weight:800;font-size:.78rem;line-height:1;}
+.sim-cnt{font-size:.62rem;color:rgba(255,255,255,.6);margin-top:.1rem;}
+.sim-aisle{color:rgba(201,162,39,.4);font-size:.58rem;font-weight:700;text-align:center;letter-spacing:.05em;line-height:1.5;}
+.sim-entry-lbl{grid-column:1/-1;color:rgba(201,162,39,.55);text-align:center;font-size:.7rem;font-weight:700;letter-spacing:.06em;padding:.2rem 0;}
+.sim-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#0f1d30;border:1.5px solid rgba(201,162,39,.45);border-radius:8px;padding:.5rem .75rem;z-index:500;pointer-events:none;opacity:0;transition:opacity .15s;min-width:150px;max-width:220px;font-size:.73rem;color:#fff;}
+.sim-tbl:hover .sim-tooltip{opacity:1;}
+.sim-tt-hd{font-weight:800;color:#c9a227;border-bottom:1px solid rgba(201,162,39,.25);padding-bottom:.2rem;margin-bottom:.25rem;font-size:.74rem;}
+.sim-tt-row{padding:.07rem 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+.sim-legend{display:flex;gap:.7rem;flex-wrap:wrap;justify-content:center;margin-top:.75rem;font-size:.7rem;}
+.sim-leg{display:flex;align-items:center;gap:.3rem;color:rgba(255,255,255,.65);}
+.sim-leg-dot{width:9px;height:9px;border-radius:50%;border:2px solid;flex-shrink:0;}
+.ro-notice{background:var(--gold-bg);border:1.5px solid var(--gold-bd);border-radius:var(--r);padding:.7rem 1rem;font-size:.83rem;color:var(--gold-dk);font-weight:600;}
 </style>
 </head>
 <body>
@@ -228,17 +252,46 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             </div>
 
             <div class="card">
-                <div class="card-title">⚙️ อัลกอริทึมจัดที่นั่งอัตโนมัติ</div>
+                <div class="card-title">⚙️ ระบบจัดที่นั่งอัตโนมัติตามรุ่น</div>
                 <div class="card-sub">เรียงรุ่นจากน้อยไปมาก · เหมาโต๊ะได้โต๊ะสะอาด · VIP จัดแยกด้วยมือ</div>
                 <div class="warn-box">
                     <span class="wt">⚠️ ข้อควรระวัง</span>
                     การรันจะ<b>เขียนทับ</b>ที่นั่งเดิมทุกใบ — ควรรันหลัง<b>ปิดการขาย</b>แล้วเท่านั้น<br>
-                    ต้องใช้สิทธิ์ <b>"ประธาน"</b> เท่านั้น
+                    ต้องใช้สิทธิ์ <b>"ประธาน"</b> เท่านั้น · โต๊ะ VIP, T1–T25 · โต๊ะละ 10 ที่นั่ง
                 </div>
-                <div style="display:flex;gap:.8rem;flex-wrap:wrap">
-                    <button class="btn btn-navy" id="runSeatingBtn" onclick="runAutoSeating()">▶️ รันจัดที่นั่งอัตโนมัติ</button>
-                    <button class="btn btn-red btn-sm" id="resetSeatingBtn" onclick="resetSeating()">🗑️ รีเซ็ตที่นั่งทั้งหมด</button>
+                <!-- President-only controls -->
+                <div id="presidentSeatingCtrl" style="display:none">
+                    <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:.8rem">
+                        <button class="btn btn-navy" id="runSeatingBtn" onclick="runAutoSeating()">▶️ รันระบบจัดที่นั่งอัตโนมัติ (Auto-Assign Tables)</button>
+                        <button class="btn btn-red btn-sm" id="resetSeatingBtn" onclick="resetSeating()">🗑️ รีเซ็ตที่นั่งทั้งหมด</button>
+                    </div>
+                </div>
+                <!-- Staff read-only notice -->
+                <div id="staffReadOnlyNotice" class="ro-notice" style="margin-top:.7rem;display:none">
+                    👁️ โหมดอ่านอย่างเดียว — ทีมงานสามารถดูผังที่นั่งเพื่อเช็กชื่อหน้างานได้ แต่ไม่สามารถแก้ไขได้
+                </div>
+                <div style="margin-top:.8rem">
                     <button class="btn btn-outline btn-sm" onclick="exportSeatingCSV()">📥 Export ผังที่นั่ง (CSV)</button>
+                </div>
+            </div>
+
+            <!-- Visual Seating Simulator -->
+            <div class="card" style="padding:1.2rem">
+                <div class="card-title" style="margin-bottom:.3rem">🗺️ ผังที่นั่งแบบภาพ (Visual Seating Simulator)</div>
+                <div class="card-sub" style="margin-bottom:.9rem">Real-time · 🟢 ว่าง · 🟡 กำลังนั่ง · 🔴 เต็ม · Hover เพื่อดูรายชื่อ</div>
+                <div class="sim-outer">
+                    <div class="sim-inner">
+                        <div class="sim-stage">⭐&nbsp;&nbsp;เวที&nbsp;&nbsp;⭐</div>
+                        <div class="sim-grid" id="seatingMapGrid">
+                            <!-- render โดย initSeatingMap() -->
+                        </div>
+                        <div class="sim-legend">
+                            <div class="sim-leg"><div class="sim-leg-dot" style="background:#15803d;border-color:#15803d"></div>ว่าง (0/10)</div>
+                            <div class="sim-leg"><div class="sim-leg-dot" style="background:#c2740a;border-color:#c2740a"></div>กำลังนั่ง (1–9)</div>
+                            <div class="sim-leg"><div class="sim-leg-dot" style="background:#dc2626;border-color:#dc2626"></div>เต็ม (10/10)</div>
+                            <div class="sim-leg"><div class="sim-leg-dot" style="background:#c9a227;border-color:#c9a227"></div>VIP</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -264,6 +317,26 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             </div>
         </section>
     </main>
+</div>
+
+<!-- SEAT OVERRIDE MODAL (President only) -->
+<div class="modal-ov" id="seatOverrideModal" onclick="if(event.target===this) hideSeatOverride()">
+    <div class="modal" style="text-align:left;max-width:400px">
+        <div class="card-title" style="margin-bottom:.3rem">✏️ แก้ไขที่นั่งด้วยมือ</div>
+        <div class="card-sub" style="margin-bottom:1rem">เฉพาะสิทธิ์ประธาน (Manual Override)</div>
+        <div style="margin-bottom:.8rem">
+            <label class="lbl">โต๊ะ</label>
+            <select id="ov-table"></select>
+        </div>
+        <div style="margin-bottom:.8rem">
+            <label class="lbl">เลขเก้าอี้ในโต๊ะ (1–10)</label>
+            <input type="number" id="ov-seat" min="1" max="10" value="1">
+        </div>
+        <div class="modal-btns">
+            <button class="btn btn-outline" onclick="hideSeatOverride()">ยกเลิก</button>
+            <button class="btn btn-navy" onclick="saveSeatOverride()">💾 บันทึก</button>
+        </div>
+    </div>
 </div>
 
 <!-- SLIP MODAL -->
@@ -396,12 +469,18 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         document.getElementById('appWrap').style.display = 'block';
         const roleEl = document.getElementById('roleBadge');
         if (isChairman) {
-            roleEl.textContent = '⭐ เข้าสู่ระบบในสิทธิ์ "ประธาน" — สามารถอนุมัติคำสั่งซื้อขั้นสุดท้ายได้';
+            roleEl.textContent = '⭐ เข้าสู่ระบบในสิทธิ์ "ประธาน" — สามารถอนุมัติและจัดที่นั่งได้';
             roleEl.style.color = 'var(--gold-dk)';
         } else {
-            roleEl.textContent = '👤 เข้าสู่ระบบในสิทธิ์ "ทีมงาน" — ตรวจสอบสลิปและส่งให้ประธานอนุมัติ';
+            roleEl.textContent = '👤 เข้าสู่ระบบในสิทธิ์ "ทีมงาน" — ตรวจสอบสลิปและดูผังที่นั่ง (โหมดอ่านอย่างเดียว)';
             roleEl.style.color = 'var(--text-2)';
         }
+        /* แสดง/ซ่อนส่วนที่นั่งตามสิทธิ์ */
+        document.getElementById('presidentSeatingCtrl').style.display = isChairman ? 'block' : 'none';
+        document.getElementById('staffReadOnlyNotice').style.display  = isChairman ? 'none' : 'block';
+        /* เติม dropdown โต๊ะใน override modal */
+        const ovSel = document.getElementById('ov-table');
+        if (ovSel) ovSel.innerHTML = ALL_TABLES.map(tc => `<option value="${tc}">${tc}</option>`).join('');
         listenOrders();
         listenTickets();
         listenSalesConfig();
@@ -480,7 +559,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
         document.getElementById('sec-'+tab).classList.add('active');
         if (tab !== 'checkin' && scannerRunning) toggleScanner();
-        if (tab === 'seating') loadSeatingSummary();
+        if (tab === 'seating') { loadSeatingSummary(); initSeatingMap(); }
     }
 
     /* ── Real-time listeners ── */
@@ -519,6 +598,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         db.collection(TICKETS_COL).onSnapshot(snap => {
             tickets = snap.docs.map(d => ({ id:d.id, ...d.data() }));
             renderStats();
+            renderSeatingMap();
         }, err => console.error(err));
     }
 
@@ -1021,23 +1101,32 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
        ── SEATING ALGORITHM ──
        ════════════════════════════════════════════ */
 
-    /* ผังโต๊ะตามภาพ b8e3cbb5 (VIP จัดมือ ไม่รวมในอัตโนมัติ) */
+    /* ผังโต๊ะ VIP, T1–T25 ตามภาพผัง (VIP = จัดด้วยมือ ไม่รวมในอัตโนมัติ) */
     const SEATING_PLAN = [
-        /* ฝั่งซ้าย */
-        'T1','T2','T3','T4','T5','T6','T7','T8','T9','T10',
-        'T11_1','T12_1','T11_2','T12_2','T25',
-        /* ฝั่งขวา */
-        'T13','T14','T15','T16','T17','T18','T19','T20','T21','T22',
-        'T23_1','T24_1','T23_2','T24_2'
+        'T1','T2','T3','T4','T5','T6','T7','T8',
+        'T9','T10','T11','T12','T13','T14','T15','T16',
+        'T17','T18','T19','T20','T21','T22','T23','T24','T25'
     ];
+    const ALL_TABLES = ['VIP', ...SEATING_PLAN];
     const SEATS_PER_TABLE = 10;
 
-    /* สร้างลิสต์ slot ทั้งหมด [{tableCode, seatNumber (global)}] */
+    /* Layout grid สำหรับ Visual Simulator (5 คอลัมน์ ซ้าย|ซ้าย|กลาง|ขวา|ขวา) */
+    const MAP_LAYOUT = [
+        ['T1',  'T2',  'VIP',      'T13', 'T14'],
+        ['T3',  'T4',  null,        'T15', 'T16'],
+        ['T5',  'T6',  'ทาง\nเดิน','T17', 'T18'],
+        ['T7',  'T8',  null,        'T19', 'T20'],
+        ['T9',  'T10', null,        'T21', 'T22'],
+        ['T11', 'T12', null,        'T23', 'T24'],
+        ['T25', null,  '↑\nทางเข้า',null,  null],
+    ];
+
+    /* สร้างลิสต์ slot ทั้งหมด เลขเก้าอี้ 1–10 ต่อโต๊ะ (local) */
     function buildSeatSlots() {
         const slots = [];
-        SEATING_PLAN.forEach((tableCode, tIdx) => {
+        SEATING_PLAN.forEach(tableCode => {
             for (let s = 1; s <= SEATS_PER_TABLE; s++) {
-                slots.push({ tableCode, seatNumber: tIdx * SEATS_PER_TABLE + s });
+                slots.push({ tableCode, seatNumber: s });
             }
         });
         return slots;
@@ -1189,6 +1278,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
 
         let html = `<div class="card" style="padding:1rem 1.2rem">
             <div class="card-title">📋 ผลการจัดที่นั่ง — รวม ${assignments.length} บัตร</div>
+            ${isChairman ? '<div class="card-sub">กดปุ่ม ✏️ เพื่อแก้ไขที่นั่งรายบุคคล (สิทธิ์ประธาน)</div>' : '<div class="card-sub">โหมดอ่านอย่างเดียว</div>'}
         </div>`;
 
         SEATING_PLAN.forEach(tableCode => {
@@ -1201,7 +1291,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                     <span style="font-size:.82rem;color:var(--text-3)">${seats.length}/${SEATS_PER_TABLE} ที่นั่ง</span>
                 </div>
                 <table class="seat-table">
-                    <tr><th>เลขที่นั่ง</th><th>ชื่อผู้ถือบัตร</th><th>รุ่น</th><th>เครื่องดนตรี</th><th>รหัสบัตร</th></tr>
+                    <tr><th>เก้าอี้</th><th>ชื่อผู้ถือบัตร</th><th>รุ่น</th><th>เครื่องดนตรี</th><th>รหัสบัตร</th>${isChairman ? '<th>แก้ไข</th>' : ''}</tr>
                     ${seats.map(s => {
                         const t = s.ticket || {};
                         return `<tr>
@@ -1210,6 +1300,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                             <td>${esc(t.generation||'—')}</td>
                             <td>${esc(t.instrument||'—')}</td>
                             <td style="font-family:monospace;font-size:.76rem">${esc(t.code||'—')}</td>
+                            ${isChairman ? `<td><button class="btn btn-outline btn-sm" style="padding:.2rem .45rem;font-size:.72rem" onclick="openSeatOverride('${esc(t.code||'')}','${esc(s.tableCode)}',${s.seatNumber})">✏️</button></td>` : ''}
                         </tr>`;
                     }).join('')}
                 </table>
@@ -1222,11 +1313,126 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     function exportSeatingCSV() {
         const seated = tickets.filter(t => t.paid && t.tableCode);
         if (!seated.length) { toast('ยังไม่มีข้อมูลที่นั่ง กรุณารันจัดที่นั่งก่อน','error'); return; }
-        const hdr = ['เลขที่นั่ง','โต๊ะ','รหัสบัตร','ชื่อผู้ถือบัตร','รุ่น','เครื่องดนตรี','ประเภทบัตร'];
+        const hdr = ['โต๊ะ','เก้าอี้','รหัสบัตร','ชื่อผู้ถือบัตร','รุ่น','เครื่องดนตรี','ประเภทบัตร'];
+        const tableOrder = (tc) => tc === 'VIP' ? -1 : ALL_TABLES.indexOf(tc);
         const rows = seated
-            .slice().sort((a,b) => (a.seatNumber||0) - (b.seatNumber||0))
-            .map(t => [t.seatNumber, t.tableCode, t.code, t.holderName||t.buyerName, t.generation||'', t.instrument||'', TYPE_LABEL[t.type]||t.type]);
+            .slice().sort((a,b) => {
+                const td = tableOrder(a.tableCode) - tableOrder(b.tableCode);
+                return td !== 0 ? td : (a.seatNumber||0) - (b.seatNumber||0);
+            })
+            .map(t => [t.tableCode, t.seatNumber, t.code, t.holderName||t.buyerName, t.generation||'', t.instrument||'', TYPE_LABEL[t.type]||t.type]);
         downloadCSV('ผังที่นั่ง.csv', hdr, rows);
+    }
+
+    /* ══════════════════════════════════════════════
+       ── VISUAL SEATING MAP ──
+       ════════════════════════════════════════════ */
+
+    let seatingMapBuilt = false;
+
+    function simTableHTML(code) {
+        const isVip = code === 'VIP';
+        return `<div class="sim-tbl ${isVip ? 's-vip' : 's-empty'}" id="simT-${code}">
+            <div class="sim-name">${code}</div>
+            <div class="sim-cnt">0/10</div>
+            <div class="sim-tooltip">
+                <div class="sim-tt-hd">${code} — 0/10 ที่นั่ง</div>
+                <div style="color:rgba(255,255,255,.4)">ว่าง</div>
+            </div>
+        </div>`;
+    }
+
+    function initSeatingMap() {
+        const grid = document.getElementById('seatingMapGrid');
+        if (!grid) return;
+        let html = '';
+        MAP_LAYOUT.forEach(row => {
+            row.forEach(cell => {
+                if (cell === null) {
+                    html += '<div></div>';
+                } else if (ALL_TABLES.includes(cell)) {
+                    html += simTableHTML(cell);
+                } else {
+                    /* aisle / entry label */
+                    html += `<div class="sim-aisle">${cell.replace(/\n/g,'<br>')}</div>`;
+                }
+            });
+        });
+        html += `<div class="sim-entry-lbl">— ประตูทางเข้าห้อง —</div>`;
+        grid.innerHTML = html;
+        seatingMapBuilt = true;
+        renderSeatingMap();
+    }
+
+    function renderSeatingMap() {
+        if (!seatingMapBuilt) return;
+        /* คำนวณ occupancy */
+        const occ = {};
+        ALL_TABLES.forEach(tc => { occ[tc] = { count: 0, people: [] }; });
+        tickets.filter(t => t.paid && t.tableCode && occ[t.tableCode]).forEach(t => {
+            occ[t.tableCode].count++;
+            occ[t.tableCode].people.push({
+                name: t.holderName || t.buyerName || '—',
+                gen:  t.generation || '—',
+                seat: t.seatNumber || '—'
+            });
+        });
+        ALL_TABLES.forEach(tc => {
+            const el = document.getElementById('simT-' + tc);
+            if (!el) return;
+            const d = occ[tc];
+            const c = d.count;
+            const isVip = tc === 'VIP';
+            /* อัปเดตสี */
+            el.className = 'sim-tbl ' + (isVip ? 's-vip' : c === 0 ? 's-empty' : c >= SEATS_PER_TABLE ? 's-full' : 's-partial');
+            /* อัปเดตตัวเลข */
+            const cntEl = el.querySelector('.sim-cnt');
+            if (cntEl) cntEl.textContent = `${c}/10`;
+            /* อัปเดต tooltip */
+            const ttEl = el.querySelector('.sim-tooltip');
+            if (!ttEl) return;
+            const rows = d.people.length
+                ? d.people.slice(0,10).map(p =>
+                    `<div class="sim-tt-row">เก้าอี้ ${p.seat}: ${esc(p.name)} (รุ่น ${esc(p.gen)})</div>`
+                  ).join('')
+                : '<div style="color:rgba(255,255,255,.4)">ว่าง</div>';
+            ttEl.innerHTML = `<div class="sim-tt-hd">${tc} — ${c}/10 ที่นั่ง</div>${rows}`;
+        });
+    }
+
+    /* ── Manual Seat Override (President only) ── */
+    let overrideTicketId = null;
+
+    function openSeatOverride(ticketCode, currentTable, currentSeat) {
+        if (!isChairman) { toast('เฉพาะประธานเท่านั้นที่แก้ไขที่นั่งได้','error'); return; }
+        overrideTicketId = ticketCode;
+        const sel = document.getElementById('ov-table');
+        if (sel) sel.value = currentTable || 'T1';
+        const seatEl = document.getElementById('ov-seat');
+        if (seatEl) seatEl.value = currentSeat || 1;
+        document.getElementById('seatOverrideModal').classList.add('show');
+    }
+    function hideSeatOverride() {
+        document.getElementById('seatOverrideModal').classList.remove('show');
+        overrideTicketId = null;
+    }
+    async function saveSeatOverride() {
+        if (!isChairman || !overrideTicketId) return;
+        const tbl  = document.getElementById('ov-table').value.trim();
+        const seat = parseInt(document.getElementById('ov-seat').value, 10);
+        if (!tbl) { toast('กรุณาเลือกโต๊ะ','error'); return; }
+        if (isNaN(seat) || seat < 1 || seat > SEATS_PER_TABLE) {
+            toast(`เลขเก้าอี้ต้องอยู่ระหว่าง 1–${SEATS_PER_TABLE}`,'error'); return;
+        }
+        try {
+            await db.collection(TICKETS_COL).doc(overrideTicketId).update({
+                tableCode: tbl, seatNumber: seat
+            });
+            toast(`✅ บันทึกแล้ว: ${tbl} เก้าอี้ ${seat}`);
+            hideSeatOverride();
+        } catch(err) {
+            toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error');
+        }
     }
 
     /* ── Helpers ── */
