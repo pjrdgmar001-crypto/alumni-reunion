@@ -486,7 +486,28 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         listenSalesConfig();
         listenRegConfig();
     }
-    if (isAdmin) initApp();
+    if (isAdmin) {
+        initApp();
+        /* ── ?scan=CODE — staff scans QR → auto check-in ── */
+        const _scanParam = new URLSearchParams(window.location.search).get('scan');
+        if (_scanParam) {
+            const _autoScan = async () => {
+                const snap = await db.collection('ptpt_tickets').where('code', '==', _scanParam).limit(1).get();
+                if (snap.empty) { toast('ไม่พบรหัสบัตร: ' + _scanParam, 'error'); return; }
+                const tDoc = snap.docs[0];
+                const tData = tDoc.data();
+                if (tData.checkedIn) {
+                    toast('⚠️ บัตรนี้เช็กอินแล้ว (' + (tData.checkedInAt?.toDate?.()?.toLocaleTimeString('th-TH') || '') + ')', 'error');
+                    return;
+                }
+                await tDoc.ref.update({ checkedIn: true, checkedInAt: firebase.firestore.FieldValue.serverTimestamp() });
+                toast('✅ เช็กอินสำเร็จ! รหัส: ' + _scanParam, 'success');
+                /* ล้าง ?scan= ออกจาก URL โดยไม่ reload */
+                history.replaceState(null, '', window.location.pathname);
+            };
+            _autoScan().catch(err => toast('เช็กอินไม่สำเร็จ: ' + err.message, 'error'));
+        }
+    }
 
     /* ── เปิด/ปิดหน้าซื้อบัตรสำหรับสาธารณะ ── */
     let salesOpen = false;
