@@ -241,6 +241,17 @@ textarea { resize:vertical; min-height:70px; }
     <!-- ===== BUY TAB ===== -->
     <section class="sec active" id="sec-buy">
 
+        <!-- LATE SLIP BANNER -->
+        <div class="card" style="background:var(--gold-bg);border-color:var(--gold-bd);padding:1.1rem 1.4rem;margin-bottom:1.2rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem">
+                <div>
+                    <div style="font-size:.95rem;font-weight:700;color:var(--gold-dk)">📤 สั่งซื้อไว้แล้ว แต่อยู่ระหว่างรอชำระเงิน?</div>
+                    <div style="font-size:.82rem;color:var(--text-2);margin-top:.2rem">คลิกที่นี่เพื่อแนบสลิปย้อนหลัง (สามารถทำได้ภายใน 48 ชั่วโมง นับจากเวลาที่กดสั่งซื้อ)</div>
+                </div>
+                <button class="btn-gold" style="width:auto;padding:.65rem 1.4rem;flex-shrink:0" onclick="openLateSlipModal()">แนบสลิปย้อนหลัง →</button>
+            </div>
+        </div>
+
         <!-- STEP 1: ORDER FORM -->
         <div id="step-form">
             <div class="card">
@@ -402,7 +413,7 @@ textarea { resize:vertical; min-height:70px; }
                 <div class="warn-box">
                     <span class="wt">⚠️ ข้อกำหนดและเงื่อนไข</span>
                     <b>เมื่อชำระเงินและออกบัตรเรียบร้อยแล้ว ไม่สามารถเปลี่ยนประเภทบัตรหรือคืนเงินได้ทุกกรณี</b><br>
-                    กรุณาแนบสลิปการโอนเงินภายใน <b>24 ชั่วโมง</b> หลังจากกดสั่งซื้อ มิฉะนั้นระบบจะยกเลิกคำสั่งซื้ออัตโนมัติและคืนโควต้าบัตรกลับสู่ระบบ
+                    กรุณาแนบสลิปการโอนเงินภายใน <b>48 ชั่วโมง</b> หลังจากกดสั่งซื้อ มิฉะนั้นระบบจะยกเลิกคำสั่งซื้ออัตโนมัติและคืนโควต้าบัตรกลับสู่ระบบ
                 </div>
 
                 <label class="terms-row">
@@ -496,7 +507,7 @@ textarea { resize:vertical; min-height:70px; }
             เมื่อชำระเงินและระบบออกบัตรเสร็จสิ้นแล้ว จะไม่สามารถขอเปลี่ยนประเภทบัตร หรือคืนเงิน (Non-refundable) ได้ทุกกรณี
 
             <h4>2. การจำกัดเวลาชำระเงิน</h4>
-            ผู้จองจะต้องแนบสลิปโอนเงินภายใน <b>24 ชั่วโมง</b> หลังจากกดจอง หากเกินเวลาทางระบบจะทำการยกเลิกตั๋วโดยอัตโนมัติ และคืนโควต้าบัตรกลับสู่ระบบ
+            ผู้จองจะต้องแนบสลิปโอนเงินภายใน <b>48 ชั่วโมง</b> หลังจากกดจอง หากเกินเวลาทางระบบจะทำการยกเลิกตั๋วโดยอัตโนมัติ และคืนโควต้าบัตรกลับสู่ระบบ
 
             <h4>3. กฎระเบียบและค่าชดเชยภายในงาน</h4>
             ห้ามนำอาวุธและสารเสพติดเข้ามาในงานเด็ดขาด กรณีทำแก้วน้ำหรือทรัพย์สินของสถานที่ชำรุด จะต้องชดเชยตามราคาประเมินจริงของทางสถานที่
@@ -525,6 +536,27 @@ textarea { resize:vertical; min-height:70px; }
         <div class="modal-ft">
             <button class="btn-outline" onclick="closeConfirmModal()">ตรวจสอบอีกครั้ง</button>
             <button class="btn-submit" id="confirmSubmitBtn" onclick="confirmSubmitOrder()">ยืนยันสั่งซื้อ</button>
+        </div>
+    </div>
+</div>
+
+<!-- LATE SLIP MODAL -->
+<div class="modal-overlay" id="lateSlipModal">
+    <div class="modal-box" style="max-width:560px">
+        <div class="modal-hd">
+            <h3>📤 แนบสลิปย้อนหลัง</h3>
+            <button class="modal-close" onclick="closeLateSlipModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:1rem">กรอกเบอร์โทรศัพท์ที่ใช้สั่งซื้อเพื่อค้นหาคำสั่งซื้อที่ยังรอชำระเงิน</p>
+            <div class="fgrid">
+                <div class="fg full">
+                    <label class="lbl">เบอร์โทรศัพท์ที่ใช้สั่งซื้อ <span class="req">*</span></label>
+                    <input type="tel" id="late-phone" placeholder="08x-xxx-xxxx" onkeydown="if(event.key==='Enter') searchLateOrders()">
+                </div>
+            </div>
+            <button class="btn-submit" style="margin-top:.8rem" onclick="searchLateOrders()">🔍 ค้นหาคำสั่งซื้อ</button>
+            <div id="lateSlipResults" style="margin-top:1rem"></div>
         </div>
     </div>
 </div>
@@ -560,7 +592,7 @@ textarea { resize:vertical; min-height:70px; }
     };
     const SHIRT_PRICE = 350;
     const SHIRT_SIZES = ['FS','PS'];
-    const ORDER_EXPIRY_MS = 24 * 60 * 60 * 1000;
+    const ORDER_EXPIRY_MS = 48 * 60 * 60 * 1000;
 
     let qty = { adult: 0, child: 0, baby: 0 };
     let merchQty = { FS:0, PS:0 };
@@ -1081,7 +1113,7 @@ textarea { resize:vertical; min-height:70px; }
         document.getElementById('step-form').style.display = 'block';
     }
 
-    /* ── Lazy auto-cancel: ออเดอร์ pending ที่ไม่แนบสลิปเกิน 24 ชม. ── */
+    /* ── Lazy auto-cancel: ออเดอร์ pending ที่ไม่แนบสลิปเกิน 48 ชม. ── */
     async function autoCancelIfExpired(o) {
         if (o.status !== 'pending' || o.slipImage || !o.expiresAt) return o.status;
         const expiresMs = o.expiresAt.toMillis ? o.expiresAt.toMillis() : o.expiresAt;
@@ -1170,7 +1202,7 @@ textarea { resize:vertical; min-height:70px; }
                         `<p style="font-size:.8rem;color:var(--red);margin-top:.6rem">❌ การตรวจสอบสลิปไม่ผ่าน กรุณาติดต่อทีมงานฝ่ายเหรัญญิก</p>`;
                 } else if (o.status === 'cancelled') {
                     document.getElementById('tickets-'+o.id).innerHTML =
-                        `<p style="font-size:.8rem;color:var(--red);margin-top:.6rem">🚫 คำสั่งซื้อนี้ถูกยกเลิกอัตโนมัติ (ไม่ได้แนบสลิปภายใน 24 ชม.) กรุณาสั่งซื้อใหม่ที่แท็บ "ซื้อบัตร"</p>`;
+                        `<p style="font-size:.8rem;color:var(--red);margin-top:.6rem">🚫 คำสั่งซื้อนี้ถูกยกเลิกอัตโนมัติ (ไม่ได้แนบสลิปภายใน 48 ชม.) กรุณาสั่งซื้อใหม่ที่แท็บ "ซื้อบัตร"</p>`;
                 }
             }
         } catch (err) {
@@ -1416,6 +1448,123 @@ textarea { resize:vertical; min-height:70px; }
             console.error(err);
             toast('สร้างบัตรไม่สำเร็จ: ' + err.message, 'error');
         }
+    }
+
+    /* ── Late Slip Upload ── */
+    function openLateSlipModal() {
+        document.getElementById('lateSlipModal').classList.add('active');
+        document.getElementById('lateSlipResults').innerHTML = '';
+        document.getElementById('late-phone').value = '';
+        setTimeout(() => document.getElementById('late-phone').focus(), 100);
+    }
+    function closeLateSlipModal() {
+        document.getElementById('lateSlipModal').classList.remove('active');
+    }
+
+    async function searchLateOrders() {
+        const phone = document.getElementById('late-phone').value.replace(/\D/g,'');
+        if (phone.length < 9) { toast('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง','error'); return; }
+
+        const container = document.getElementById('lateSlipResults');
+        container.innerHTML = '<p style="text-align:center;color:var(--text-3);padding:.5rem 0">⏳ กำลังค้นหา...</p>';
+
+        try {
+            const snap = await db.collection(ORDERS_COL).where('buyerPhone','==',phone).get();
+            if (snap.empty) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-3)">ไม่พบคำสั่งซื้อจากเบอร์นี้</p>';
+                return;
+            }
+
+            const now = Date.now();
+            const eligible = snap.docs
+                .map(d => ({ id:d.id, ...d.data() }))
+                .filter(o => {
+                    if (o.status !== 'pending') return false;
+                    if (o.slipImage) return false;
+                    if (!o.expiresAt) return false;
+                    const expMs = o.expiresAt.toMillis ? o.expiresAt.toMillis() : o.expiresAt;
+                    return now < expMs;
+                })
+                .sort((a,b) => (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
+
+            if (!eligible.length) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-3)">ไม่พบคำสั่งซื้อที่รอแนบสลิป<br><span style="font-size:.82rem">อาจหมดเวลาแนบสลิปแล้ว หรือแนบสลิปไปแล้ว</span></p>';
+                return;
+            }
+
+            let html = '';
+            for (const o of eligible) {
+                const sc = o.id.slice(0,8).toUpperCase();
+                const expMs = o.expiresAt.toMillis ? o.expiresAt.toMillis() : o.expiresAt;
+                const deadline = new Date(expMs).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});
+                const parts = [];
+                if (o.counts?.adult) parts.push(`ผู้ใหญ่ ${o.counts.adult} ใบ`);
+                if (o.counts?.child) parts.push(`เด็ก ${o.counts.child} ใบ`);
+                if (o.counts?.baby)  parts.push(`เด็กเล็ก ${o.counts.baby} ใบ`);
+
+                html += `<div class="order-item" style="margin-top:.8rem">
+                    <div class="order-item-hd">
+                        <span class="oid">#${sc}</span>
+                        <span class="badge pending">⏳ รอชำระเงิน</span>
+                    </div>
+                    <div class="order-detail">
+                        <b>${esc(o.buyerName)}</b><br>
+                        ${parts.join(' · ')} — รวม <b>${(o.amount||0).toLocaleString()} ฿</b><br>
+                        <span style="color:var(--red);font-size:.82rem">⏰ กรุณาแนบสลิปก่อน: ${esc(deadline)}</span>
+                    </div>
+                    <div class="total-box" style="margin:.8rem 0">
+                        <span class="tl">ยอดที่ต้องชำระ</span>
+                        <span class="tv">${(o.amount||0).toLocaleString()} ฿</span>
+                    </div>
+                    <label class="upload-area" id="lateArea-${o.id}">
+                        <input type="file" id="lateInput-${o.id}" accept="image/*" onchange="handleLateSlipUpload(event,'${o.id}')">
+                        <div id="latePlaceholder-${o.id}">📎 แตะเพื่อเลือกรูปสลิปการโอนเงิน</div>
+                        <img id="latePreview-${o.id}" class="slip-preview" style="display:none">
+                    </label>
+                    <p style="font-size:.78rem;color:var(--text-3);margin-top:.5rem;text-align:center">หลังอัปโหลดสลิปสำเร็จ ทีมงานเหรัญญิกจะตรวจสอบและอนุมัติ</p>
+                </div>`;
+            }
+            container.innerHTML = html;
+        } catch (err) {
+            container.innerHTML = `<p style="text-align:center;color:var(--red)">เกิดข้อผิดพลาด: ${esc(err.code||err.message)}</p>`;
+        }
+    }
+
+    function handleLateSlipUpload(e, orderId) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = async () => {
+                const canvas = document.createElement('canvas');
+                const maxW = 800;
+                const scale = Math.min(1, maxW / img.width);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+                const preview = document.getElementById('latePreview-'+orderId);
+                const placeholder = document.getElementById('latePlaceholder-'+orderId);
+                if (preview) { preview.src = dataUrl; preview.style.display = 'block'; }
+                if (placeholder) placeholder.style.display = 'none';
+
+                try {
+                    await db.collection(ORDERS_COL).doc(orderId).update({
+                        slipImage: dataUrl,
+                        slipUploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    toast('อัปโหลดสลิปสำเร็จ! รอทีมงานตรวจสอบ');
+                } catch (err) {
+                    console.error(err);
+                    toast('อัปโหลดสลิปไม่สำเร็จ: ' + (err.code || err.message), 'error');
+                }
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
     }
 
     /* ── Helpers ── */

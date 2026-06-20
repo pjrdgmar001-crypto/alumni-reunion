@@ -231,7 +231,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 <button class="filter-btn" data-f="cancelled" onclick="setFilter('cancelled')">🚫 ยกเลิก</button>
             </div>
             <div class="toolbar">
-                <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ/ชื่อเล่น/รหัสคำสั่งซื้อ" oninput="renderOrders()">
+                <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ/ชื่อเล่น/เบอร์โทร/รหัสคำสั่งซื้อ" oninput="renderOrders()">
                 <select id="genFilter" onchange="renderOrders()"></select>
             </div>
             <div class="toolbar">
@@ -653,7 +653,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         if (curFilter !== 'all') fil = fil.filter(o => o.status === curFilter);
         if (genF) fil = fil.filter(o => (o.generation||'') === genF);
         if (q) fil = fil.filter(o =>
-            `${o.buyerName}${o.buyerNickname||''}${o.id}`.toLowerCase().includes(q)
+            `${o.buyerName}${o.buyerNickname||''}${o.id}${o.buyerPhone||''}`.toLowerCase().includes(q)
         );
 
         const container = document.getElementById('ordersList');
@@ -664,6 +664,21 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         container.innerHTML = fil.map(o => {
             const sc = o.id.slice(0,8).toUpperCase();
             const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}) : '—';
+
+            /* countdown for pending orders without slip (48h window) */
+            let countdownHtml = '';
+            if (o.status === 'pending' && !o.slipImage && o.expiresAt) {
+                const expMs = o.expiresAt.toMillis ? o.expiresAt.toMillis() : o.expiresAt;
+                const remaining = expMs - Date.now();
+                if (remaining > 0) {
+                    const hrs = Math.floor(remaining / 3600000);
+                    const mins = Math.floor((remaining % 3600000) / 60000);
+                    countdownHtml = `<br><span style="color:var(--orange);font-weight:700;font-size:.8rem">⏰ ยังไม่แนบสลิป — เหลือเวลา ${hrs} ชม. ${mins} น. (ครบกำหนด ${new Date(expMs).toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'})})</span>`;
+                } else {
+                    countdownHtml = `<br><span style="color:var(--red);font-weight:700;font-size:.8rem">⚠️ หมดเวลาแนบสลิปแล้ว — รอยกเลิกอัตโนมัติ</span>`;
+                }
+            }
+
             const badge = o.status === 'approved'
                 ? '<span class="badge approved">✅ อนุมัติแล้ว</span>'
                 : o.status === 'rejected'
@@ -733,7 +748,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                     ${merchParts.length ? `👕 เสื้อ: ${merchParts.join(', ')}<br>` : ''}
                     ${o.seatingPreference ? `🪑 จัดโต๊ะ: ${esc(o.seatingPreference)}<br>` : ''}
                     ${o.note ? `💬 ${esc(o.note)}<br>` : ''}
-                    🕐 ${date}
+                    🕐 ${date}${countdownHtml}
                     ${auditTrail(o)}
                 </div>
                 <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
