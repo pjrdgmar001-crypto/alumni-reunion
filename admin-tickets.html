@@ -107,6 +107,9 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
 .checkin-result.ok    { background:var(--green-bg); color:var(--green); border:1.5px solid rgba(21,128,61,.3); }
 .checkin-result.warn  { background:var(--orange-bg); color:var(--orange); border:1.5px solid rgba(194,116,10,.3); }
 .checkin-result.err   { background:var(--red-bg); color:var(--red); border:1.5px solid rgba(220,38,38,.3); }
+.checkin-result.dup   { background:var(--red-bg); color:var(--red); border:2.5px solid var(--red); font-size:1.1rem; animation:dupPulse .4s ease; }
+@keyframes dupPulse { 0%{transform:scale(1)} 40%{transform:scale(1.03)} 100%{transform:scale(1)} }
+.dup-badge { display:inline-block; background:var(--red); color:#fff; font-size:.72rem; font-weight:800; letter-spacing:.12em; padding:.18rem .8rem; border-radius:20px; margin-bottom:.5rem; }
 .checkin-result .sub { font-weight:400; font-size:.85rem; margin-top:.3rem; }
 
 /* ── MODAL ── */
@@ -1075,7 +1078,12 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             }
             if (t.checkedIn) {
                 const time = t.checkedInAt?.toDate ? t.checkedInAt.toDate().toLocaleTimeString('th-TH') : '';
-                result.innerHTML = `<div class="checkin-result warn">⚠️ บัตรนี้เช็คอินไปแล้ว${time?` เมื่อ ${time}`:''}<div class="sub">${esc(holderDisplay)} — ${esc(TYPE_LABEL[t.type]||t.type)} — ${esc(code)}</div></div>`;
+                result.innerHTML = `<div class="checkin-result dup">
+                    <div class="dup-badge">⚠ DUPLICATE SCAN — เวียนบัตร!</div>
+                    <div style="margin-top:.3rem">บัตรนี้เคยเช็คอินไปแล้ว${time ? ` เมื่อเวลา <b>${esc(time)} น.</b>` : ''}</div>
+                    <div class="sub" style="margin-top:.5rem;line-height:1.6">กรุณาตรวจสอบตัวตนผู้ถือบัตรทันที — อาจมีการส่งต่อบัตรโดยไม่ได้รับอนุญาต</div>
+                    <div class="sub" style="margin-top:.3rem">${esc(holderDisplay)} — ${esc(TYPE_LABEL[t.type]||t.type)} — <b style="font-family:monospace">${esc(code)}</b></div>
+                </div>`;
                 return;
             }
             await ref.update({ checkedIn:true, checkedInAt: firebase.firestore.FieldValue.serverTimestamp() });

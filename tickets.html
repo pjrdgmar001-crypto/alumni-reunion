@@ -596,6 +596,7 @@ textarea { resize:vertical; min-height:70px; }
 
     let qty = { adult: 0, child: 0, baby: 0 };
     let merchQty = { FS:0, PS:0 };
+    let lateOrdersCache = {};
     let currentSlipDataUrl = null;
     let currentOrderId = null;
     let currentExpiresAt = null;
@@ -1492,8 +1493,18 @@ textarea { resize:vertical; min-height:70px; }
                 return;
             }
 
+            lateOrdersCache = {};
+            if (eligible.length > 1) {
+                eligible.sort((a,b) => (a.amount||0) - (b.amount||0));
+            }
             let html = '';
+            if (eligible.length > 1) {
+                html += `<div style="background:var(--orange-bg);border:1.5px solid rgba(194,116,10,.3);border-radius:var(--rs);padding:.75rem 1rem;margin-bottom:.4rem;font-size:.85rem;color:var(--orange);font-weight:700">
+                    ⚠️ พบ ${eligible.length} รายการที่รอชำระเงิน — กรุณาเลือกแนบสลิปให้ถูกรายการ (ดูยอดเงินให้ตรงกับสลิปของท่าน)
+                </div>`;
+            }
             for (const o of eligible) {
+                lateOrdersCache[o.id] = o;
                 const sc = o.id.slice(0,8).toUpperCase();
                 const expMs = o.expiresAt.toMillis ? o.expiresAt.toMillis() : o.expiresAt;
                 const deadline = new Date(expMs).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});
@@ -1502,7 +1513,7 @@ textarea { resize:vertical; min-height:70px; }
                 if (o.counts?.child) parts.push(`เด็ก ${o.counts.child} ใบ`);
                 if (o.counts?.baby)  parts.push(`เด็กเล็ก ${o.counts.baby} ใบ`);
 
-                html += `<div class="order-item" style="margin-top:.8rem">
+                html += `<div class="order-item" id="lateOrder-${o.id}" style="margin-top:.8rem">
                     <div class="order-item-hd">
                         <span class="oid">#${sc}</span>
                         <span class="badge pending">⏳ รอชำระเงิน</span>
@@ -1557,6 +1568,27 @@ textarea { resize:vertical; min-height:70px; }
                         slipUploadedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     toast('อัปโหลดสลิปสำเร็จ! รอทีมงานตรวจสอบ');
+                    const o = lateOrdersCache[orderId];
+                    const orderEl = document.getElementById('lateOrder-'+orderId);
+                    if (orderEl) {
+                        const sc = orderId.slice(0,8).toUpperCase();
+                        const amount = o ? (o.amount||0) : 0;
+                        const buyerName = o ? esc(o.buyerName) : '';
+                        orderEl.style.borderColor = 'rgba(21,128,61,.4)';
+                        orderEl.innerHTML = `<div style="text-align:center;padding:1.6rem 1rem">
+                            <div style="font-size:2.8rem;margin-bottom:.5rem">✅</div>
+                            <div style="font-size:1.1rem;font-weight:800;color:var(--green);margin-bottom:.6rem">ส่งสลิปสำเร็จแล้ว!</div>
+                            <div style="font-size:.9rem;color:var(--text-2);line-height:1.9">
+                                รหัสคำสั่งซื้อ: <b style="font-family:monospace">#${sc}</b><br>
+                                ${buyerName ? `ชื่อผู้สั่งซื้อ: <b>${buyerName}</b><br>` : ''}
+                                ${amount ? `ยอดชำระ: <b>${amount.toLocaleString()} ฿</b><br>` : ''}
+                            </div>
+                            <div style="margin-top:.9rem;background:var(--green-bg);border:1.5px solid rgba(21,128,61,.2);border-radius:var(--rs);padding:.8rem 1rem;font-size:.85rem;color:var(--green);font-weight:600">
+                                อยู่ระหว่างรอทีมงานเหรัญญิกตรวจสอบและอนุมัติ<br>
+                                <span style="font-weight:400;color:var(--text-2)">ตรวจสอบสถานะได้ที่แท็บ "ตรวจสอบ / ดาวน์โหลดบัตร"</span>
+                            </div>
+                        </div>`;
+                    }
                 } catch (err) {
                     console.error(err);
                     toast('อัปโหลดสลิปไม่สำเร็จ: ' + (err.code || err.message), 'error');
