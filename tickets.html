@@ -382,25 +382,50 @@ textarea { resize:vertical; min-height:70px; }
                 </div>
                 <div class="qty-row">
                     <div class="qty-info">
-                        <div class="qn">Free Size</div>
-                        <div class="qp" style="font-size:.78rem;line-height:1.6">อก 42″ · ยาว 26″ · แขน 7.5″<br>350 บาท / ตัว</div>
+                        <div class="qn">Size M</div>
+                        <div class="qp" style="font-size:.78rem;line-height:1.6">อก 40″ · ยาว 28″ · แขน 9″<br>350 บาท / ตัว</div>
                     </div>
                     <div class="qty-ctrl">
-                        <div class="qty-btn" onclick="changeMerchQty('FS',-1)">−</div>
-                        <div class="qty-val" id="m-FS">0</div>
-                        <div class="qty-btn" onclick="changeMerchQty('FS',1)">+</div>
+                        <div class="qty-btn" onclick="changeMerchQty('M',-1)">−</div>
+                        <div class="qty-val" id="m-M">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('M',1)">+</div>
                     </div>
                 </div>
                 <div class="qty-row">
                     <div class="qty-info">
-                        <div class="qn">Plus Size</div>
+                        <div class="qn">Size L</div>
+                        <div class="qp" style="font-size:.78rem;line-height:1.6">อก 44″ · ยาว 29″ · แขน 10″<br>350 บาท / ตัว</div>
+                    </div>
+                    <div class="qty-ctrl">
+                        <div class="qty-btn" onclick="changeMerchQty('L',-1)">−</div>
+                        <div class="qty-val" id="m-L">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('L',1)">+</div>
+                    </div>
+                </div>
+                <div class="qty-row">
+                    <div class="qty-info">
+                        <div class="qn">Size XL</div>
+                        <div class="qp" style="font-size:.78rem;line-height:1.6">อก 48″ · ยาว 29.5″ · แขน 11″<br>350 บาท / ตัว</div>
+                    </div>
+                    <div class="qty-ctrl">
+                        <div class="qty-btn" onclick="changeMerchQty('XL',-1)">−</div>
+                        <div class="qty-val" id="m-XL">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('XL',1)">+</div>
+                    </div>
+                </div>
+                <div class="qty-row">
+                    <div class="qty-info">
+                        <div class="qn">Size 2XL</div>
                         <div class="qp" style="font-size:.78rem;line-height:1.6">อก 52″ · ยาว 30″ · แขน 12″<br>350 บาท / ตัว</div>
                     </div>
                     <div class="qty-ctrl">
-                        <div class="qty-btn" onclick="changeMerchQty('PS',-1)">−</div>
-                        <div class="qty-val" id="m-PS">0</div>
-                        <div class="qty-btn" onclick="changeMerchQty('PS',1)">+</div>
+                        <div class="qty-btn" onclick="changeMerchQty('2XL',-1)">−</div>
+                        <div class="qty-val" id="m-2XL">0</div>
+                        <div class="qty-btn" onclick="changeMerchQty('2XL',1)">+</div>
                     </div>
+                </div>
+                <div class="fg full" style="margin-top:.2rem">
+                    <span style="font-size:.75rem;color:var(--text-2)">*ขนาดเสื้อยืดโอเวอร์ไซส์ อาจมีค่าความคลาดเคลื่อน +- ไม่เกิน 1 นิ้ว</span>
                 </div>
                 <div class="fg full" style="margin-top:.3rem;flex-direction:row;justify-content:space-between;align-items:center">
                     <span class="lbl" style="font-weight:700">ยอดรวมค่าเสื้อยืด</span>
@@ -591,11 +616,11 @@ textarea { resize:vertical; min-height:70px; }
         Baritone:'บาริโทน', Tuba:'ทูบา', 'Drum Major':'ดรัมเมเจอร์', 'อื่นๆ':'อื่นๆ'
     };
     const SHIRT_PRICE = 350;
-    const SHIRT_SIZES = ['FS','PS'];
+    const SHIRT_SIZES = ['M','L','XL','2XL'];
     const ORDER_EXPIRY_MS = 48 * 60 * 60 * 1000;
 
     let qty = { adult: 0, child: 0, baby: 0 };
-    let merchQty = { FS:0, PS:0 };
+    let merchQty = { M:0, L:0, XL:0, '2XL':0 };
     let lateOrdersCache = {};
     let currentSlipDataUrl = null;
     let currentOrderId = null;
@@ -942,8 +967,8 @@ textarea { resize:vertical; min-height:70px; }
         if (qty.adult) parts.push(`ผู้ใหญ่ ${qty.adult} ใบ x ${PRICES.adult.toLocaleString()} ฿`);
         if (qty.child) parts.push(`เด็ก ${qty.child} ใบ x ${PRICES.child.toLocaleString()} ฿`);
         if (qty.baby)  parts.push(`เด็กเล็ก ${qty.baby} ใบ (ฟรี)`);
-        const SHIRT_LABEL = { FS: 'Free Size', PS: 'Plus Size' };
-        SHIRT_SIZES.forEach(s => { if (merchQty[s]) parts.push(`เสื้อ${SHIRT_LABEL[s]} ${merchQty[s]} ตัว x ${SHIRT_PRICE} ฿`); });
+        const SHIRT_LABEL = { M: 'M', L: 'L', XL: 'XL', '2XL': '2XL' };
+        SHIRT_SIZES.forEach(s => { if (merchQty[s]) parts.push(`เสื้อ Size ${SHIRT_LABEL[s]} ${merchQty[s]} ตัว x ${SHIRT_PRICE} ฿`); });
         document.getElementById('confirmSummary').innerHTML = parts.map(esc).join('<br>') +
             `<br><br><b>ยอดชำระทั้งหมด: ${amount.toLocaleString()} ฿</b>`;
         document.getElementById('confirmModal').classList.add('active');
@@ -1031,8 +1056,8 @@ textarea { resize:vertical; min-height:70px; }
         if (qty.adult) parts.push(`ผู้ใหญ่ ${qty.adult} ใบ x 990 ฿`);
         if (qty.child) parts.push(`เด็ก ${qty.child} ใบ x 250 ฿`);
         if (qty.baby)  parts.push(`เด็กเล็ก ${qty.baby} ใบ (ฟรี)`);
-        const SHIRT_LABEL_PAY = { FS: 'Free Size', PS: 'Plus Size' };
-        SHIRT_SIZES.forEach(s => { if (merchQty[s]) parts.push(`เสื้อ${SHIRT_LABEL_PAY[s]} ${merchQty[s]} ตัว x 350 ฿`); });
+        const SHIRT_LABEL_PAY = { M: 'M', L: 'L', XL: 'XL', '2XL': '2XL' };
+        SHIRT_SIZES.forEach(s => { if (merchQty[s]) parts.push(`เสื้อ Size ${SHIRT_LABEL_PAY[s]} ${merchQty[s]} ตัว x 350 ฿`); });
         let html = `<b>ผู้สั่งซื้อ:</b> ${esc(name)}<br>` + parts.map(esc).join('<br>');
         if (currentExpiresAt) {
             const deadline = new Date(currentExpiresAt).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});
@@ -1088,7 +1113,7 @@ textarea { resize:vertical; min-height:70px; }
         document.getElementById('f-table-booking').checked = false;
         ['adult','child','baby'].forEach(t => document.getElementById('qtyrow-'+t).classList.remove('locked'));
         ['ov-adult','ov-child','ov-baby'].forEach(id => document.getElementById(id).classList.remove('disabled'));
-        merchQty = { FS:0, PS:0 };
+        merchQty = { M:0, L:0, XL:0, '2XL':0 };
         SHIRT_SIZES.forEach(s => document.getElementById('m-'+s).textContent = '0');
         extraNames = { adult: [], child: [], baby: [] };
         extraNicknames = { adult: [], child: [], baby: [] };
