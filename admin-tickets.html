@@ -697,7 +697,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             if (o.counts?.baby)  parts.push(`เด็กเล็ก ${o.counts.baby}`);
             const merchParts = [];
             if (o.merch) {
-                ['S','M','L','XL','XXL'].forEach(s => { if (o.merch[s]) merchParts.push(`${s}=${o.merch[s]}`); });
+                ['FS','PS'].forEach(s => { if (o.merch[s]) merchParts.push(`${s === 'FS' ? 'Free Size' : 'Plus Size'}=${o.merch[s]}`); });
             }
             const slip = o.slipImage
                 ? `<img class="slip-thumb" src="${o.slipImage}" onclick="showSlip('${o.id}')">`
@@ -1108,7 +1108,8 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         const hdr = ['รหัสคำสั่งซื้อ','ชื่อผู้สั่งซื้อ','ชื่อเล่น','เบอร์โทร','รุ่น','เครื่องดนตรี','ผู้ใหญ่','เด็ก','เด็กเล็ก','เสื้อยืด','จัดโต๊ะ','ยอดเงิน','สถานะ','หมายเหตุ','วันที่สั่งซื้อ'];
         const rows = orders.map(o => {
             const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}) : '';
-            const merchStr = o.merch ? ['S','M','L','XL','XXL'].filter(s => o.merch[s]).map(s => `${s}=${o.merch[s]}`).join(', ') : '';
+            const SHIRT_LABEL = { FS: 'Free Size', PS: 'Plus Size' };
+            const merchStr = o.merch ? ['FS','PS'].filter(s => o.merch[s]).map(s => `${SHIRT_LABEL[s]}=${o.merch[s]}`).join(', ') : '';
             return [
                 o.id.slice(0,8).toUpperCase(), o.buyerName, o.buyerNickname||'', o.buyerPhone, o.generation||'', o.instrument||'',
                 o.counts?.adult||0, o.counts?.child||0, o.counts?.baby||0,
