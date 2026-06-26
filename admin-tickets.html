@@ -383,6 +383,9 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         <div class="card-title" style="margin-top:1.2rem">🎫 จำนวนบัตร</div>
         <div id="ed-qty-rows"></div>
 
+        <div class="card-title" style="margin-top:1.2rem">👕 เสื้อยืดที่ระลึก (350 ฿/ตัว)</div>
+        <div id="ed-merch-rows"></div>
+
         <div style="margin-top:.8rem">
             <label class="lbl">ยอดเงินรวม (บาท)</label>
             <input type="number" min="0" id="ed-amount">
@@ -601,11 +604,11 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         }
     }
     function listenOrders() {
-        db.collection(ORDERS_COL).orderBy('createdAt','desc').onSnapshot(async snap => {
+        db.collection(ORDERS_COL).orderBy('createdAt','desc').onSnapshot(snap => {
             orders = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-            await autoCancelExpiredOrders(orders);
             renderOrders();
             renderStats();
+            autoCancelExpiredOrders(orders).catch(err => console.error(err));
         }, err => console.error(err));
     }
     function listenTickets() {
@@ -820,6 +823,8 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
 
     /* ── Edit order ── */
     const PRICES = { adult: 990, child: 250, baby: 0 };
+    const SHIRT_PRICE = 350;
+    const SHIRT_SIZES = ['M','L','XL','2XL'];
     const INSTRUMENTS = [
         {v:'Per', l:'เพอร์คัชชัน'}, {v:'Pic', l:'พิคโคโล'}, {v:'Fl', l:'ฟลุต'},
         {v:'Cl', l:'คลาริเน็ต'}, {v:'Tp', l:'ทรัมเป็ต'}, {v:'SA', l:'อัลโตแซกฯ'},
@@ -830,6 +835,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     let editingOrderId = null;
     let editQty = { adult:0, child:0, baby:0 };
     let editHolders = { adult:[], child:[], baby:[] };
+    let editMerch = { M:0, L:0, XL:0, '2XL':0 };
 
     function genCode(prefix) {
         const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -856,6 +862,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             INSTRUMENTS.map(i => `<option value="${esc(i.v)}" ${o.instrument===i.v?'selected':''}>${esc(i.l)} (${esc(i.v)})</option>`).join('');
 
         editQty = { adult: o.counts?.adult||0, child: o.counts?.child||0, baby: o.counts?.baby||0 };
+        editMerch = { M: o.merch?.M||0, L: o.merch?.L||0, XL: o.merch?.XL||0, '2XL': o.merch?.['2XL']||0 };
 
         editHolders = { adult:[], child:[], baby:[] };
         const orderTickets = tickets.filter(t => t.orderId === id);
@@ -867,6 +874,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         });
 
         renderEditQty();
+        renderEditMerch();
         renderEditHolders();
         document.getElementById('editModal').classList.add('show');
     }
@@ -882,6 +890,11 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 <input type="number" min="0" style="width:90px;text-align:center" value="${editQty[type]}" onchange="changeEditQty('${type}', this.value)">
             </div>`).join('');
     }
+    function calcEditTotal() {
+        const ticketTotal = editQty.adult*PRICES.adult + editQty.child*PRICES.child + editQty.baby*PRICES.baby;
+        const merchTotal  = SHIRT_SIZES.reduce((s, sz) => s + (editMerch[sz]||0)*SHIRT_PRICE, 0);
+        document.getElementById('ed-amount').value = ticketTotal + merchTotal;
+    }
     function changeEditQty(type, val) {
         let n = parseInt(val, 10);
         if (isNaN(n) || n < 0) n = 0;
@@ -893,7 +906,15 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         editQty[type] = n;
         renderEditQty();
         renderEditHolders();
-        document.getElementById('ed-amount').value = editQty.adult*PRICES.adult + editQty.child*PRICES.child + editQty.baby*PRICES.baby;
+        calcEditTotal();
+    }
+    function renderEditMerch() {
+        document.getElementById('ed-merch-rows').innerHTML = SHIRT_SIZES.map(sz => `
+            <div style="display:flex;align-items:center;justify-content:space-between;margin:.5rem 0">
+                <span style="font-size:.9rem">Size ${sz}</span>
+                <input type="number" min="0" style="width:90px;text-align:center" value="${editMerch[sz]||0}"
+                    onchange="editMerch['${sz}']=Math.max(0,parseInt(this.value)||0); calcEditTotal()">
+            </div>`).join('');
     }
     function renderEditHolders() {
         const typeLabel = { adult:'ผู้ใหญ่', child:'เด็ก', baby:'เด็กเล็ก/เบบี๋' };
@@ -974,6 +995,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             batch.update(db.collection(ORDERS_COL).doc(editingOrderId), {
                 buyerName: name, buyerPhone: pc, generation, instrument, note,
                 counts: { ...editQty }, holderNames: { ...editHolders },
+                merch: { ...editMerch },
                 amount
             });
 
@@ -1120,11 +1142,17 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     }
     function exportTicketsCSV() {
         if (!tickets.length) { toast('ยังไม่มีข้อมูล','error'); return; }
-        const hdr = ['รหัสบัตร','ประเภทบัตร','ชื่อผู้ถือบัตร','รุ่น','เครื่องดนตรี','ชื่อผู้สั่งซื้อ','เบอร์โทร','ชำระเงินแล้ว','เช็คอินแล้ว'];
-        const rows = tickets.map(t => [
-            t.code, TYPE_LABEL[t.type]||t.type, t.holderName||t.buyerName, t.generation||'', t.instrument||'', t.buyerName, t.buyerPhone,
-            t.paid ? 'ใช่' : 'ไม่', t.checkedIn ? 'ใช่' : 'ไม่'
-        ]);
+        const hdr = ['รหัสบัตร','ประเภทบัตร','ชื่อผู้ถือบัตร','รุ่น','เครื่องดนตรี','ชื่อผู้สั่งซื้อ','เบอร์โทร','เสื้อยืด (ทั้งออเดอร์)','ชำระเงินแล้ว','เช็คอินแล้ว'];
+        const ordersMap = {};
+        orders.forEach(o => { ordersMap[o.id] = o; });
+        const rows = tickets.map(t => {
+            const o = ordersMap[t.orderId];
+            const merchStr = o?.merch ? SHIRT_SIZES.filter(s => o.merch[s]).map(s => `Size ${s}=${o.merch[s]}`).join(', ') : '';
+            return [
+                t.code, TYPE_LABEL[t.type]||t.type, t.holderName||t.buyerName, t.generation||'', t.instrument||'', t.buyerName, t.buyerPhone,
+                merchStr, t.paid ? 'ใช่' : 'ไม่', t.checkedIn ? 'ใช่' : 'ไม่'
+            ];
+        });
         downloadCSV('รายชื่อผู้ถือบัตร.csv', hdr, rows);
     }
     function exportNameTagsCSV() {
