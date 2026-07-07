@@ -274,6 +274,7 @@
                     </select>
                 </div>
                 <div class="fg"><label class="lbl">เบอร์โทรติดต่อ<span class="req">*</span></label><input type="tel" id="d-phone" maxlength="10" required></div>
+                <div class="fg"><label class="lbl">LINE ID (ถ้ามี)</label><input type="text" id="d-line" maxlength="40" placeholder="เช่น somchai.p"></div>
                 <div class="fg"><label class="lbl">ที่นั่งว่าง<span class="req">*</span></label><input type="number" id="d-seats" min="1" max="20" value="3" required></div>
                 <div class="fg full"><label class="lbl">เส้นทางหลักที่ขับผ่าน</label><textarea id="d-route" placeholder="เช่น ออกจากบางนา → ขึ้นทางด่วน → ลงพระราม 5"></textarea></div>
                 <div class="fg full">
@@ -296,6 +297,7 @@
                 <div class="fg"><label class="lbl">ชื่อเล่น<span class="req">*</span></label><input type="text" id="p-nickname" maxlength="40" required></div>
                 <div class="fg"><label class="lbl">รุ่น<span class="req">*</span></label><select id="p-batch" required><option value="">เลือกรุ่น</option></select></div>
                 <div class="fg"><label class="lbl">เบอร์โทรติดต่อ<span class="req">*</span></label><input type="tel" id="p-phone" maxlength="10" required></div>
+                <div class="fg"><label class="lbl">LINE ID (ถ้ามี)</label><input type="text" id="p-line" maxlength="40" placeholder="เช่น somying.k"></div>
                 <div class="fg"><label class="lbl">จำนวนคนที่รอไปด้วย<span class="req">*</span></label><input type="number" id="p-party" min="1" max="10" value="1" required></div>
                 <div class="fg full"><label class="lbl">จุดนัดรับ (รายละเอียดเพิ่มเติม)</label><textarea id="p-note" placeholder="เช่น หน้าปากซอย, ป้ายรถเมล์ตรงข้าม 7-Eleven"></textarea></div>
                 <div class="fg full">
@@ -621,7 +623,7 @@
             if (!dSnap.exists || dSnap.data().status !== 'active') { toast('ทริปนี้ปิดไปแล้ว', 'error'); return; }
             if (dSnap.data().seatsAvailable <= 0) { toast('ที่นั่งเต็มแล้ว', 'error'); return; }
             await dRef.collection('requests').add({
-                passengerId: myPassengerId, passengerName: p.nickname, batch: p.batch, phone: p.phone,
+                passengerId: myPassengerId, passengerName: p.nickname, batch: p.batch, phone: p.phone, lineId: p.lineId || '',
                 partySize: p.partySize, pickupLat: p.pickupLat, pickupLng: p.pickupLng, pickupNote: p.pickupNote || '',
                 status: 'pending', requestedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -697,7 +699,7 @@
                     <div class="ms-hd">🚗 ทริปของคุณ · ที่นั่งว่าง ${d.seatsAvailable}/${d.seatsTotal}</div>
                     ${pending.length ? `<div class="ms-sub">🔔 คำขอใหม่ ${pending.length} รายการ</div>` : ''}
                     ${pending.map(reqCardHtml).join('') || '<div class="ms-empty">ยังไม่มีคำขอเข้ามา</div>'}
-                    ${accepted.length ? `<div class="ms-sub" style="margin-top:.6rem">✅ รับแล้ว ${accepted.length} รายการ</div>${accepted.map(r=>`<div class="ms-mini">${esc(r.passengerName)} · ${r.partySize} คน · 📞 ${esc(fmtP(r.phone))}</div>`).join('')}` : ''}
+                    ${accepted.length ? `<div class="ms-sub" style="margin-top:.6rem">✅ รับแล้ว ${accepted.length} รายการ</div>${accepted.map(r=>`<div class="ms-mini">${esc(r.passengerName)} · ${r.partySize} คน · 📞 ${esc(fmtP(r.phone))}<div style="margin-top:.35rem">${contactButtonsHtml(r.phone, r.lineId)}</div></div>`).join('')}` : ''}
                     <button class="btn-ol btn-red" style="margin-top:.8rem" onclick="closeTrip()">🛑 ปิดทริป</button>
                 </div>`;
             }
@@ -706,9 +708,17 @@
             const e = passengerEntries.get(myPassengerId);
             if (e) {
                 const statusTxt = { waiting:'⏳ รอเลือกคนขับ', requesting:'📨 ส่งคำขอแล้ว รอคนขับตอบรับ', matched:'✅ จับคู่สำเร็จแล้ว!' }[e.data.status] || e.data.status;
+                let driverInfo = '';
+                if (e.data.status === 'matched' && e.data.matchedDriverId) {
+                    const de = driverEntries.get(e.data.matchedDriverId);
+                    if (de) {
+                        driverInfo = `<div class="ms-mini">🚗 คนขับ: ${esc(de.data.nickname)}${de.data.batch?` · ${esc(de.data.batch)}`:''} · 📞 ${esc(fmtP(de.data.phone))}<div style="margin-top:.35rem">${contactButtonsHtml(de.data.phone, de.data.lineId)}</div></div>`;
+                    }
+                }
                 html += `<div class="ms-block">
                     <div class="ms-hd">🙋 สถานะการรอรถของคุณ</div>
                     <div class="ms-sub">${statusTxt}</div>
+                    ${driverInfo}
                     <button class="btn-ol btn-red" style="margin-top:.8rem" onclick="cancelWait()">🛑 ยกเลิกการรอรถ</button>
                 </div>`;
             }
@@ -855,7 +865,7 @@
 
     async function submitDriverForm(e) {
         e.preventDefault();
-        const nickname = gv('d-nickname'), batch = gv('d-batch'), phone = gv('d-phone'),
+        const nickname = gv('d-nickname'), batch = gv('d-batch'), phone = gv('d-phone'), lineId = gv('d-line'),
               instrument = gv('d-instrument'), route = gv('d-route');
         const seats = parseInt(gv('d-seats') || '0', 10);
         if (!nickname || !batch || !phone) { toast('กรุณากรอกชื่อเล่น รุ่น และเบอร์โทรให้ครบ', 'error'); return; }
@@ -865,7 +875,7 @@
         const btn = document.getElementById('d-submitBtn'); btn.disabled = true;
         try {
             const ref = await db.collection(COL_D).add({
-                nickname, batch, instrument, phone, seatsTotal: seats, seatsAvailable: seats, routeNote: route,
+                nickname, batch, instrument, phone, lineId, seatsTotal: seats, seatsAvailable: seats, routeNote: route,
                 originLat: driverLoc.lat, originLng: driverLoc.lng, currentLat: driverLoc.lat, currentLng: driverLoc.lng,
                 status: 'active', createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -882,7 +892,7 @@
     }
     async function submitPassengerForm(e) {
         e.preventDefault();
-        const nickname = gv('p-nickname'), batch = gv('p-batch'), phone = gv('p-phone'), note = gv('p-note');
+        const nickname = gv('p-nickname'), batch = gv('p-batch'), phone = gv('p-phone'), lineId = gv('p-line'), note = gv('p-note');
         const party = parseInt(gv('p-party') || '0', 10);
         if (!nickname || !batch || !phone) { toast('กรุณากรอกชื่อเล่น รุ่น และเบอร์โทรให้ครบ', 'error'); return; }
         if (phone.replace(/\D/g,'').length < 9) { toast('เบอร์โทรศัพท์ไม่ถูกต้อง', 'error'); return; }
@@ -891,7 +901,7 @@
         const btn = document.getElementById('p-submitBtn'); btn.disabled = true;
         try {
             const ref = await db.collection(COL_P).add({
-                nickname, batch, phone, partySize: party, pickupNote: note,
+                nickname, batch, phone, lineId, partySize: party, pickupNote: note,
                 pickupLat: passengerLoc.lat, pickupLng: passengerLoc.lng,
                 status: 'waiting', createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -995,6 +1005,15 @@
     function gv(id)  { return document.getElementById(id)?.value.trim() || ''; }
     function esc(s)  { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function fmtP(p) { const d = String(p||'').replace(/\D/g,''); return d.length===10 ? `${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}` : (p||''); }
+    function contactButtonsHtml(phone, lineId) {
+        const tel = `tel:${String(phone||'').replace(/\D/g,'')}`;
+        let html = `<a href="${tel}" class="btn-ol btn-green" style="display:inline-block;text-decoration:none">📞 โทร</a>`;
+        if (lineId) {
+            const line = `https://line.me/ti/p/~${encodeURIComponent(lineId)}`;
+            html += ` <a href="${esc(line)}" target="_blank" rel="noopener noreferrer" class="btn-ol btn-navy" style="display:inline-block;text-decoration:none">💬 LINE</a>`;
+        }
+        return html;
+    }
 
     /* ══════════════ Boot ══════════════ */
     initBatchOptions();
