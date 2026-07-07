@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://*.google.com; connect-src 'self' https://firestore.googleapis.com https://*.googleapis.com; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; object-src 'none'">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>พตพ. Carpool ร่วมทาง — งานคืนสู่เหย้า "12 ปีที่คิดถึง"</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:       #f5f3ee;
+            --surface:  #ffffff;
+            --border:   #e5dfd4;
+            --text:     #1a1a28;
+            --text-2:   #555466;
+            --text-3:   #9a98a8;
+            --gold:     #b8921f;
+            --gold-dk:  #8c6e12;
+            --gold-bg:  #fdf8ec;
+            --gold-bd:  #e8d48a;
+            --navy:     #1a2d4a;
+            --navy-2:   #243d62;
+            --green:    #15803d;
+            --green-bg: #f0fdf4;
+            --red:      #dc2626;
+            --red-bg:   #fef2f2;
+            --sh:       0 2px 12px rgba(0,0,0,.07);
+            --sh-sm:    0 1px 4px rgba(0,0,0,.05);
+            --r:        12px;
+            --rs:       8px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; -webkit-font-smoothing:antialiased; }
+
+        .hdr {
+            background: linear-gradient(160deg, rgba(10,18,33,.88) 0%, rgba(26,45,74,.8) 55%, rgba(15,29,51,.9) 100%);
+            padding:2.4rem 1.5rem 2rem; text-align:center; position:relative; overflow:hidden;
+        }
+        .hdr::before { content:'🚗'; position:absolute; font-size:200px; opacity:.05; top:-40px; left:-20px; pointer-events:none; }
+        .hdr::after  { content:'📍'; position:absolute; font-size:200px; opacity:.05; bottom:-50px; right:-20px; pointer-events:none; }
+        .hdr-chip { display:inline-block; border:1px solid rgba(201,162,39,.4); color:#c9a227; padding:.3rem 1.2rem; border-radius:20px; font-size:.78rem; font-weight:600; letter-spacing:.14em; margin-bottom:1rem; background:rgba(201,162,39,.08); }
+        .hdr-title { font-size:clamp(1.5rem,4.5vw,2.4rem); font-weight:800; color:#fff; line-height:1.3; margin-bottom:.4rem; }
+        .hdr-sub { color:rgba(255,255,255,.5); font-size:.85rem; font-weight:300; }
+        .live-badge { display:inline-flex; align-items:center; gap:.4rem; background:rgba(22,163,74,.15); border:1px solid rgba(22,163,74,.3); color:#4ade80; padding:.25rem .9rem; border-radius:20px; font-size:.74rem; font-weight:600; margin-top:1rem; }
+        .live-badge .dot { width:6px; height:6px; background:#4ade80; border-radius:50%; animation:pulse 1.5s infinite; }
+        .live-badge.off { color:rgba(255,255,255,.3); background:transparent; border-color:rgba(255,255,255,.1); }
+        .live-badge.off .dot { background:rgba(255,255,255,.3); animation:none; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+
+        .nav { background:var(--surface); border-bottom:1.5px solid var(--border); display:flex; justify-content:center; position:sticky; top:0; z-index:100; box-shadow:var(--sh-sm); flex-wrap:wrap; }
+        .ntab { padding:1rem 1.6rem; cursor:pointer; font-size:.92rem; font-weight:600; color:var(--text-3); border-bottom:2.5px solid transparent; transition:all .2s; user-select:none; }
+        .ntab:hover { color:var(--text-2); }
+        .ntab.active { color:var(--navy); border-bottom-color:var(--gold); }
+
+        .content { max-width:1000px; margin:0 auto; padding:1.5rem 1rem 4rem; }
+
+        .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:1.6rem; margin-bottom:1.5rem; box-shadow:var(--sh); }
+        .card-hd { margin-bottom:1.2rem; padding-bottom:.9rem; border-bottom:1.5px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:.8rem; flex-wrap:wrap; }
+        .card-title { font-size:1.05rem; font-weight:700; color:var(--navy); }
+        .card-sub { font-size:.8rem; color:var(--text-3); margin-top:.15rem; }
+
+        /* ── CTA BUTTONS ── */
+        .cta-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem; }
+        @media(max-width:560px){ .cta-grid{ grid-template-columns:1fr; } }
+        .cta-btn { border:none; border-radius:var(--r); padding:1.3rem 1rem; cursor:pointer; font-family:'Sarabun',sans-serif; text-align:center; transition:all .2s; box-shadow:var(--sh); }
+        .cta-btn:hover { transform:translateY(-2px); }
+        .cta-btn.driver { background:linear-gradient(135deg,#15803d,#166534); color:#fff; }
+        .cta-btn.passenger { background:linear-gradient(135deg,#b91c1c,#991b1b); color:#fff; }
+        .cta-ic { font-size:1.8rem; margin-bottom:.4rem; }
+        .cta-ttl { font-size:1.02rem; font-weight:800; }
+        .cta-sub { font-size:.78rem; opacity:.85; margin-top:.2rem; }
+
+        /* ── MAP ── */
+        .map-wrap { position:relative; border-radius:var(--r); overflow:hidden; box-shadow:var(--sh); margin-bottom:1.5rem; }
+        #map { width:100%; height:480px; background:#e9e6dd; }
+        .map-key-warn { display:none; padding:2.4rem 1.5rem; text-align:center; background:var(--gold-bg); }
+        .map-key-warn .mkw-ic { font-size:2.4rem; margin-bottom:.6rem; }
+        .map-key-warn .mkw-text { color:var(--gold-dk); font-size:.9rem; line-height:1.8; max-width:520px; margin:0 auto; }
+
+        /* ── LEGEND ── */
+        .legend { display:flex; gap:1.2rem; flex-wrap:wrap; padding:.8rem 1.2rem; background:var(--surface); border:1px solid var(--border); border-top:none; border-radius:0 0 var(--r) var(--r); font-size:.78rem; color:var(--text-2); }
+        .lg-item { display:flex; align-items:center; gap:.35rem; }
+        .lg-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+
+        /* ── STATUS CARD ── */
+        #myStatusCard { border-color:var(--gold-bd); background:var(--gold-bg); }
+        .ms-block + .ms-block { margin-top:1rem; padding-top:1rem; border-top:1px dashed var(--gold-bd); }
+        .ms-hd { font-weight:700; color:var(--gold-dk); font-size:.95rem; margin-bottom:.3rem; }
+        .ms-sub { font-size:.84rem; color:var(--text-2); margin-bottom:.4rem; }
+        .ms-mini { font-size:.78rem; color:var(--text-3); padding:.3rem 0; }
+        .ms-empty { font-size:.82rem; color:var(--text-3); padding:.5rem 0; }
+        .req-card { background:var(--surface); border:1px solid var(--gold-bd); border-radius:var(--rs); padding:.8rem .9rem; margin-bottom:.6rem; font-size:.86rem; }
+
+        /* ── LIST CARDS ── */
+        .list-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+        @media(max-width:720px){ .list-grid{ grid-template-columns:1fr; } }
+        .entity-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--rs); padding:.9rem 1rem; margin-bottom:.6rem; box-shadow:var(--sh-sm); animation:fadeIn .25s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+        .entity-hd { display:flex; align-items:center; justify-content:space-between; gap:.6rem; }
+        .entity-name { font-weight:700; font-size:.95rem; }
+        .entity-det { font-size:.78rem; color:var(--text-3); margin-top:.25rem; line-height:1.5; }
+        .tag { display:inline-block; padding:.15rem .55rem; border-radius:6px; font-size:.72rem; font-weight:600; white-space:nowrap; }
+        .tag.gn { background:var(--green-bg); color:var(--green); }
+        .tag.rd { background:var(--red-bg); color:var(--red); }
+        .tag.yl { background:#fef9c3; color:#a16207; }
+        .empty { text-align:center; padding:2.5rem 1rem; color:var(--text-3); font-size:.88rem; }
+        .empty .eicon { font-size:2.2rem; margin-bottom:.6rem; }
+        .loading-row { display:flex; align-items:center; justify-content:center; padding:2rem; color:var(--text-3); font-size:.88rem; }
+
+        /* ── FORM ── */
+        .fgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; }
+        .fg { display:flex; flex-direction:column; gap:.35rem; }
+        .fg.full { grid-column:1/-1; }
+        .lbl { font-size:.82rem; font-weight:600; color:var(--text-2); }
+        .lbl .req { color:var(--red); margin-left:2px; }
+        input[type=text], input[type=tel], input[type=number], select, textarea {
+            background:var(--bg); border:1.5px solid var(--border); border-radius:var(--rs);
+            padding:.7rem .9rem; color:var(--text); font-size:.95rem; font-family:'Sarabun',sans-serif;
+            width:100%; transition:all .2s; appearance:none;
+        }
+        input:focus, select:focus, textarea:focus { outline:none; border-color:var(--navy); background:var(--surface); box-shadow:0 0 0 3px rgba(26,45,74,.08); }
+        select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239a98a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:2.5rem; }
+        textarea { resize:vertical; min-height:60px; }
+
+        .loc-btn { width:100%; padding:.75rem; border:1.5px dashed var(--navy); background:transparent; color:var(--navy); border-radius:var(--rs); font-family:'Sarabun',sans-serif; font-size:.9rem; font-weight:600; cursor:pointer; transition:all .2s; }
+        .loc-btn:hover:not(:disabled) { background:#eef1f6; }
+        .loc-btn.loc-ok { border-style:solid; border-color:var(--green); background:var(--green-bg); color:var(--green); }
+        .loc-btn:disabled { opacity:.7; cursor:wait; }
+
+        .btn-submit { width:100%; margin-top:1.4rem; padding:1rem; background:var(--navy); border:none; border-radius:var(--rs); color:#fff; font-size:1rem; font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; transition:all .2s; }
+        .btn-submit:hover:not(:disabled) { background:var(--navy-2); }
+        .btn-submit:disabled { opacity:.5; cursor:not-allowed; }
+
+        .btn-ol  { padding:.5rem .95rem; border-radius:var(--rs); font-family:'Sarabun',sans-serif; font-size:.82rem; font-weight:600; cursor:pointer; background:transparent; white-space:nowrap; transition:all .2s; border:1.5px solid var(--border); }
+        .btn-green { border-color:var(--green); color:var(--green); }
+        .btn-green:hover { background:var(--green-bg); }
+        .btn-red   { border-color:rgba(220,38,38,.4); color:var(--red); }
+        .btn-red:hover { background:var(--red-bg); }
+        .btn-navy  { border-color:var(--navy); color:var(--navy); }
+        .btn-navy:hover { background:#eef1f6; }
+
+        /* ── MODAL ── */
+        .modal-ov { position:fixed; inset:0; background:rgba(0,0,0,.4); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:8000; opacity:0; pointer-events:none; transition:opacity .2s; padding:1rem; }
+        .modal-ov.show { opacity:1; pointer-events:all; }
+        .modal { background:var(--surface); border-radius:var(--r); padding:1.8rem; max-width:480px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,.2); max-height:90vh; overflow-y:auto; }
+        .modal.small { max-width:360px; text-align:center; }
+        .modal h3 { font-size:1.05rem; font-weight:700; color:var(--navy); margin-bottom:1.2rem; }
+        .modal.small h3 { color:var(--red); }
+        .modal p  { font-size:.87rem; color:var(--text-2); line-height:1.7; }
+        .modal-btns { display:flex; gap:.8rem; margin-top:1.5rem; justify-content:center; }
+        .btn-danger  { background:var(--red); border:none; color:#fff; padding:.65rem 1.4rem; border-radius:var(--rs); font-weight:700; font-family:'Sarabun',sans-serif; cursor:pointer; }
+        .btn-cancel2 { background:transparent; border:1.5px solid var(--border); color:var(--text-2); padding:.65rem 1.4rem; border-radius:var(--rs); font-weight:600; font-family:'Sarabun',sans-serif; cursor:pointer; }
+        .modal-close { position:absolute; top:1rem; right:1.2rem; cursor:pointer; color:var(--text-3); font-size:1.3rem; background:none; border:none; }
+
+        /* ── ORGANIZER ── */
+        .organizer-only { display:none; }
+        .org-bar { display:flex; justify-content:flex-end; margin-bottom:.8rem; }
+        .org-badge { display:inline-flex; align-items:center; gap:.35rem; background:var(--gold-bg); border:1px solid var(--gold-bd); color:var(--gold-dk); padding:.3rem .8rem; border-radius:20px; font-size:.76rem; font-weight:700; cursor:pointer; }
+
+        .toast { position:fixed; bottom:1.5rem; right:1.5rem; left:1.5rem; max-width:340px; margin-left:auto; padding:.85rem 1.3rem; border-radius:var(--rs); font-weight:600; font-size:.9rem; color:#fff; transform:translateY(120%); opacity:0; transition:all .3s cubic-bezier(.34,1.56,.64,1); z-index:9999; box-shadow:0 8px 28px rgba(0,0,0,.15); }
+        .toast.show { transform:translateY(0); opacity:1; }
+        .toast.success { background:#15803d; }
+        .toast.error   { background:var(--red); }
+        .toast.info    { background:var(--navy); }
+
+        .footer { text-align:center; padding:2rem 1rem; border-top:1px solid var(--border); color:var(--text-3); font-size:.78rem; }
+    </style>
+</head>
+<body>
+
+<header class="hdr">
+    <div class="hdr-chip">♩ งานรวมใจ ศิษย์เก่าดุริยางค์ ♩</div>
+    <h1 class="hdr-title">🚗 พตพ. Carpool ร่วมทาง<br>ไปงานคืนสู่เหย้า "12 ปีที่คิดถึง"</h1>
+    <p class="hdr-sub">แชร์รถ · นัดจุดรับ · ไปเรือนนพเก้า พระราม 5 ด้วยกัน</p>
+    <div>
+        <span class="live-badge off" id="liveBadge">
+            <span class="dot"></span>
+            <span id="liveText">กำลังเชื่อมต่อ...</span>
+        </span>
+    </div>
+</header>
+
+<nav class="nav">
+    <div class="ntab active">🚗 Carpool ร่วมทาง</div>
+    <div class="ntab" onclick="location.href='index.html'">🏠 กลับหน้าลงทะเบียน</div>
+    <div class="ntab" onclick="location.href='tickets.html'">🎫 ซื้อบัตรเข้างาน</div>
+</nav>
+
+<main class="content">
+
+    <div class="org-bar">
+        <span class="org-badge" id="orgLoginBtn" onclick="showOrganizerModal()">🔧 โหมดผู้จัด</span>
+        <span class="org-badge organizer-only" id="orgLogoutBtn" onclick="organizerLogout()" style="display:none">✅ โหมดผู้จัด (กดออก)</span>
+    </div>
+
+    <div class="cta-grid">
+        <button class="cta-btn driver" onclick="showDriverModal()">
+            <div class="cta-ic">🚗</div>
+            <div class="cta-ttl">เปิดทริป / ฉันมีรถว่าง</div>
+            <div class="cta-sub">ปักหมุดตำแหน่งรถ + วาดเส้นทางไปงาน</div>
+        </button>
+        <button class="cta-btn passenger" onclick="showPassengerModal()">
+            <div class="cta-ic">🙋</div>
+            <div class="cta-ttl">ขอติดรถไปด้วย / ปักหมุดรอรับ</div>
+            <div class="cta-sub">ปักหมุดจุดรอรถ แล้วเลือกคนขับบนแผนที่</div>
+        </button>
+    </div>
+
+    <div class="card" id="myStatusCard" style="display:none">
+        <div class="card-hd"><div><div class="card-title">📌 สถานะของฉัน</div><div class="card-sub">ข้อมูลนี้จำไว้ในเบราว์เซอร์นี้เท่านั้น</div></div></div>
+        <div class="card-body"></div>
+    </div>
+
+    <div class="map-wrap">
+        <div id="map"></div>
+        <div class="map-key-warn" id="mapKeyWarning">
+            <div class="mkw-ic">🗺️</div>
+            <div class="mkw-text">ยังไม่ได้ตั้งค่า Google Maps API Key — แผนที่ยังแสดงผลไม่ได้ในตอนนี้<br>
+            ทีมงานสามารถขอ/ตั้งค่า API Key ได้ตามขั้นตอนใน <strong>README.md</strong> หัวข้อ "Carpool ร่วมทาง"<br>
+            (ระหว่างนี้ยังใช้ระบบเปิดทริป/ขอติดรถผ่านรายการด้านล่างได้ตามปกติ)</div>
+        </div>
+        <div class="legend" id="mapLegend">
+            <div class="lg-item"><span class="lg-dot" style="background:#b8921f"></span> ปลายทาง (เรือนนพเก้า)</div>
+            <div class="lg-item"><span class="lg-dot" style="background:#15803d"></span> คนขับ (มีที่ว่าง)</div>
+            <div class="lg-item"><span class="lg-dot" style="background:#6b7280"></span> คนขับ (เต็มแล้ว)</div>
+            <div class="lg-item"><span class="lg-dot" style="background:#dc2626"></span> คนรอติดรถ</div>
+            <div class="lg-item"><span class="lg-dot" style="background:#eab308"></span> จับคู่สำเร็จ</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-hd"><div><div class="card-title">🚗 คนขับที่เปิดทริปอยู่</div><div class="card-sub">คลิก "ดูบนแผนที่" เพื่อไปยังตำแหน่งรถ</div></div></div>
+        <div id="driverList"><div class="loading-row">กำลังโหลด...</div></div>
+    </div>
+
+    <div class="card">
+        <div class="card-hd"><div><div class="card-title">🙋 คนที่รอติดรถ</div><div class="card-sub">รายชื่อที่ยังไม่ได้แมตช์/กำลังรอการตอบรับ</div></div></div>
+        <div id="passengerList"><div class="loading-row">กำลังโหลด...</div></div>
+    </div>
+
+    <div class="footer">
+        © งานเลี้ยงคืนสู่เหย้า ศิษย์เก่าดุริยางค์ พตพ "12 ปีที่คิดถึง" — ระบบ Carpool ร่วมทาง
+    </div>
+</main>
+
+<!-- ===== DRIVER MODAL ===== -->
+<div class="modal-ov" id="driverModal">
+    <div class="modal" style="position:relative">
+        <button class="modal-close" onclick="hideDriverModal()">✕</button>
+        <h3>🚗 เปิดทริป / ฉันมีรถว่าง</h3>
+        <form onsubmit="submitDriverForm(event)" novalidate>
+            <div class="fgrid">
+                <div class="fg"><label class="lbl">ชื่อเล่น<span class="req">*</span></label><input type="text" id="d-nickname" maxlength="40" required></div>
+                <div class="fg"><label class="lbl">รุ่น<span class="req">*</span></label><select id="d-batch" required><option value="">เลือกรุ่น</option></select></div>
+                <div class="fg"><label class="lbl">พาร์ทดนตรี (ถ้ามี)</label>
+                    <select id="d-instrument">
+                        <option value="">— ไม่ระบุ —</option>
+                        <option value="Per">Per — เพอร์คัชชัน</option>
+                        <option value="Pic">Pic — พิคโคโล</option>
+                        <option value="Fl">Fl — ฟลุต</option>
+                        <option value="Cl">Cl — คลาริเน็ต</option>
+                        <option value="Tp">Tp — ทรัมเป็ต</option>
+                        <option value="SA">SA — อัลโตแซกฯ</option>
+                        <option value="Hn">Hn — ฮอร์น</option>
+                        <option value="St">St — เทเนอร์แซกฯ</option>
+                        <option value="Tb">Tb — ทรอมโบน</option>
+                        <option value="Eup">Eup — ยูโฟเนียม</option>
+                        <option value="Baritone">Bar — บาริโทน</option>
+                        <option value="Tuba">Tuba — ทูบา</option>
+                        <option value="Drum Major">DM — ดรัมเมเจอร์</option>
+                    </select>
+                </div>
+                <div class="fg"><label class="lbl">เบอร์โทรติดต่อ<span class="req">*</span></label><input type="tel" id="d-phone" maxlength="10" required></div>
+                <div class="fg"><label class="lbl">ที่นั่งว่าง<span class="req">*</span></label><input type="number" id="d-seats" min="1" max="20" value="3" required></div>
+                <div class="fg full"><label class="lbl">เส้นทางหลักที่ขับผ่าน</label><textarea id="d-route" placeholder="เช่น ออกจากบางนา → ขึ้นทางด่วน → ลงพระราม 5"></textarea></div>
+                <div class="fg full">
+                    <label class="lbl">ตำแหน่งปัจจุบัน<span class="req">*</span></label>
+                    <button type="button" class="loc-btn" id="d-locBtn" onclick="captureDriverLoc()">📍 แชร์ตำแหน่งปัจจุบัน</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit" id="d-submitBtn" disabled>🚗 เปิดทริป</button>
+        </form>
+    </div>
+</div>
+
+<!-- ===== PASSENGER MODAL ===== -->
+<div class="modal-ov" id="passengerModal">
+    <div class="modal" style="position:relative">
+        <button class="modal-close" onclick="hidePassengerModal()">✕</button>
+        <h3>🙋 ขอติดรถไปด้วย / ปักหมุดรอรับ</h3>
+        <form onsubmit="submitPassengerForm(event)" novalidate>
+            <div class="fgrid">
+                <div class="fg"><label class="lbl">ชื่อเล่น<span class="req">*</span></label><input type="text" id="p-nickname" maxlength="40" required></div>
+                <div class="fg"><label class="lbl">รุ่น<span class="req">*</span></label><select id="p-batch" required><option value="">เลือกรุ่น</option></select></div>
+                <div class="fg"><label class="lbl">เบอร์โทรติดต่อ<span class="req">*</span></label><input type="tel" id="p-phone" maxlength="10" required></div>
+                <div class="fg"><label class="lbl">จำนวนคนที่รอไปด้วย<span class="req">*</span></label><input type="number" id="p-party" min="1" max="10" value="1" required></div>
+                <div class="fg full"><label class="lbl">จุดนัดรับ (รายละเอียดเพิ่มเติม)</label><textarea id="p-note" placeholder="เช่น หน้าปากซอย, ป้ายรถเมล์ตรงข้าม 7-Eleven"></textarea></div>
+                <div class="fg full">
+                    <label class="lbl">ตำแหน่งที่ต้องการให้รับ<span class="req">*</span></label>
+                    <button type="button" class="loc-btn" id="p-locBtn" onclick="capturePassengerLoc()">📍 แชร์ตำแหน่งจุดรับ</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit" id="p-submitBtn" disabled>🙋 ปักหมุดรอรับ</button>
+        </form>
+    </div>
+</div>
+
+<!-- ===== ORGANIZER MODAL ===== -->
+<div class="modal-ov" id="organizerModal">
+    <div class="modal small" style="position:relative">
+        <button class="modal-close" onclick="hideOrganizerModal()">✕</button>
+        <h3 style="color:var(--navy)">🔧 โหมดผู้จัดงาน</h3>
+        <p style="margin-bottom:.8rem">สำหรับทีมงานปรับตำแหน่งปลายทางให้แม่นยำ และจัดการรายการที่ไม่เหมาะสม</p>
+        <input type="text" id="orgPass" placeholder="รหัสผ่านผู้จัด" style="text-align:center" onkeydown="if(event.key==='Enter')organizerLogin()">
+        <div class="modal-btns">
+            <button class="btn-danger" style="background:var(--navy)" onclick="organizerLogin()">เข้าสู่ระบบ</button>
+            <button class="btn-cancel2" onclick="hideOrganizerModal()">ยกเลิก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CONFIRM MODAL ===== -->
+<div class="modal-ov" id="confirmModal">
+    <div class="modal small">
+        <h3>⚠️ ยืนยันการทำรายการ</h3>
+        <p id="confirmMsg"></p>
+        <div class="modal-btns">
+            <button class="btn-danger" onclick="runConfirm()">ยืนยัน</button>
+            <button class="btn-cancel2" onclick="hideConfirm()">ยกเลิก</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script>
+    /* ══════════════════════════════════════════════════════════════
+       ตั้งค่า Google Maps API Key ของคุณเองตรงนี้ (ดูวิธีขอ/ตั้งค่าใน README.md
+       หัวข้อ "Carpool ร่วมทาง") — ถ้ายังไม่ตั้งค่า ระบบจะแสดงข้อความแจ้งเตือนแทน
+       และยังใช้รายการคนขับ/คนรอด้านล่างแผนที่ได้ตามปกติ
+       ══════════════════════════════════════════════════════════════ */
+    const GOOGLE_MAPS_API_KEY = 'AIzaSyC1X4j8F24EGp7XwvpYcB1BFeVtze0zOls';
+
+    firebase.initializeApp({
+        apiKey:            "AIzaSyAPJX88snVWdfxWpJjT5BM503Z5u_qqoWg",
+        authDomain:        "alumni-reunion-ptpt.firebaseapp.com",
+        projectId:         "alumni-reunion-ptpt",
+        storageBucket:     "alumni-reunion-ptpt.firebasestorage.app",
+        messagingSenderId: "33108782517",
+        appId:             "1:33108782517:web:e13caa0cf8f361e18e7dfc"
+    });
+    const db = firebase.firestore();
+    const COL_D      = 'ptpt_carpool_drivers';
+    const COL_P      = 'ptpt_carpool_passengers';
+    const CONFIG_COL = 'ptpt_config';
+    const DEST_DOC   = 'carpool_destination';
+    /* พิกัดโดยประมาณของตำบลบางขนุน อ.บางกรวย นนทบุรี (ที่ตั้งเรือนนพเก้า พระราม 5 - ราชพฤกษ์)
+       ผู้จัดงานสามารถลากพินปรับตำแหน่งให้แม่นยำได้ทีหลังผ่าน "โหมดผู้จัด" โดยไม่ต้องแก้โค้ด */
+    const DEFAULT_DEST = { lat: 13.8110, lng: 100.4530 };
+    const CARPOOL_ADMIN_PASS = 'ptpt-carpool-2569';
+
+    let myDriverId    = null;
+    let myPassengerId = null;
+    let isOrganizer   = sessionStorage.getItem('carpoolOrganizer') === '1';
+
+    let map = null, directionsService = null, destMarker = null, destInfo = null, destCentered = false;
+    let currentDest = { ...DEFAULT_DEST };
+    const driverEntries    = new Map();   // id -> {data, requests, marker, info, renderer, unsubReq, lastRouteKey}
+    const passengerEntries = new Map();   // id -> {data, marker, info}
+
+    let watchId = null, lastPos = null, lastWriteTs = 0;
+    let driverLoc = null, passengerLoc = null;
+
+    /* ── Batch dropdown (รุ่นที่ 1-70) ── */
+    function initBatchOptions() {
+        ['d-batch','p-batch'].forEach(id => {
+            const sel = document.getElementById(id);
+            for (let n = 1; n <= 70; n++) {
+                const opt = document.createElement('option');
+                opt.value = `รุ่นที่ ${n}`;
+                opt.textContent = `รุ่นที่ ${n}`;
+                sel.appendChild(opt);
+            }
+        });
+    }
+
+    /* ══════════════ Google Maps loading ══════════════ */
+    function loadGoogleMaps() {
+        if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY') {
+            document.getElementById('mapKeyWarning').style.display = 'block';
+            document.getElementById('map').style.display = 'none';
+            document.getElementById('mapLegend').style.display = 'none';
+            return;
+        }
+        const s = document.createElement('script');
+        s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&callback=initMap`;
+        s.async = true; s.defer = true;
+        document.head.appendChild(s);
+    }
+    window.gm_authFailure = function () {
+        document.getElementById('map').style.display = 'none';
+        document.getElementById('mapLegend').style.display = 'none';
+        const w = document.getElementById('mapKeyWarning');
+        w.style.display = 'block';
+        w.querySelector('.mkw-text').textContent = 'Google Maps API Key ไม่ถูกต้องหรือถูกจำกัดสิทธิ์ (referrer/โดเมน) — กรุณาตรวจสอบการตั้งค่าใน Google Cloud Console (ดูวิธีใน README.md)';
+    };
+
+    function svgPin(hex, label) {
+        const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='40' height='52' viewBox='0 0 40 52'>
+            <path d='M20 0C9 0 0 9 0 20c0 15 20 32 20 32s20-17 20-32C40 9 31 0 20 0z' fill='${hex}' stroke='#ffffff' stroke-width='2'/>
+            <circle cx='20' cy='19' r='12' fill='#ffffff'/>
+            <text x='20' y='25' font-size='14' text-anchor='middle' font-family='Arial,sans-serif'>${label}</text>
+        </svg>`;
+        return {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+            scaledSize: new google.maps.Size(40,52),
+            anchor: new google.maps.Point(20,52)
+        };
+    }
+    function driverIcon(d)    { return svgPin(d.seatsAvailable > 0 ? '#15803d' : '#6b7280', '🚗'); }
+    function passengerIcon(d) { return svgPin(d.status === 'matched' ? '#eab308' : '#dc2626', d.status === 'matched' ? '✓' : '🙋'); }
+    function destIcon()       { return svgPin('#b8921f', '🏁'); }
+
+    /* ══════════════ Map init (called by Maps API script) ══════════════ */
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: currentDest, zoom: 12,
+            streetViewControl: false, mapTypeControl: false, fullscreenControl: true
+        });
+        directionsService = new google.maps.DirectionsService();
+        createDestMarker();
+        driverEntries.forEach((e, id)    => { attachDriverMapObjects(id, e);    refreshDriverMapObjects(id, e); });
+        passengerEntries.forEach((e, id) => { attachPassengerMapObjects(id, e); refreshPassengerMapObjects(id, e); });
+    }
+
+    function createDestMarker() {
+        destMarker = new google.maps.Marker({
+            position: currentDest, map, icon: destIcon(), zIndex: 999,
+            draggable: isOrganizer, title: 'เรือนนพเก้า พระราม 5 - ราชพฤกษ์ (ปลายทาง)'
+        });
+        destInfo = new google.maps.InfoWindow({
+            content: `<div style="font-family:'Sarabun',sans-serif;font-weight:700;color:#8c6e12">🏁 เรือนนพเก้า พระราม 5 - ราชพฤกษ์<br>
+                <span style="font-weight:400;font-size:.8rem;color:#555">ปลายทางงาน "12 ปีที่คิดถึง"</span></div>`
+        });
+        destMarker.addListener('click', () => destInfo.open(map, destMarker));
+        destInfo.open(map, destMarker);
+        destMarker.addListener('dragend', e => {
+            if (!isOrganizer) return;
+            const lat = e.latLng.lat(), lng = e.latLng.lng();
+            db.collection(CONFIG_COL).doc(DEST_DOC).set({ lat, lng }, { merge:true });
+            toast('อัปเดตตำแหน่งปลายทางแล้ว');
+        });
+        if (!destCentered) { map.setCenter(currentDest); destCentered = true; }
+    }
+
+    function listenConfig() {
+        db.collection(CONFIG_COL).doc(DEST_DOC).onSnapshot(doc => {
+            const d = doc.exists ? doc.data() : {};
+            currentDest = { lat: d.lat ?? DEFAULT_DEST.lat, lng: d.lng ?? DEFAULT_DEST.lng };
+            if (map) {
+                if (destMarker) destMarker.setPosition(currentDest);
+                if (!destCentered) { map.setCenter(currentDest); destCentered = true; }
+                driverEntries.forEach((e, id) => maybeRecomputeRoute(id, e));
+            }
+        }, err => console.error('Firestore (carpool_destination):', err));
+    }
+
+    /* ══════════════ Drivers ══════════════ */
+    function listenDrivers() {
+        db.collection(COL_D).where('status','==','active').onSnapshot(snap => {
+            setLive(true);
+            snap.docChanges().forEach(ch => {
+                const id = ch.doc.id;
+                if (ch.type === 'removed') {
+                    const e = driverEntries.get(id);
+                    if (e) {
+                        e.marker   && e.marker.setMap(null);
+                        e.renderer && e.renderer.setMap(null);
+                        e.info     && e.info.close();
+                        e.unsubReq && e.unsubReq();
+                        driverEntries.delete(id);
+                    }
+                    return;
+                }
+                let e = driverEntries.get(id);
+                if (!e) {
+                    e = { data: ch.doc.data(), requests: [], lastRouteKey: '' };
+                    driverEntries.set(id, e);
+                    attachDriverMapObjects(id, e);
+                    attachDriverRequestListener(id, e);
+                } else {
+                    e.data = ch.doc.data();
+                }
+                refreshDriverMapObjects(id, e);
+            });
+            renderDriverList();
+            updateMyStatusCard();
+        }, err => { setLive(false); console.error('Firestore (carpool_drivers):', err); });
+    }
+
+    function attachDriverMapObjects(id, e) {
+        if (!map || e.marker) return;
+        const pos = { lat: e.data.currentLat ?? e.data.originLat, lng: e.data.currentLng ?? e.data.originLng };
+        e.marker = new google.maps.Marker({ position: pos, map, icon: driverIcon(e.data), zIndex: 500 });
+        e.info = new google.maps.InfoWindow();
+        e.marker.addListener('click', () => { e.info.setContent(driverInfoHtml(id)); e.info.open(map, e.marker); });
+        e.renderer = new google.maps.DirectionsRenderer({
+            map, suppressMarkers: true, preserveViewport: true,
+            polylineOptions: { strokeColor: '#15803d', strokeWeight: 4, strokeOpacity: .8 }
+        });
+    }
+    function refreshDriverMapObjects(id, e) {
+        if (!map || !e.marker) return;
+        const pos = { lat: e.data.currentLat ?? e.data.originLat, lng: e.data.currentLng ?? e.data.originLng };
+        e.marker.setPosition(pos);
+        e.marker.setIcon(driverIcon(e.data));
+        if (e.info.getMap()) e.info.setContent(driverInfoHtml(id));
+        maybeRecomputeRoute(id, e);
+    }
+    function maybeRecomputeRoute(id, e) {
+        if (!map || !directionsService || !e.data.originLat) return;
+        const accepted = e.requests.filter(r => r.status === 'accepted');
+        const key = `${e.data.originLat},${e.data.originLng}|${currentDest.lat},${currentDest.lng}|${accepted.map(r=>r.id).sort().join(',')}`;
+        if (key === e.lastRouteKey) return;
+        e.lastRouteKey = key;
+        const waypoints = accepted.map(r => ({ location: { lat:r.pickupLat, lng:r.pickupLng }, stopover:true }));
+        directionsService.route({
+            origin: { lat: e.data.originLat, lng: e.data.originLng },
+            destination: currentDest,
+            waypoints, optimizeWaypoints: false,
+            travelMode: google.maps.TravelMode.DRIVING
+        }, (res, status) => { if (status === 'OK' && e.renderer) e.renderer.setDirections(res); });
+    }
+
+    function attachDriverRequestListener(id, e) {
+        e.unsubReq = db.collection(COL_D).doc(id).collection('requests').onSnapshot(rs => {
+            const prevPending = new Set(e.requests.filter(r => r.status === 'pending').map(r => r.id));
+            e.requests = rs.docs.map(rd => ({ id: rd.id, ...rd.data() }));
+            if (id === myDriverId) {
+                e.requests.filter(r => r.status === 'pending' && !prevPending.has(r.id)).forEach(notifyNewRequest);
+            }
+            if (map) maybeRecomputeRoute(id, e);
+            updateMyStatusCard();
+        }, err => console.error('Firestore (carpool requests):', err));
+    }
+
+    function driverInfoHtml(id) {
+        const e = driverEntries.get(id); const d = e.data;
+        const isMine = myDriverId === id;
+        const already = myPassengerId && e.requests.some(r => r.passengerId === myPassengerId && r.status !== 'rejected');
+        const canRequest = !isMine && myPassengerId && d.seatsAvailable > 0 && !already;
+        return `<div style="min-width:200px;max-width:240px;font-family:'Sarabun',sans-serif">
+            <div style="font-weight:700;color:#1a2d4a;margin-bottom:.3rem">🚗 ${esc(d.nickname)}${d.batch?` · ${esc(d.batch)}`:''}</div>
+            ${d.instrument ? `<div style="font-size:.82rem;color:#555">🎵 ${esc(d.instrument)}</div>` : ''}
+            <div style="font-size:.82rem;color:#555">📞 ${esc(fmtP(d.phone))}</div>
+            <div style="font-size:.82rem;color:#555">💺 ว่าง ${d.seatsAvailable}/${d.seatsTotal} ที่นั่ง</div>
+            ${d.routeNote ? `<div style="font-size:.8rem;color:#888;margin-top:.3rem">🛣️ ${esc(d.routeNote)}</div>` : ''}
+            ${canRequest ? `<button onclick="requestRide('${id}')" style="margin-top:.6rem;width:100%;background:#1a2d4a;color:#fff;border:none;padding:.5rem;border-radius:6px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif">🙋 ขอติดรถ</button>` : ''}
+            ${isMine ? `<div style="margin-top:.5rem;font-size:.78rem;color:#b8921f;font-weight:700">🚗 นี่คือทริปของฉัน</div>` : ''}
+            ${!isMine && !myPassengerId ? `<div style="margin-top:.5rem;font-size:.78rem;color:#888">กรอกฟอร์ม "ขอติดรถไปด้วย" ก่อน เพื่อขอคันนี้</div>` : ''}
+            ${already && !isMine ? `<div style="margin-top:.5rem;font-size:.78rem;color:#15803d;font-weight:700">✔ คุณส่งคำขอไปแล้ว</div>` : ''}
+        </div>`;
+    }
+
+    /* ══════════════ Passengers ══════════════ */
+    function listenPassengers() {
+        db.collection(COL_P).where('status','in',['waiting','requesting','matched']).onSnapshot(snap => {
+            snap.docChanges().forEach(ch => {
+                const id = ch.doc.id;
+                if (ch.type === 'removed') {
+                    const e = passengerEntries.get(id);
+                    if (e) { e.marker && e.marker.setMap(null); e.info && e.info.close(); passengerEntries.delete(id); }
+                    return;
+                }
+                let e = passengerEntries.get(id);
+                if (!e) { e = { data: ch.doc.data() }; passengerEntries.set(id, e); attachPassengerMapObjects(id, e); }
+                else e.data = ch.doc.data();
+                refreshPassengerMapObjects(id, e);
+            });
+            renderPassengerList();
+            updateMyStatusCard();
+        }, err => console.error('Firestore (carpool_passengers):', err));
+    }
+    function attachPassengerMapObjects(id, e) {
+        if (!map || e.marker) return;
+        e.marker = new google.maps.Marker({ position: { lat:e.data.pickupLat, lng:e.data.pickupLng }, map, icon: passengerIcon(e.data), zIndex: 400 });
+        e.info = new google.maps.InfoWindow();
+        e.marker.addListener('click', () => { e.info.setContent(passengerInfoHtml(id)); e.info.open(map, e.marker); });
+    }
+    function refreshPassengerMapObjects(id, e) {
+        if (!map || !e.marker) return;
+        e.marker.setPosition({ lat:e.data.pickupLat, lng:e.data.pickupLng });
+        e.marker.setIcon(passengerIcon(e.data));
+        if (e.info.getMap()) e.info.setContent(passengerInfoHtml(id));
+    }
+    function passengerInfoHtml(id) {
+        const d = passengerEntries.get(id).data;
+        const statusTxt = { waiting:'⏳ รอเลือกคนขับ', requesting:'📨 ส่งคำขอแล้ว', matched:'✅ จับคู่สำเร็จแล้ว' }[d.status] || d.status;
+        return `<div style="min-width:180px;font-family:'Sarabun',sans-serif">
+            <div style="font-weight:700;color:#991b1b;margin-bottom:.3rem">🙋 ${esc(d.nickname)}${d.batch?` · ${esc(d.batch)}`:''}</div>
+            <div style="font-size:.82rem;color:#555">👥 รอไปด้วย ${d.partySize} คน</div>
+            ${d.pickupNote ? `<div style="font-size:.8rem;color:#888;margin-top:.3rem">📍 ${esc(d.pickupNote)}</div>` : ''}
+            <div style="font-size:.8rem;margin-top:.4rem;font-weight:600">${statusTxt}</div>
+        </div>`;
+    }
+
+    /* ══════════════ Request / match workflow ══════════════ */
+    async function requestRide(driverId) {
+        if (!myPassengerId) { toast('กรุณากรอกฟอร์ม "ขอติดรถไปด้วย" ก่อน', 'error'); return; }
+        try {
+            const pSnap = await db.collection(COL_P).doc(myPassengerId).get();
+            if (!pSnap.exists || pSnap.data().status === 'cancelled') { toast('ไม่พบข้อมูลการรอรถของคุณ', 'error'); return; }
+            const p = pSnap.data();
+            const dRef = db.collection(COL_D).doc(driverId);
+            const dSnap = await dRef.get();
+            if (!dSnap.exists || dSnap.data().status !== 'active') { toast('ทริปนี้ปิดไปแล้ว', 'error'); return; }
+            if (dSnap.data().seatsAvailable <= 0) { toast('ที่นั่งเต็มแล้ว', 'error'); return; }
+            await dRef.collection('requests').add({
+                passengerId: myPassengerId, passengerName: p.nickname, batch: p.batch, phone: p.phone,
+                partySize: p.partySize, pickupLat: p.pickupLat, pickupLng: p.pickupLng, pickupNote: p.pickupNote || '',
+                status: 'pending', requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            await db.collection(COL_P).doc(myPassengerId).update({ status:'requesting', requestedDriverId: driverId });
+            toast('ส่งคำขอติดรถแล้ว รอคนขับตอบรับ');
+        } catch (err) { toast('เกิดข้อผิดพลาด: ' + (err.code || err.message), 'error'); }
+    }
+
+    async function acceptRequest(reqId) {
+        const dRef = db.collection(COL_D).doc(myDriverId);
+        const rRef = dRef.collection('requests').doc(reqId);
+        try {
+            let passengerId = null;
+            await db.runTransaction(async tx => {
+                const dSnap = await tx.get(dRef);
+                const rSnap = await tx.get(rRef);
+                if (!dSnap.exists || !rSnap.exists) throw new Error('ข้อมูลไม่พบ');
+                const d = dSnap.data(), r = rSnap.data();
+                if (r.status !== 'pending') throw new Error('คำขอนี้ถูกดำเนินการไปแล้ว');
+                if (d.seatsAvailable < r.partySize) throw new Error('ที่นั่งไม่พอ');
+                passengerId = r.passengerId;
+                tx.update(dRef, { seatsAvailable: d.seatsAvailable - r.partySize });
+                tx.update(rRef, { status:'accepted' });
+                tx.update(db.collection(COL_P).doc(r.passengerId), { status:'matched', matchedDriverId: myDriverId });
+            });
+            toast('รับผู้โดยสารเรียบร้อย');
+        } catch (err) { toast(err.message || 'เกิดข้อผิดพลาด', 'error'); }
+    }
+    async function rejectRequest(reqId) {
+        try {
+            const rRef = db.collection(COL_D).doc(myDriverId).collection('requests').doc(reqId);
+            const rSnap = await rRef.get();
+            if (!rSnap.exists) return;
+            const r = rSnap.data();
+            await rRef.update({ status:'rejected' });
+            const pRef = db.collection(COL_P).doc(r.passengerId);
+            const pSnap = await pRef.get();
+            if (pSnap.exists && pSnap.data().requestedDriverId === myDriverId) {
+                await pRef.update({ status:'waiting', requestedDriverId: firebase.firestore.FieldValue.delete() });
+            }
+            toast('ปฏิเสธคำขอแล้ว', 'info');
+        } catch (err) { toast('เกิดข้อผิดพลาด: ' + (err.code || err.message), 'error'); }
+    }
+
+    function notifyNewRequest(r) {
+        beep();
+        toast(`🔔 ${r.passengerName} ขอติดรถ (${r.partySize} คน)`, 'info');
+    }
+    function beep() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ctx.createOscillator(), g = ctx.createGain();
+            o.type = 'sine'; o.frequency.value = 880; g.gain.value = .15;
+            o.connect(g); g.connect(ctx.destination);
+            o.start(); o.stop(ctx.currentTime + .18);
+            setTimeout(() => ctx.close(), 300);
+        } catch (e) {}
+    }
+
+    /* ══════════════ My status card ══════════════ */
+    function updateMyStatusCard() {
+        const card = document.getElementById('myStatusCard');
+        if (!myDriverId && !myPassengerId) { card.style.display = 'none'; return; }
+        card.style.display = '';
+        let html = '';
+        if (myDriverId) {
+            const e = driverEntries.get(myDriverId);
+            if (e) {
+                const d = e.data;
+                const pending  = e.requests.filter(r => r.status === 'pending');
+                const accepted = e.requests.filter(r => r.status === 'accepted');
+                html += `<div class="ms-block">
+                    <div class="ms-hd">🚗 ทริปของคุณ · ที่นั่งว่าง ${d.seatsAvailable}/${d.seatsTotal}</div>
+                    ${pending.length ? `<div class="ms-sub">🔔 คำขอใหม่ ${pending.length} รายการ</div>` : ''}
+                    ${pending.map(reqCardHtml).join('') || '<div class="ms-empty">ยังไม่มีคำขอเข้ามา</div>'}
+                    ${accepted.length ? `<div class="ms-sub" style="margin-top:.6rem">✅ รับแล้ว ${accepted.length} รายการ</div>${accepted.map(r=>`<div class="ms-mini">${esc(r.passengerName)} · ${r.partySize} คน · 📞 ${esc(fmtP(r.phone))}</div>`).join('')}` : ''}
+                    <button class="btn-ol btn-red" style="margin-top:.8rem" onclick="closeTrip()">🛑 ปิดทริป</button>
+                </div>`;
+            }
+        }
+        if (myPassengerId) {
+            const e = passengerEntries.get(myPassengerId);
+            if (e) {
+                const statusTxt = { waiting:'⏳ รอเลือกคนขับ', requesting:'📨 ส่งคำขอแล้ว รอคนขับตอบรับ', matched:'✅ จับคู่สำเร็จแล้ว!' }[e.data.status] || e.data.status;
+                html += `<div class="ms-block">
+                    <div class="ms-hd">🙋 สถานะการรอรถของคุณ</div>
+                    <div class="ms-sub">${statusTxt}</div>
+                    <button class="btn-ol btn-red" style="margin-top:.8rem" onclick="cancelWait()">🛑 ยกเลิกการรอรถ</button>
+                </div>`;
+            }
+        }
+        card.querySelector('.card-body').innerHTML = html || '<div class="ms-empty">กำลังโหลดข้อมูล...</div>';
+    }
+    function reqCardHtml(r) {
+        return `<div class="req-card">
+            <div><b>${esc(r.passengerName)}</b>${r.batch?` · ${esc(r.batch)}`:''} · ${r.partySize} คน</div>
+            <div class="ms-mini">📞 ${esc(fmtP(r.phone))}${r.pickupNote?` · 📍 ${esc(r.pickupNote)}`:''}</div>
+            <div style="display:flex;gap:.5rem;margin-top:.5rem">
+                <button class="btn-ol btn-green" onclick="acceptRequest('${r.id}')">✅ รับ</button>
+                <button class="btn-ol btn-red" onclick="rejectRequest('${r.id}')">❌ ปฏิเสธ</button>
+            </div>
+        </div>`;
+    }
+
+    async function closeTrip() {
+        if (!myDriverId) return;
+        showConfirm('ยืนยันปิดทริป? คนอื่นจะไม่เห็นพินของคุณอีกต่อไป', async () => {
+            try {
+                await db.collection(COL_D).doc(myDriverId).update({ status:'closed' });
+                stopWatchingPosition();
+                localStorage.removeItem('carpoolMyDriverId');
+                myDriverId = null;
+                toast('ปิดทริปแล้ว', 'info');
+                updateMyStatusCard();
+            } catch (err) { toast('เกิดข้อผิดพลาด: ' + (err.code || err.message), 'error'); }
+        });
+    }
+    async function cancelWait() {
+        if (!myPassengerId) return;
+        showConfirm('ยืนยันยกเลิกการรอรถ?', async () => {
+            try {
+                await db.collection(COL_P).doc(myPassengerId).update({ status:'cancelled' });
+                localStorage.removeItem('carpoolMyPassengerId');
+                myPassengerId = null;
+                toast('ยกเลิกการรอรถแล้ว', 'info');
+                updateMyStatusCard();
+            } catch (err) { toast('เกิดข้อผิดพลาด: ' + (err.code || err.message), 'error'); }
+        });
+    }
+
+    /* ══════════════ List views ══════════════ */
+    function renderDriverList() {
+        const el = document.getElementById('driverList');
+        if (!driverEntries.size) { el.innerHTML = `<div class="empty"><div class="eicon">🚗</div>ยังไม่มีใครเปิดทริปตอนนี้</div>`; return; }
+        el.innerHTML = [...driverEntries.entries()].map(([id, e]) => {
+            const d = e.data;
+            const full = d.seatsAvailable <= 0;
+            return `<div class="entity-card">
+                <div class="entity-hd">
+                    <div class="entity-name">🚗 ${esc(d.nickname)}${d.batch?` · ${esc(d.batch)}`:''}</div>
+                    <span class="tag ${full?'rd':'gn'}">${full?'เต็มแล้ว':`ว่าง ${d.seatsAvailable}/${d.seatsTotal}`}</span>
+                </div>
+                <div class="entity-det">
+                    ${d.instrument?`🎵 ${esc(d.instrument)} · `:''}📞 ${esc(fmtP(d.phone))}
+                    ${d.routeNote?`<br>🛣️ ${esc(d.routeNote)}`:''}
+                </div>
+                <div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap">
+                    <button class="btn-ol btn-navy" onclick="focusMarker('driver','${id}')">📍 ดูบนแผนที่</button>
+                    ${isOrganizer ? `<button class="btn-ol btn-red organizer-only" onclick="adminDeleteDriver('${id}')">🗑️ ลบ</button>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+    }
+    function renderPassengerList() {
+        const el = document.getElementById('passengerList');
+        if (!passengerEntries.size) { el.innerHTML = `<div class="empty"><div class="eicon">🙋</div>ยังไม่มีใครรอติดรถตอนนี้</div>`; return; }
+        el.innerHTML = [...passengerEntries.entries()].map(([id, e]) => {
+            const d = e.data;
+            const tag = d.status === 'matched' ? '<span class="tag yl">จับคู่แล้ว</span>' : (d.status === 'requesting' ? '<span class="tag gn">ส่งคำขอแล้ว</span>' : '<span class="tag rd">รอเลือกคนขับ</span>');
+            return `<div class="entity-card">
+                <div class="entity-hd">
+                    <div class="entity-name">🙋 ${esc(d.nickname)}${d.batch?` · ${esc(d.batch)}`:''}</div>
+                    ${tag}
+                </div>
+                <div class="entity-det">
+                    👥 ${d.partySize} คน · 📞 ${esc(fmtP(d.phone))}
+                    ${d.pickupNote?`<br>📍 ${esc(d.pickupNote)}`:''}
+                </div>
+                <div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap">
+                    <button class="btn-ol btn-navy" onclick="focusMarker('passenger','${id}')">📍 ดูบนแผนที่</button>
+                    ${isOrganizer ? `<button class="btn-ol btn-red organizer-only" onclick="adminDeletePassenger('${id}')">🗑️ ลบ</button>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+    }
+    function focusMarker(kind, id) {
+        const e = (kind === 'driver' ? driverEntries : passengerEntries).get(id);
+        if (!e || !map || !e.marker) { toast('แผนที่ยังไม่พร้อมใช้งาน', 'error'); return; }
+        map.panTo(e.marker.getPosition());
+        map.setZoom(15);
+        google.maps.event.trigger(e.marker, 'click');
+        document.getElementById('map').scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+
+    /* ══════════════ Organizer moderation ══════════════ */
+    function adminDeleteDriver(id) {
+        showConfirm('ลบทริปนี้ออกจากระบบ? (เฉพาะโหมดผู้จัด)', async () => {
+            await db.collection(COL_D).doc(id).update({ status:'closed' });
+            toast('ลบทริปแล้ว', 'info');
+        });
+    }
+    function adminDeletePassenger(id) {
+        showConfirm('ลบรายการรอรถนี้ออกจากระบบ? (เฉพาะโหมดผู้จัด)', async () => {
+            await db.collection(COL_P).doc(id).update({ status:'cancelled' });
+            toast('ลบรายการแล้ว', 'info');
+        });
+    }
+
+    /* ══════════════ Forms ══════════════ */
+    function showDriverModal()  { document.getElementById('driverModal').classList.add('show'); }
+    function hideDriverModal()  { document.getElementById('driverModal').classList.remove('show'); }
+    function showPassengerModal(){ document.getElementById('passengerModal').classList.add('show'); }
+    function hidePassengerModal(){ document.getElementById('passengerModal').classList.remove('show'); }
+
+    function captureDriverLoc() {
+        if (!navigator.geolocation) { toast('เบราว์เซอร์นี้ไม่รองรับ GPS', 'error'); return; }
+        const btn = document.getElementById('d-locBtn');
+        btn.disabled = true; btn.textContent = '📍 กำลังขอตำแหน่ง...';
+        navigator.geolocation.getCurrentPosition(pos => {
+            driverLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            btn.disabled = false; btn.textContent = '✅ ได้ตำแหน่งแล้ว'; btn.classList.add('loc-ok');
+            document.getElementById('d-submitBtn').disabled = false;
+        }, err => {
+            toast('ไม่สามารถขอตำแหน่งได้: ' + err.message, 'error');
+            btn.disabled = false; btn.textContent = '📍 แชร์ตำแหน่งปัจจุบัน';
+        }, { enableHighAccuracy:true, timeout:15000 });
+    }
+    function capturePassengerLoc() {
+        if (!navigator.geolocation) { toast('เบราว์เซอร์นี้ไม่รองรับ GPS', 'error'); return; }
+        const btn = document.getElementById('p-locBtn');
+        btn.disabled = true; btn.textContent = '📍 กำลังขอตำแหน่ง...';
+        navigator.geolocation.getCurrentPosition(pos => {
+            passengerLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            btn.disabled = false; btn.textContent = '✅ ได้ตำแหน่งแล้ว'; btn.classList.add('loc-ok');
+            document.getElementById('p-submitBtn').disabled = false;
+        }, err => {
+            toast('ไม่สามารถขอตำแหน่งได้: ' + err.message, 'error');
+            btn.disabled = false; btn.textContent = '📍 แชร์ตำแหน่งจุดรับ';
+        }, { enableHighAccuracy:true, timeout:15000 });
+    }
+
+    async function submitDriverForm(e) {
+        e.preventDefault();
+        const nickname = gv('d-nickname'), batch = gv('d-batch'), phone = gv('d-phone'),
+              instrument = gv('d-instrument'), route = gv('d-route');
+        const seats = parseInt(gv('d-seats') || '0', 10);
+        if (!nickname || !batch || !phone) { toast('กรุณากรอกชื่อเล่น รุ่น และเบอร์โทรให้ครบ', 'error'); return; }
+        if (phone.replace(/\D/g,'').length < 9) { toast('เบอร์โทรศัพท์ไม่ถูกต้อง', 'error'); return; }
+        if (!seats || seats < 1) { toast('กรุณาระบุจำนวนที่นั่งว่าง', 'error'); return; }
+        if (!driverLoc) { toast('กรุณาแชร์ตำแหน่งปัจจุบันก่อน', 'error'); return; }
+        const btn = document.getElementById('d-submitBtn'); btn.disabled = true;
+        try {
+            const ref = await db.collection(COL_D).add({
+                nickname, batch, instrument, phone, seatsTotal: seats, seatsAvailable: seats, routeNote: route,
+                originLat: driverLoc.lat, originLng: driverLoc.lng, currentLat: driverLoc.lat, currentLng: driverLoc.lng,
+                status: 'active', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            myDriverId = ref.id;
+            localStorage.setItem('carpoolMyDriverId', myDriverId);
+            hideDriverModal();
+            toast('เปิดทริปสำเร็จ! กำลังแชร์ตำแหน่งแบบเรียลไทม์');
+            startWatchingPosition();
+        } catch (err) {
+            const code = err.code || '';
+            if (code === 'permission-denied') toast('ไม่มีสิทธิ์บันทึก — กรุณาตรวจสอบ Firestore Rules', 'error');
+            else toast('เกิดข้อผิดพลาด: ' + (code || err.message), 'error');
+        } finally { btn.disabled = false; }
+    }
+    async function submitPassengerForm(e) {
+        e.preventDefault();
+        const nickname = gv('p-nickname'), batch = gv('p-batch'), phone = gv('p-phone'), note = gv('p-note');
+        const party = parseInt(gv('p-party') || '0', 10);
+        if (!nickname || !batch || !phone) { toast('กรุณากรอกชื่อเล่น รุ่น และเบอร์โทรให้ครบ', 'error'); return; }
+        if (phone.replace(/\D/g,'').length < 9) { toast('เบอร์โทรศัพท์ไม่ถูกต้อง', 'error'); return; }
+        if (!party || party < 1) { toast('กรุณาระบุจำนวนคนที่รอไปด้วย', 'error'); return; }
+        if (!passengerLoc) { toast('กรุณาแชร์ตำแหน่งจุดรับก่อน', 'error'); return; }
+        const btn = document.getElementById('p-submitBtn'); btn.disabled = true;
+        try {
+            const ref = await db.collection(COL_P).add({
+                nickname, batch, phone, partySize: party, pickupNote: note,
+                pickupLat: passengerLoc.lat, pickupLng: passengerLoc.lng,
+                status: 'waiting', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            myPassengerId = ref.id;
+            localStorage.setItem('carpoolMyPassengerId', myPassengerId);
+            hidePassengerModal();
+            toast('ปักหมุดรอรับสำเร็จ! เลือกคนขับที่ต้องการได้จากแผนที่หรือรายการด้านล่าง');
+            updateMyStatusCard();
+        } catch (err) {
+            const code = err.code || '';
+            if (code === 'permission-denied') toast('ไม่มีสิทธิ์บันทึก — กรุณาตรวจสอบ Firestore Rules', 'error');
+            else toast('เกิดข้อผิดพลาด: ' + (code || err.message), 'error');
+        } finally { btn.disabled = false; }
+    }
+
+    /* ══════════════ Real-time position tracking (driver only) ══════════════ */
+    function startWatchingPosition() {
+        if (!navigator.geolocation || !myDriverId) return;
+        watchId = navigator.geolocation.watchPosition(pos => {
+            const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            const now = Date.now();
+            const moved = lastPos ? haversine(lastPos.lat, lastPos.lng, lat, lng) : Infinity;
+            if (moved > 50 || now - lastWriteTs > 20000) {
+                lastPos = { lat, lng }; lastWriteTs = now;
+                db.collection(COL_D).doc(myDriverId).update({ currentLat: lat, currentLng: lng }).catch(() => {});
+            }
+        }, err => console.warn('geolocation watch error:', err.message), { enableHighAccuracy:true, maximumAge:5000 });
+    }
+    function stopWatchingPosition() { if (watchId != null) { navigator.geolocation.clearWatch(watchId); watchId = null; } }
+    function haversine(lat1, lng1, lat2, lng2) {
+        const R = 6371000, toRad = x => x * Math.PI / 180;
+        const dLat = toRad(lat2-lat1), dLng = toRad(lng2-lng1);
+        const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    /* ══════════════ Organizer mode ══════════════ */
+    function showOrganizerModal() { document.getElementById('organizerModal').classList.add('show'); document.getElementById('orgPass').value=''; document.getElementById('orgPass').focus(); }
+    function hideOrganizerModal() { document.getElementById('organizerModal').classList.remove('show'); }
+    function organizerLogin() {
+        const v = document.getElementById('orgPass').value;
+        if (v === CARPOOL_ADMIN_PASS) {
+            setOrganizerMode(true);
+            hideOrganizerModal();
+            toast('เข้าสู่โหมดผู้จัดงานสำเร็จ');
+        } else { toast('รหัสผ่านไม่ถูกต้อง', 'error'); }
+    }
+    function organizerLogout() { setOrganizerMode(false); toast('ออกจากโหมดผู้จัดงานแล้ว', 'info'); }
+    function setOrganizerMode(v) {
+        isOrganizer = v;
+        sessionStorage.setItem('carpoolOrganizer', v ? '1' : '0');
+        if (destMarker) destMarker.setDraggable(v);
+        document.getElementById('orgLoginBtn').style.display  = v ? 'none' : 'inline-flex';
+        document.getElementById('orgLogoutBtn').style.display = v ? 'inline-flex' : 'none';
+        renderDriverList(); renderPassengerList();
+    }
+
+    /* ══════════════ Confirm modal ══════════════ */
+    let confirmCb = null;
+    function showConfirm(msg, cb) { document.getElementById('confirmMsg').textContent = msg; confirmCb = cb; document.getElementById('confirmModal').classList.add('show'); }
+    function hideConfirm() { document.getElementById('confirmModal').classList.remove('show'); confirmCb = null; }
+    function runConfirm() { const cb = confirmCb; hideConfirm(); if (cb) cb(); }
+
+    /* ══════════════ Session restore ══════════════ */
+    function restoreMySession() {
+        myDriverId = localStorage.getItem('carpoolMyDriverId');
+        myPassengerId = localStorage.getItem('carpoolMyPassengerId');
+        if (myDriverId) {
+            db.collection(COL_D).doc(myDriverId).get().then(doc => {
+                if (!doc.exists || doc.data().status !== 'active') {
+                    myDriverId = null; localStorage.removeItem('carpoolMyDriverId');
+                } else { startWatchingPosition(); }
+                updateMyStatusCard();
+            });
+        }
+        if (myPassengerId) {
+            db.collection(COL_P).doc(myPassengerId).get().then(doc => {
+                if (!doc.exists || doc.data().status === 'cancelled') {
+                    myPassengerId = null; localStorage.removeItem('carpoolMyPassengerId');
+                }
+                updateMyStatusCard();
+            });
+        }
+        if (isOrganizer) setOrganizerMode(true);
+    }
+
+    /* ══════════════ Helpers ══════════════ */
+    let liveOn = null;
+    function setLive(ok) {
+        if (liveOn === ok) return; liveOn = ok;
+        const b = document.getElementById('liveBadge');
+        b.classList.toggle('off', !ok);
+        document.getElementById('liveText').textContent = ok ? 'เชื่อมต่อเรียลไทม์แล้ว' : 'ขาดการเชื่อมต่อ...';
+    }
+    let tt;
+    function toast(msg, type='success') {
+        const el = document.getElementById('toast');
+        el.textContent = msg; el.className = `toast ${type} show`;
+        clearTimeout(tt); tt = setTimeout(() => { el.className = 'toast'; }, 4500);
+    }
+    function gv(id)  { return document.getElementById(id)?.value.trim() || ''; }
+    function esc(s)  { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function fmtP(p) { const d = String(p||'').replace(/\D/g,''); return d.length===10 ? `${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}` : (p||''); }
+
+    /* ══════════════ Boot ══════════════ */
+    initBatchOptions();
+    listenConfig();
+    listenDrivers();
+    listenPassengers();
+    restoreMySession();
+    loadGoogleMaps();
+</script>
+</body>
+</html>
