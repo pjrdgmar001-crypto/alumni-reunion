@@ -746,6 +746,7 @@ textarea { resize:vertical; min-height:70px; }
     let extraNicknames = { adult: [], child: [], baby: [] };
     let extraGenerations = { adult: [] };
     let extraInstruments = { adult: [] };
+    let extraPhones = { adult: [], child: [], baby: [] };
 
     function genGenOptionsHtml(selected) {
         let opts = `<option value="" disabled${!selected ? ' selected' : ''}>เลือกรุ่น</option>`;
@@ -777,6 +778,9 @@ textarea { resize:vertical; min-height:70px; }
         extraNicknames.baby.length = qty.baby;
         extraGenerations.adult.length = Math.max(0, qty.adult - 1);
         extraInstruments.adult.length = Math.max(0, qty.adult - 1);
+        extraPhones.adult.length = Math.max(0, qty.adult - 1);
+        extraPhones.child.length = qty.child;
+        extraPhones.baby.length = qty.baby;
 
         let adultHtml = '';
         for (let i = 2; i <= qty.adult; i++) {
@@ -785,6 +789,7 @@ textarea { resize:vertical; min-height:70px; }
             const nv = extraNicknames.adult[idx] || '';
             const gv = extraGenerations.adult[idx] || '';
             const iv = extraInstruments.adult[idx] || '';
+            const pv = extraPhones.adult[idx] || '';
             adultHtml += `<div class="fgrid" style="margin-bottom:.7rem">
                 <div class="fg">
                     <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
@@ -802,6 +807,10 @@ textarea { resize:vertical; min-height:70px; }
                     <label class="lbl">เครื่องดนตรีหลัก ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
                     <select class="extra-inst-select" data-type="adult" data-idx="${idx}">${genInstOptionsHtml(iv)}</select>
                 </div>
+                <div class="fg">
+                    <label class="lbl">เบอร์โทรศัพท์ ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i} <span class="req">*</span></label>
+                    <input type="tel" class="extra-phone-input" data-type="adult" data-idx="${idx}" placeholder="08x-xxx-xxxx" value="${esc(pv)}">
+                </div>
             </div>`;
         }
         document.getElementById('extraAdultNames').innerHTML = adultHtml;
@@ -810,6 +819,7 @@ textarea { resize:vertical; min-height:70px; }
         for (let i = 1; i <= qty.child; i++) {
             const v = extraNames.child[i-1] || '';
             const nv = extraNicknames.child[i-1] || '';
+            const pv = extraPhones.child[i-1] || '';
             childHtml += `<div class="fgrid" style="margin-bottom:.7rem">
                 <div class="fg">
                     <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรเด็ก ใบที่ ${i} <span class="req">*</span></label>
@@ -819,6 +829,10 @@ textarea { resize:vertical; min-height:70px; }
                     <label class="lbl">ชื่อเล่น ผู้ถือบัตรเด็ก ใบที่ ${i} <span class="req">*</span></label>
                     <input type="text" class="extra-nickname-input" data-type="child" data-idx="${i-1}" placeholder="ชื่อเล่น" value="${esc(nv)}">
                 </div>
+                <div class="fg">
+                    <label class="lbl">เบอร์โทรศัพท์ ผู้ปกครอง/ผู้ถือบัตรเด็ก ใบที่ ${i} <span class="req">*</span></label>
+                    <input type="tel" class="extra-phone-input" data-type="child" data-idx="${i-1}" placeholder="08x-xxx-xxxx" value="${esc(pv)}">
+                </div>
             </div>`;
         }
         document.getElementById('extraChildNames').innerHTML = childHtml;
@@ -827,6 +841,7 @@ textarea { resize:vertical; min-height:70px; }
         for (let i = 1; i <= qty.baby; i++) {
             const v = extraNames.baby[i-1] || '';
             const nv = extraNicknames.baby[i-1] || '';
+            const pv = extraPhones.baby[i-1] || '';
             babyHtml += `<div class="fgrid" style="margin-bottom:.7rem">
                 <div class="fg">
                     <label class="lbl">ชื่อ-นามสกุล ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i} <span class="req">*</span></label>
@@ -835,6 +850,10 @@ textarea { resize:vertical; min-height:70px; }
                 <div class="fg">
                     <label class="lbl">ชื่อเล่น ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i} <span class="req">*</span></label>
                     <input type="text" class="extra-nickname-input" data-type="baby" data-idx="${i-1}" placeholder="ชื่อเล่น" value="${esc(nv)}">
+                </div>
+                <div class="fg">
+                    <label class="lbl">เบอร์โทรศัพท์ ผู้ปกครอง/ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i} <span class="req">*</span></label>
+                    <input type="tel" class="extra-phone-input" data-type="baby" data-idx="${i-1}" placeholder="08x-xxx-xxxx" value="${esc(pv)}">
                 </div>
             </div>`;
         }
@@ -861,6 +880,11 @@ textarea { resize:vertical; min-height:70px; }
         section.querySelectorAll('.extra-inst-select').forEach(sel => {
             sel.addEventListener('change', e => {
                 extraInstruments[e.target.dataset.type][+e.target.dataset.idx] = e.target.value;
+            });
+        });
+        section.querySelectorAll('.extra-phone-input').forEach(inp => {
+            inp.addEventListener('input', e => {
+                extraPhones[e.target.dataset.type][+e.target.dataset.idx] = e.target.value;
             });
         });
     }
@@ -910,12 +934,13 @@ textarea { resize:vertical; min-height:70px; }
             toast('กรุณายอมรับเงื่อนไขการเข้างานและนโยบายการซื้อบัตรก่อนสั่งซื้อ','error'); return;
         }
 
-        // ตรวจสอบชื่อ-ชื่อเล่น-รุ่น-เครื่องดนตรี ผู้ถือบัตรเพิ่มเติม
+        // ตรวจสอบชื่อ-ชื่อเล่น-รุ่น-เครื่องดนตรี-เบอร์โทรศัพท์ ผู้ถือบัตรเพิ่มเติม
         // ผู้ใหญ่ ใบที่ 1 = ผู้สั่งซื้อ, ใบที่ 2 เป็นต้นไป = กรอกชื่อเพิ่ม
         const adultNames = [name];
         const adultNicknames = [nickname];
         const adultGenerations = [generation];
         const adultInstruments = [instrument];
+        const adultPhones = [pc];
         for (let i = 0; i < qty.adult - 1; i++) {
             const n = (extraNames.adult[i] || '').trim();
             if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
@@ -925,31 +950,42 @@ textarea { resize:vertical; min-height:70px; }
             if (!g) { toast(`กรุณาเลือกรุ่น ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
             const inst = (extraInstruments.adult[i] || '').trim();
             if (!inst) { toast(`กรุณาเลือกเครื่องดนตรีหลัก ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2}`,'error'); return; }
+            const ph = (extraPhones.adult[i] || '').replace(/\D/g,'');
+            if (ph.length < 9) { toast(`กรุณากรอกเบอร์โทรศัพท์ ผู้ถือบัตรผู้ใหญ่ ใบที่ ${i+2} ให้ถูกต้อง`,'error'); return; }
             adultNames.push(n);
             adultNicknames.push(nn);
             adultGenerations.push(g);
             adultInstruments.push(inst);
+            adultPhones.push(ph);
         }
-        // เด็ก / เด็กเล็ก กรอกชื่อ-ชื่อเล่นทุกใบ
+        // เด็ก / เด็กเล็ก กรอกชื่อ-ชื่อเล่น-เบอร์โทรศัพท์ทุกใบ
         const childNames = [];
         const childNicknames = [];
+        const childPhones = [];
         for (let i = 0; i < qty.child; i++) {
             const n = (extraNames.child[i] || '').trim();
             if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรเด็ก ใบที่ ${i+1}`,'error'); return; }
             const nn = (extraNicknames.child[i] || '').trim();
             if (!nn) { toast(`กรุณากรอกชื่อเล่น ผู้ถือบัตรเด็ก ใบที่ ${i+1}`,'error'); return; }
+            const ph = (extraPhones.child[i] || '').replace(/\D/g,'');
+            if (ph.length < 9) { toast(`กรุณากรอกเบอร์โทรศัพท์ ผู้ถือบัตรเด็ก ใบที่ ${i+1} ให้ถูกต้อง`,'error'); return; }
             childNames.push(n);
             childNicknames.push(nn);
+            childPhones.push(ph);
         }
         const babyNames = [];
         const babyNicknames = [];
+        const babyPhones = [];
         for (let i = 0; i < qty.baby; i++) {
             const n = (extraNames.baby[i] || '').trim();
             if (!n) { toast(`กรุณากรอกชื่อ-นามสกุล ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i+1}`,'error'); return; }
             const nn = (extraNicknames.baby[i] || '').trim();
             if (!nn) { toast(`กรุณากรอกชื่อเล่น ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i+1}`,'error'); return; }
+            const ph = (extraPhones.baby[i] || '').replace(/\D/g,'');
+            if (ph.length < 9) { toast(`กรุณากรอกเบอร์โทรศัพท์ ผู้ถือบัตรเด็กเล็ก/เบบี๋ ใบที่ ${i+1} ให้ถูกต้อง`,'error'); return; }
             babyNames.push(n);
             babyNicknames.push(nn);
+            babyPhones.push(ph);
         }
 
         const ticketAmount = qty.adult*PRICES.adult + qty.child*PRICES.child + qty.baby*PRICES.baby;
@@ -959,8 +995,8 @@ textarea { resize:vertical; min-height:70px; }
 
         pendingOrder = {
             name, nickname, pc, generation, instrument, note,
-            adultNames, adultNicknames, adultGenerations, adultInstruments,
-            childNames, childNicknames, babyNames, babyNicknames,
+            adultNames, adultNicknames, adultGenerations, adultInstruments, adultPhones,
+            childNames, childNicknames, childPhones, babyNames, babyNicknames, babyPhones,
             ticketAmount, merchTotal, amount, expiresAtMs
         };
 
@@ -996,6 +1032,7 @@ textarea { resize:vertical; min-height:70px; }
                 holderNicknames: { adult: d.adultNicknames, child: d.childNicknames, baby: d.babyNicknames },
                 holderGenerations: { adult: d.adultGenerations },
                 holderInstruments: { adult: d.adultInstruments },
+                holderPhones: { adult: d.adultPhones, child: d.childPhones, baby: d.babyPhones },
                 merch: { ...merchQty },
                 merchAmount: d.merchTotal,
                 amount: d.amount,
@@ -1012,6 +1049,7 @@ textarea { resize:vertical; min-height:70px; }
             const typeMap = { adult: 'A', child: 'C', baby: 'B' };
             const namesMap = { adult: d.adultNames, child: d.childNames, baby: d.babyNames };
             const nicknamesMap = { adult: d.adultNicknames, child: d.childNicknames, baby: d.babyNicknames };
+            const phonesMap = { adult: d.adultPhones, child: d.childPhones, baby: d.babyPhones };
             for (const type of ['adult','child','baby']) {
                 for (let i = 0; i < qty[type]; i++) {
                     const code = genCode(typeMap[type]);
@@ -1020,9 +1058,10 @@ textarea { resize:vertical; min-height:70px; }
                     const holderNickname = nicknamesMap[type][i] || d.nickname;
                     const holderGen  = type === 'adult' ? (d.adultGenerations[i] || d.generation) : d.generation;
                     const holderInst = type === 'adult' ? (d.adultInstruments[i] || d.instrument) : d.instrument;
+                    const holderPhone = phonesMap[type][i] || d.pc;
                     batch.set(tRef, {
                         code, orderId: orderRef.id, type,
-                        buyerName: d.name, buyerPhone: d.pc, holderName, holderNickname,
+                        buyerName: d.name, buyerPhone: holderPhone, holderName, holderNickname,
                         generation: holderGen, instrument: holderInst,
                         paid: false, checkedIn: false, checkedInAt: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1120,6 +1159,7 @@ textarea { resize:vertical; min-height:70px; }
         extraNicknames = { adult: [], child: [], baby: [] };
         extraGenerations = { adult: [] };
         extraInstruments = { adult: [] };
+        extraPhones = { adult: [], child: [], baby: [] };
         renderExtraHolders();
         updateTotal();
         document.getElementById('f-name').value = '';
@@ -1172,12 +1212,27 @@ textarea { resize:vertical; min-height:70px; }
         container.innerHTML = `<div class="card" style="text-align:center;color:var(--text-3)">⏳ กำลังค้นหา...</div>`;
 
         try {
-            const snap = await db.collection(ORDERS_COL).where('buyerPhone','==',phone).get();
-            if (snap.empty) {
-                container.innerHTML = `<div class="card" style="text-align:center;color:var(--text-3)">ไม่พบคำสั่งซื้อจากเบอร์นี้</div>`;
+            // ค้นหาทั้งจากเบอร์โทรผู้สั่งซื้อ (ระดับออเดอร์) และเบอร์โทรรายบุคคลของผู้ถือบัตรแต่ละใบ
+            const [orderSnap, ticketSnap] = await Promise.all([
+                db.collection(ORDERS_COL).where('buyerPhone','==',phone).get(),
+                db.collection(TICKETS_COL).where('buyerPhone','==',phone).get()
+            ]);
+
+            const ordersById = {};
+            orderSnap.docs.forEach(d => { ordersById[d.id] = { id:d.id, ...d.data() }; });
+
+            const missingOrderIds = [...new Set(ticketSnap.docs.map(d => d.data().orderId).filter(Boolean))]
+                .filter(id => !ordersById[id]);
+            if (missingOrderIds.length) {
+                const fetched = await Promise.all(missingOrderIds.map(id => db.collection(ORDERS_COL).doc(id).get()));
+                fetched.forEach(doc => { if (doc.exists) ordersById[doc.id] = { id:doc.id, ...doc.data() }; });
+            }
+
+            if (!Object.keys(ordersById).length) {
+                container.innerHTML = `<div class="card" style="text-align:center;color:var(--text-3)">ไม่พบคำสั่งซื้อหรือบัตรจากเบอร์นี้</div>`;
                 return;
             }
-            const orders = snap.docs.map(d => ({ id:d.id, ...d.data() }))
+            const orders = Object.values(ordersById)
                 .sort((a,b) => (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
 
             // ตรวจสอบและยกเลิกออเดอร์ที่หมดเวลาแนบสลิป (lazy auto-cancel)

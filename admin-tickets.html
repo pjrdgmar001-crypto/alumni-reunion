@@ -880,10 +880,11 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             for (let i = 0; i < editQty[type]; i++) {
                 const t = ts[i];
                 editHolders[type].push({
-                    name:       t ? (t.holderName||'')  : (o.holderNames?.[type]?.[i] || ''),
-                    generation: t ? (t.generation||'')  : (o.holderGenerations?.[type]?.[i] || o.generation || ''),
-                    instrument: t ? (t.instrument||'')  : (o.holderInstruments?.[type]?.[i] || o.instrument || ''),
-                    phone:      t ? (t.buyerPhone||'')  : (o.holderPhones?.[type]?.[i] || o.buyerPhone || '')
+                    name:       t ? (t.holderName||'')      : (o.holderNames?.[type]?.[i] || ''),
+                    nickname:   t ? (t.holderNickname||'')  : (o.holderNicknames?.[type]?.[i] || ''),
+                    generation: t ? (t.generation||'')      : (o.holderGenerations?.[type]?.[i] || o.generation || ''),
+                    instrument: t ? (t.instrument||'')      : (o.holderInstruments?.[type]?.[i] || o.instrument || ''),
+                    phone:      t ? (t.buyerPhone||'')      : (o.holderPhones?.[type]?.[i] || o.buyerPhone || '')
                 });
             }
         });
@@ -918,7 +919,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             const defInst = document.getElementById('ed-instrument')?.value || '';
             const defPhone = gv('ed-phone');
             for (let i = editQty[type]; i < n; i++) {
-                editHolders[type].push({ name:'', generation:defGen, instrument:defInst, phone:defPhone });
+                editHolders[type].push({ name:'', nickname:'', generation:defGen, instrument:defInst, phone:defPhone });
             }
         } else {
             editHolders[type] = editHolders[type].slice(0, n);
@@ -943,8 +944,16 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             for (let i = 0; i < editQty[type]; i++) {
                 const h = editHolders[type][i] || {};
                 html += `<div style="border:1px solid var(--border);border-radius:var(--rs);padding:.8rem;margin-top:.6rem">
-                    <label class="lbl">ชื่อผู้ถือบัตร${typeLabel[type]} ใบที่ ${i+1}</label>
-                    <input type="text" value="${esc(h.name||'')}" oninput="editHolders.${type}[${i}].name=this.value">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+                        <div>
+                            <label class="lbl">ชื่อผู้ถือบัตร${typeLabel[type]} ใบที่ ${i+1}</label>
+                            <input type="text" value="${esc(h.name||'')}" oninput="editHolders.${type}[${i}].name=this.value">
+                        </div>
+                        <div>
+                            <label class="lbl">ชื่อเล่น</label>
+                            <input type="text" value="${esc(h.nickname||'')}" oninput="editHolders.${type}[${i}].nickname=this.value">
+                        </div>
+                    </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.6rem">
                         <div>
                             <label class="lbl">รุ่น</label>
@@ -996,6 +1005,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             const hPhoneDigits = String(h.phone||'').replace(/\D/g,'');
             return {
                 holderName: h.name || name,
+                holderNickname: h.nickname || '',
                 buyerName: name,
                 buyerPhone: hPhoneDigits.length >= 9 ? hPhoneDigits : pc,
                 generation: h.generation || generation,
@@ -1032,9 +1042,10 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 }
             }
 
-            const holderNames = {}, holderGenerations = {}, holderInstruments = {}, holderPhones = {};
+            const holderNames = {}, holderNicknames = {}, holderGenerations = {}, holderInstruments = {}, holderPhones = {};
             ['adult','child','baby'].forEach(type => {
                 holderNames[type]       = editHolders[type].map(h => h.name||'');
+                holderNicknames[type]   = editHolders[type].map(h => h.nickname||'');
                 holderGenerations[type] = editHolders[type].map(h => h.generation||'');
                 holderInstruments[type] = editHolders[type].map(h => h.instrument||'');
                 holderPhones[type]      = editHolders[type].map(h => h.phone||'');
@@ -1043,7 +1054,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             batch.update(db.collection(ORDERS_COL).doc(editingOrderId), {
                 buyerName: name, buyerPhone: pc, generation, instrument, note,
                 counts: { ...editQty },
-                holderNames, holderGenerations, holderInstruments, holderPhones,
+                holderNames, holderNicknames, holderGenerations, holderInstruments, holderPhones,
                 merch: { ...editMerch },
                 amount
             });
