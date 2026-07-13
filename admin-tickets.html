@@ -832,6 +832,15 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         {v:'Eup', l:'ยูโฟเนียม'}, {v:'Baritone', l:'บาริโทน'}, {v:'Tuba', l:'ทูบา'},
         {v:'Drum Major', l:'ดรัมเมเจอร์'}, {v:'ไม่ได้เล่นเครื่องดนตรี', l:'ไม่ได้เล่น'}
     ];
+    const GENERATIONS = Array.from({length:50}, (_,i) => String(i+1));
+    function genOptionsHtml(sel) {
+        return '<option value="">— ไม่ระบุ —</option>' +
+            GENERATIONS.map(g => `<option value="${g}" ${sel===g?'selected':''}>รุ่น ${g}</option>`).join('');
+    }
+    function instOptionsHtml(sel) {
+        return '<option value="">— ไม่ระบุ —</option>' +
+            INSTRUMENTS.map(i => `<option value="${esc(i.v)}" ${sel===i.v?'selected':''}>${esc(i.l)} (${esc(i.v)})</option>`).join('');
+    }
     let editingOrderId = null;
     let editQty = { adult:0, child:0, baby:0 };
     let editHolders = { adult:[], child:[], baby:[] };
@@ -869,7 +878,13 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         ['adult','child','baby'].forEach(type => {
             const ts = orderTickets.filter(t => t.type === type);
             for (let i = 0; i < editQty[type]; i++) {
-                editHolders[type].push(ts[i] ? (ts[i].holderName||'') : (o.holderNames?.[type]?.[i] || ''));
+                const t = ts[i];
+                editHolders[type].push({
+                    name:       t ? (t.holderName||'')  : (o.holderNames?.[type]?.[i] || ''),
+                    generation: t ? (t.generation||'')  : (o.holderGenerations?.[type]?.[i] || o.generation || ''),
+                    instrument: t ? (t.instrument||'')  : (o.holderInstruments?.[type]?.[i] || o.instrument || ''),
+                    phone:      t ? (t.buyerPhone||'')  : (o.holderPhones?.[type]?.[i] || o.buyerPhone || '')
+                });
             }
         });
 
@@ -899,7 +914,12 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         let n = parseInt(val, 10);
         if (isNaN(n) || n < 0) n = 0;
         if (n > editQty[type]) {
-            for (let i = editQty[type]; i < n; i++) editHolders[type].push('');
+            const defGen  = gv('ed-generation');
+            const defInst = document.getElementById('ed-instrument')?.value || '';
+            const defPhone = gv('ed-phone');
+            for (let i = editQty[type]; i < n; i++) {
+                editHolders[type].push({ name:'', generation:defGen, instrument:defInst, phone:defPhone });
+            }
         } else {
             editHolders[type] = editHolders[type].slice(0, n);
         }
@@ -921,13 +941,28 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         let html = '';
         ['adult','child','baby'].forEach(type => {
             for (let i = 0; i < editQty[type]; i++) {
-                html += `<div style="margin-top:.6rem">
+                const h = editHolders[type][i] || {};
+                html += `<div style="border:1px solid var(--border);border-radius:var(--rs);padding:.8rem;margin-top:.6rem">
                     <label class="lbl">ชื่อผู้ถือบัตร${typeLabel[type]} ใบที่ ${i+1}</label>
-                    <input type="text" value="${esc(editHolders[type][i]||'')}" oninput="editHolders.${type}[${i}]=this.value">
+                    <input type="text" value="${esc(h.name||'')}" oninput="editHolders.${type}[${i}].name=this.value">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.6rem">
+                        <div>
+                            <label class="lbl">รุ่น</label>
+                            <select onchange="editHolders.${type}[${i}].generation=this.value">${genOptionsHtml(h.generation||'')}</select>
+                        </div>
+                        <div>
+                            <label class="lbl">เครื่องดนตรี</label>
+                            <select onchange="editHolders.${type}[${i}].instrument=this.value">${instOptionsHtml(h.instrument||'')}</select>
+                        </div>
+                    </div>
+                    <div style="margin-top:.6rem">
+                        <label class="lbl">เบอร์โทร</label>
+                        <input type="tel" value="${esc(h.phone||'')}" oninput="editHolders.${type}[${i}].phone=this.value">
+                    </div>
                 </div>`;
             }
         });
-        document.getElementById('ed-holders').innerHTML = html ? `<div class="card-title" style="margin-top:1.2rem">👤 ชื่อผู้ถือบัตร</div>${html}` : '';
+        document.getElementById('ed-holders').innerHTML = html ? `<div class="card-title" style="margin-top:1.2rem">👤 ผู้ถือบัตรแต่ละใบ</div>${html}` : '';
     }
     async function saveEditOrder() {
         if (!editingOrderId) return;
@@ -941,7 +976,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         if (pc.length < 9) { toast('กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง','error'); return; }
         for (const type of ['adult','child','baby']) {
             for (let i = 0; i < editQty[type]; i++) {
-                if (!String(editHolders[type][i]||'').trim()) {
+                if (!String(editHolders[type][i]?.name||'').trim()) {
                     toast('กรุณากรอกชื่อผู้ถือบัตรให้ครบทุกใบ','error'); return;
                 }
             }
@@ -955,6 +990,18 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
 
         const orderTickets = tickets.filter(t => t.orderId === editingOrderId);
         const typeMap = { adult:'A', child:'C', baby:'B' };
+
+        const holderFields = (type, i) => {
+            const h = editHolders[type][i] || {};
+            const hPhoneDigits = String(h.phone||'').replace(/\D/g,'');
+            return {
+                holderName: h.name || name,
+                buyerName: name,
+                buyerPhone: hPhoneDigits.length >= 9 ? hPhoneDigits : pc,
+                generation: h.generation || generation,
+                instrument: h.instrument || instrument
+            };
+        };
 
         try {
             const batch = db.batch();
@@ -970,21 +1017,14 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                     const toRemove = removable.slice(0, existing.length - newCount);
                     toRemove.forEach(t => batch.delete(db.collection(TICKETS_COL).doc(t.id)));
                     const keep = existing.filter(t => !toRemove.includes(t));
-                    keep.forEach((t,i) => batch.update(db.collection(TICKETS_COL).doc(t.id), {
-                        holderName: editHolders[type][i] || name, buyerName: name, buyerPhone: pc,
-                        generation, instrument
-                    }));
+                    keep.forEach((t,i) => batch.update(db.collection(TICKETS_COL).doc(t.id), holderFields(type, i)));
                 } else {
-                    existing.forEach((t,i) => batch.update(db.collection(TICKETS_COL).doc(t.id), {
-                        holderName: editHolders[type][i] || name, buyerName: name, buyerPhone: pc,
-                        generation, instrument
-                    }));
+                    existing.forEach((t,i) => batch.update(db.collection(TICKETS_COL).doc(t.id), holderFields(type, i)));
                     for (let i = existing.length; i < newCount; i++) {
                         const code = genCode(typeMap[type]);
                         batch.set(db.collection(TICKETS_COL).doc(code), {
                             code, orderId: editingOrderId, type,
-                            buyerName: name, buyerPhone: pc, holderName: editHolders[type][i] || name,
-                            generation, instrument,
+                            ...holderFields(type, i),
                             paid: o.status === 'approved', checkedIn:false, checkedInAt:null,
                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
@@ -992,9 +1032,18 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 }
             }
 
+            const holderNames = {}, holderGenerations = {}, holderInstruments = {}, holderPhones = {};
+            ['adult','child','baby'].forEach(type => {
+                holderNames[type]       = editHolders[type].map(h => h.name||'');
+                holderGenerations[type] = editHolders[type].map(h => h.generation||'');
+                holderInstruments[type] = editHolders[type].map(h => h.instrument||'');
+                holderPhones[type]      = editHolders[type].map(h => h.phone||'');
+            });
+
             batch.update(db.collection(ORDERS_COL).doc(editingOrderId), {
                 buyerName: name, buyerPhone: pc, generation, instrument, note,
-                counts: { ...editQty }, holderNames: { ...editHolders },
+                counts: { ...editQty },
+                holderNames, holderGenerations, holderInstruments, holderPhones,
                 merch: { ...editMerch },
                 amount
             });
