@@ -164,6 +164,28 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
 .sim-leg{display:flex;align-items:center;gap:.3rem;color:rgba(255,255,255,.65);}
 .sim-leg-dot{width:9px;height:9px;border-radius:50%;border:2px solid;flex-shrink:0;}
 .ro-notice{background:var(--gold-bg);border:1.5px solid var(--gold-bd);border-radius:var(--r);padding:.7rem 1rem;font-size:.83rem;color:var(--gold-dk);font-weight:600;}
+
+/* ── DRAG & DROP SEATING BOARD ── */
+.dnd-wrap{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1rem;}
+@media(min-width:760px){ .dnd-wrap{grid-template-columns:260px 1fr;} }
+.dnd-col-hd{font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;}
+.dnd-unassigned-list{border:1.5px dashed var(--border);border-radius:var(--r);padding:.6rem;min-height:120px;max-height:520px;overflow-y:auto;background:var(--bg);transition:all .15s;}
+.dnd-unassigned-list.over{border-color:var(--navy);background:#eef1f6;}
+.dnd-card{position:relative;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);padding:.5rem .7rem;margin-bottom:.5rem;cursor:grab;font-size:.82rem;user-select:none;transition:all .15s;}
+.dnd-card:active{cursor:grabbing;}
+.dnd-card:last-child{margin-bottom:0;}
+.dnd-card.guest{border-color:var(--gold-bd);background:var(--gold-bg);}
+.dnd-card.selected{border-color:var(--navy);box-shadow:0 0 0 2px rgba(26,45,74,.25);}
+.dnd-card-name{font-weight:700;color:var(--text);padding-right:1.4rem;}
+.dnd-card-sub{color:var(--text-3);font-size:.74rem;margin-top:.1rem;}
+.dnd-x{position:absolute;top:.35rem;right:.4rem;border:none;background:transparent;color:var(--text-3);cursor:pointer;font-size:.85rem;line-height:1;padding:.1rem;}
+.dnd-x:hover{color:var(--red);}
+.dnd-tables-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.7rem;max-height:560px;overflow-y:auto;padding:.2rem;}
+.dnd-table{border:1.5px solid var(--border);border-radius:var(--r);padding:.6rem;min-height:70px;background:var(--surface);transition:all .15s;cursor:pointer;}
+.dnd-table.full{border-color:var(--red);background:var(--red-bg);}
+.dnd-table.over{border-color:var(--navy);background:#eef1f6;}
+.dnd-table-hd{display:flex;align-items:center;justify-content:space-between;font-size:.78rem;font-weight:700;color:var(--text-2);margin-bottom:.4rem;}
+.dnd-table-body{min-height:24px;}
 </style>
 </head>
 <body>
@@ -222,6 +244,28 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                     <span>🧑 ผู้ใหญ่: <b id="cnt-adult">0</b></span>
                     <span>🧒 เด็ก: <b id="cnt-child">0</b></span>
                     <span>👶 เด็กเล็ก: <b id="cnt-baby">0</b></span>
+                    <span>🎉 แขกพิเศษ/ทีมงาน (ไม่รวมยอดขาย): <b id="cnt-guest">0</b></span>
+                </div>
+            </div>
+            <div class="card" style="padding:1rem 1.2rem; margin-bottom:1.2rem">
+                <div class="card-title" style="margin-bottom:.2rem;font-size:.92rem">👕 สรุปยอดเสื้อยืด (นับตามออเดอร์ ไม่ซ้ำ)</div>
+                <div class="card-sub" style="margin-bottom:.6rem">นับจากคำสั่งซื้อ 1 รายการ = 1 ครั้ง (ไม่นับซ้ำตามจำนวนบัตรในออเดอร์)</div>
+                <div style="font-size:.8rem;color:var(--text-2)">
+                    <div style="margin-bottom:.4rem"><b>✅ อนุมัติแล้ว (จ่ายเงินแล้ว):</b>
+                        <span style="margin-left:.5rem">M: <b id="merch-appr-M">0</b></span>
+                        <span style="margin-left:.8rem">L: <b id="merch-appr-L">0</b></span>
+                        <span style="margin-left:.8rem">XL: <b id="merch-appr-XL">0</b></span>
+                        <span style="margin-left:.8rem">2XL: <b id="merch-appr-2XL">0</b></span>
+                        <span style="margin-left:.8rem">รวม: <b id="merch-appr-total">0</b></span>
+                    </div>
+                    <div>
+                        <b>📋 ทั้งหมด (ยังไม่ยกเลิก/ไม่ผ่าน):</b>
+                        <span style="margin-left:.5rem">M: <b id="merch-all-M">0</b></span>
+                        <span style="margin-left:.8rem">L: <b id="merch-all-L">0</b></span>
+                        <span style="margin-left:.8rem">XL: <b id="merch-all-XL">0</b></span>
+                        <span style="margin-left:.8rem">2XL: <b id="merch-all-2XL">0</b></span>
+                        <span style="margin-left:.8rem">รวม: <b id="merch-all-total">0</b></span>
+                    </div>
                 </div>
             </div>
 
@@ -241,6 +285,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 <button class="btn btn-outline btn-sm" onclick="exportOrdersCSV()">📥 Export คำสั่งซื้อ (CSV)</button>
                 <button class="btn btn-outline btn-sm" onclick="exportTicketsCSV()">📥 Export รายชื่อผู้ถือบัตร (CSV)</button>
                 <button class="btn btn-outline btn-sm" onclick="exportNameTagsCSV()">🏷️ Export ป้ายชื่อ (อนุมัติแล้ว)</button>
+                <button class="btn btn-outline btn-sm" onclick="exportMerchSummaryCSV()">👕 Export สรุปยอดเสื้อยืด (CSV)</button>
             </div>
 
             <div id="ordersList"><div class="empty">⏳ กำลังโหลด...</div></div>
@@ -275,6 +320,45 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 </div>
                 <div style="margin-top:.8rem">
                     <button class="btn btn-outline btn-sm" onclick="exportSeatingCSV()">📥 Export ผังที่นั่ง (CSV)</button>
+                </div>
+            </div>
+
+            <!-- Drag & Drop Seating Board -->
+            <div class="card" style="padding:1.2rem">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem">
+                    <div>
+                        <div class="card-title" style="margin-bottom:.2rem">🖱️ จัดที่นั่งแบบลากวาง (Drag &amp; Drop)</div>
+                        <div class="card-sub">ลากรายชื่อจากฝั่งซ้ายไปวางที่โต๊ะฝั่งขวา (หรือคลิกเลือกชื่อแล้วคลิกโต๊ะปลายทาง) — ยังไม่บันทึกลงฐานข้อมูลจนกว่าจะกด "บันทึกข้อมูลการจัดที่นั่ง"</div>
+                    </div>
+                    <button class="btn btn-navy btn-sm" id="addGuestBtn" onclick="showGuestModal()" style="display:none">➕ เพิ่มแขกพิเศษ/ทีมงาน</button>
+                </div>
+
+                <div id="dndPresidentBoard" style="display:none">
+                    <div class="toolbar" style="margin-top:.8rem">
+                        <input type="text" id="dndSearch" placeholder="🔍 ค้นหารายชื่อรอจัดที่นั่ง" oninput="renderDnd()">
+                        <button class="btn btn-outline btn-sm" onclick="initSeatingDnd()">🔄 รีเฟรชจากฐานข้อมูล (ล้างการลากที่ยังไม่บันทึก)</button>
+                    </div>
+                    <div class="dnd-wrap">
+                        <div class="dnd-col">
+                            <div class="dnd-col-hd">👥 รอจัดที่นั่ง (<span id="dndUnassignedCount">0</span>)</div>
+                            <div class="dnd-unassigned-list" id="dndUnassignedList"
+                                ondragover="event.preventDefault();this.classList.add('over')"
+                                ondragleave="this.classList.remove('over')"
+                                ondrop="this.classList.remove('over');onDropZone(event,null)"
+                                onclick="dndZoneClicked(null)"></div>
+                        </div>
+                        <div class="dnd-col">
+                            <div class="dnd-col-hd">🪑 โต๊ะ</div>
+                            <div class="dnd-tables-grid" id="dndTablesGrid"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-top:1rem">
+                        <button class="btn btn-green" id="saveDndBtn" onclick="saveSeatingDraft()">💾 บันทึกข้อมูลการจัดที่นั่ง</button>
+                        <span id="dndChangeIndicator" style="font-size:.8rem;color:var(--text-3)"></span>
+                    </div>
+                </div>
+                <div id="dndStaffNotice" class="ro-notice" style="margin-top:.8rem;display:none">
+                    👁️ โหมดอ่านอย่างเดียว — เฉพาะสิทธิ์ "ประธาน" เท่านั้นที่จัดที่นั่งแบบลากวางได้
                 </div>
             </div>
 
@@ -338,6 +422,30 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         <div class="modal-btns">
             <button class="btn btn-outline" onclick="hideSeatOverride()">ยกเลิก</button>
             <button class="btn btn-navy" onclick="saveSeatOverride()">💾 บันทึก</button>
+        </div>
+    </div>
+</div>
+
+<!-- GUEST MODAL -->
+<div class="modal-ov" id="guestModal" onclick="if(event.target===this) hideGuestModal()">
+    <div class="modal" style="text-align:left;max-width:400px">
+        <div class="card-title" style="margin-bottom:.3rem">➕ เพิ่มแขกพิเศษ/ทีมงาน</div>
+        <div class="card-sub" style="margin-bottom:1rem">รายชื่อนี้จะไม่นับรวมในสถิติยอดขายบัตรของศิษย์เก่า</div>
+        <div style="margin-bottom:.8rem">
+            <label class="lbl">ชื่อ-นามสกุล</label>
+            <input type="text" id="guest-name" placeholder="เช่น คุณสมชาย ใจดี" onkeydown="if(event.key==='Enter') confirmAddGuest()">
+        </div>
+        <div style="margin-bottom:.8rem">
+            <label class="lbl">ตำแหน่ง/สถานะ</label>
+            <select id="guest-type">
+                <option value="vip">แขกพิเศษ</option>
+                <option value="host">ประธานในงาน</option>
+                <option value="staff">ทีมงาน</option>
+            </select>
+        </div>
+        <div class="modal-btns">
+            <button class="btn btn-outline" onclick="hideGuestModal()">ยกเลิก</button>
+            <button class="btn btn-navy" onclick="confirmAddGuest()">ตกลง</button>
         </div>
     </div>
 </div>
@@ -418,7 +526,9 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     const ORDERS_COL  = 'ptpt_ticket_orders';
     const TICKETS_COL = 'ptpt_tickets';
     const CONFIG_COL  = 'ptpt_config';
-    const TYPE_LABEL = { adult: 'ผู้ใหญ่', child: 'เด็ก (5-15 ปี)', baby: 'เด็กเล็ก/เบบี๋' };
+    const TYPE_LABEL = { adult: 'ผู้ใหญ่', child: 'เด็ก (5-15 ปี)', baby: 'เด็กเล็ก/เบบี๋', vip: 'แขกพิเศษ', host: 'ประธานในงาน', staff: 'ทีมงาน' };
+    const GUEST_TYPES = ['vip','host','staff'];
+    const GUEST_CODE_PREFIX = { vip:'V', host:'H', staff:'S' };
 
     const ADMIN_PASS    = 'ptpt-ticket-2569';
     const CHAIRMAN_PASS = 'ptpt-president-2569';
@@ -576,7 +686,14 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
         document.getElementById('sec-'+tab).classList.add('active');
         if (tab !== 'checkin' && scannerRunning) toggleScanner();
-        if (tab === 'seating') { loadSeatingSummary(); initSeatingMap(); }
+        if (tab === 'seating') {
+            loadSeatingSummary();
+            initSeatingMap();
+            document.getElementById('addGuestBtn').style.display = isChairman ? 'inline-block' : 'none';
+            document.getElementById('dndPresidentBoard').style.display = isChairman ? 'block' : 'none';
+            document.getElementById('dndStaffNotice').style.display = isChairman ? 'none' : 'block';
+            if (isChairman && !dndBuilt) initSeatingDnd();
+        }
     }
 
     /* ── Real-time listeners ── */
@@ -619,11 +736,21 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         }, err => console.error(err));
     }
 
+    /* นับยอดเสื้อยืดจาก "ออเดอร์" ที่ไม่ซ้ำ (แต่ละออเดอร์นับ merch แค่ครั้งเดียว)
+       ไม่นับจาก "ตั๋ว" เพราะ merch ผูกอยู่กับออเดอร์ ไม่ใช่รายตั๋ว — นับจากตั๋วจะซ้ำตามจำนวนบัตรในออเดอร์ */
+    function calcMerchTotals(orderList) {
+        const totals = { M:0, L:0, XL:0, '2XL':0 };
+        orderList.forEach(o => {
+            SHIRT_SIZES.forEach(sz => { totals[sz] += (o.merch?.[sz] || 0); });
+        });
+        return totals;
+    }
+
     function renderStats() {
         const approved = orders.filter(o => o.status === 'approved');
         const revenue  = approved.reduce((s,o) => s + (o.amount||0), 0);
         const pending  = orders.filter(o => o.status === 'pending' || o.status === 'verified').length;
-        const paidTickets = tickets.filter(t => t.paid);
+        const paidTickets = tickets.filter(t => t.paid && !t.isGuest);
         const checkedIn = paidTickets.filter(t => t.checkedIn).length;
 
         sx('sc-revenue', revenue.toLocaleString());
@@ -633,6 +760,17 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         sx('cnt-adult', paidTickets.filter(t=>t.type==='adult').length);
         sx('cnt-child', paidTickets.filter(t=>t.type==='child').length);
         sx('cnt-baby',  paidTickets.filter(t=>t.type==='baby').length);
+        sx('cnt-guest', tickets.filter(t=>t.isGuest).length);
+
+        const activeOrders = orders.filter(o => o.status !== 'cancelled' && o.status !== 'rejected');
+        const merchApproved = calcMerchTotals(approved);
+        const merchAll = calcMerchTotals(activeOrders);
+        SHIRT_SIZES.forEach(sz => {
+            sx('merch-appr-'+sz, merchApproved[sz]);
+            sx('merch-all-'+sz, merchAll[sz]);
+        });
+        sx('merch-appr-total', SHIRT_SIZES.reduce((s,sz) => s + merchApproved[sz], 0));
+        sx('merch-all-total',  SHIRT_SIZES.reduce((s,sz) => s + merchAll[sz], 0));
     }
 
     /* ── Filter & render orders ── */
@@ -1202,7 +1340,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
     }
     function exportTicketsCSV() {
         if (!tickets.length) { toast('ยังไม่มีข้อมูล','error'); return; }
-        const hdr = ['รหัสบัตร','ประเภทบัตร','ชื่อผู้ถือบัตร','รุ่น','เครื่องดนตรี','ชื่อผู้สั่งซื้อ','เบอร์โทร','เสื้อยืด (ทั้งออเดอร์)','ชำระเงินแล้ว','เช็คอินแล้ว'];
+        const hdr = ['รหัสบัตร','ประเภทบัตร','ชื่อผู้ถือบัตร','รุ่น','เครื่องดนตรี','ชื่อผู้สั่งซื้อ','เบอร์โทร','เสื้อยืดของออเดอร์ (ซ้ำทุกใบในออเดอร์เดียวกัน - ห้ามนำไปรวมยอด ให้ใช้ปุ่ม Export สรุปยอดเสื้อยืดแทน)','ชำระเงินแล้ว','เช็คอินแล้ว'];
         const ordersMap = {};
         orders.forEach(o => { ordersMap[o.id] = o; });
         const rows = tickets.map(t => {
@@ -1224,6 +1362,21 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             (t.orderId||'').slice(0,8).toUpperCase()
         ]);
         downloadCSV('ป้ายชื่อ-อนุมัติแล้ว.csv', hdr, rows);
+    }
+    function exportMerchSummaryCSV() {
+        if (!orders.length) { toast('ยังไม่มีข้อมูล','error'); return; }
+        // นับจากออเดอร์ (ไม่ซ้ำ) เท่านั้น — ไม่นับจากตั๋วรายใบ เพื่อไม่ให้จำนวนเสื้อถูกคูณซ้ำตามจำนวนบัตรในออเดอร์
+        const approved = orders.filter(o => o.status === 'approved');
+        const activeOrders = orders.filter(o => o.status !== 'cancelled' && o.status !== 'rejected');
+        const merchApproved = calcMerchTotals(approved);
+        const merchAll = calcMerchTotals(activeOrders);
+        const hdr = ['ไซส์', 'จำนวน (อนุมัติแล้ว)', 'จำนวน (ทั้งหมด ไม่รวมยกเลิก/ไม่ผ่าน)'];
+        const rows = SHIRT_SIZES.map(sz => [sz, merchApproved[sz], merchAll[sz]]);
+        rows.push(['รวม',
+            SHIRT_SIZES.reduce((s,sz) => s + merchApproved[sz], 0),
+            SHIRT_SIZES.reduce((s,sz) => s + merchAll[sz], 0)
+        ]);
+        downloadCSV('สรุปยอดเสื้อยืด.csv', hdr, rows);
     }
 
     /* ══════════════════════════════════════════════
@@ -1249,17 +1402,6 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         ['T11', 'T12', null,        'T23', 'T24'],
         ['T25', null,  '↑\nทางเข้า',null,  null],
     ];
-
-    /* สร้างลิสต์ slot ทั้งหมด เลขเก้าอี้ 1–10 ต่อโต๊ะ (local) */
-    function buildSeatSlots() {
-        const slots = [];
-        SEATING_PLAN.forEach(tableCode => {
-            for (let s = 1; s <= SEATS_PER_TABLE; s++) {
-                slots.push({ tableCode, seatNumber: s });
-            }
-        });
-        return slots;
-    }
 
     async function loadSeatingSummary() {
         const el = document.getElementById('seatingSummary');
@@ -1290,7 +1432,10 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 db.collection(TICKETS_COL).where('paid','==',true).get(),
                 db.collection(ORDERS_COL).where('status','==','approved').get()
             ]);
-            const paidTickets = ticketsSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+            const paidTicketsAll = ticketsSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+            /* แขกพิเศษ/ทีมงาน (isGuest) จัดที่นั่งด้วยมือผ่าน Drag & Drop เท่านั้น — ไม่ให้อัลกอริทึมนี้แตะต้อง/ทับที่นั่ง */
+            const paidTickets = paidTicketsAll.filter(t => !t.isGuest);
+            const guestTickets = paidTicketsAll.filter(t => t.isGuest);
             const ordersMap = {};
             ordersSnap.docs.forEach(d => { ordersMap[d.id] = { id:d.id, ...d.data() }; });
 
@@ -1316,26 +1461,48 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 return (ordersMap[b]?.tableBooking ? 1 : 0) - (ordersMap[a]?.tableBooking ? 1 : 0);
             });
 
-            /* ── วิ่งจัดที่นั่ง ── */
-            const slots = buildSeatSlots();
-            let ptr = 0;
-            const assignments = [];
+            /* ── วิ่งจัดที่นั่ง (ข้ามที่นั่งที่แขกพิเศษ/ทีมงานจองด้วยมือไว้แล้ว ไม่ว่าจะอยู่โต๊ะใด) ── */
+            const guestOccupied = new Set(
+                guestTickets.filter(t => t.tableCode && t.seatNumber).map(t => `${t.tableCode}-${t.seatNumber}`)
+            );
+            const freeSeatsByTable = {};
+            SEATING_PLAN.forEach(tc => {
+                freeSeatsByTable[tc] = [];
+                for (let s = 1; s <= SEATS_PER_TABLE; s++) {
+                    if (!guestOccupied.has(`${tc}-${s}`)) freeSeatsByTable[tc].push(s);
+                }
+            });
+            let tblPos = 0, seatPos = 0;
+            function advanceToNextTableIfNeeded() {
+                while (tblPos < SEATING_PLAN.length && seatPos >= freeSeatsByTable[SEATING_PLAN[tblPos]].length) {
+                    tblPos++; seatPos = 0;
+                }
+            }
+            function takeNextSeat() {
+                advanceToNextTableIfNeeded();
+                if (tblPos >= SEATING_PLAN.length) return null;
+                const tc = SEATING_PLAN[tblPos];
+                return { tableCode: tc, seatNumber: freeSeatsByTable[tc][seatPos++] };
+            }
+            function jumpToFreshTable() {
+                /* เหมาโต๊ะ: ต้องเริ่มที่หัวโต๊ะที่ว่างครบ (ไม่มีแขกพิเศษจองที่นั่งไว้เลย) */
+                advanceToNextTableIfNeeded();
+                while (tblPos < SEATING_PLAN.length &&
+                       !(seatPos === 0 && freeSeatsByTable[SEATING_PLAN[tblPos]].length === SEATS_PER_TABLE)) {
+                    tblPos++; seatPos = 0;
+                    advanceToNextTableIfNeeded();
+                }
+            }
 
+            const assignments = [];
             for (const orderId of sortedOrderIds) {
                 const orderTickets = ticketsByOrder[orderId];
                 const order = ordersMap[orderId];
 
-                if (order?.tableBooking) {
-                    /* เหมาโต๊ะ: เลื่อน ptr ไปหัวโต๊ะใหม่ก่อน */
-                    if (ptr % SEATS_PER_TABLE !== 0) {
-                        ptr = Math.ceil(ptr / SEATS_PER_TABLE) * SEATS_PER_TABLE;
-                    }
-                }
+                if (order?.tableBooking) jumpToFreshTable();
                 orderTickets.forEach(t => {
-                    if (ptr < slots.length) {
-                        assignments.push({ ticketId:t.id, tableCode:slots[ptr].tableCode, seatNumber:slots[ptr].seatNumber });
-                        ptr++;
-                    }
+                    const seat = takeNextSeat();
+                    if (seat) assignments.push({ ticketId:t.id, tableCode:seat.tableCode, seatNumber:seat.seatNumber });
                 });
             }
 
@@ -1561,6 +1728,248 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             hideSeatOverride();
         } catch(err) {
             toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error');
+        }
+    }
+
+    /* ══════════════════════════════════════════════
+       ── DRAG & DROP SEATING BOARD ──
+       ════════════════════════════════════════════ */
+    let itemsById = {};
+    let dndUnassigned = [];
+    let dndTables = {};
+    let dndBuilt = false;
+    let selectedDndId = null;
+    let guestCounter = 0;
+
+    function initSeatingDnd() {
+        itemsById = {};
+        dndUnassigned = [];
+        dndTables = {};
+        ALL_TABLES.forEach(tc => dndTables[tc] = []);
+        selectedDndId = null;
+
+        const paid = tickets.filter(t => t.paid);
+        const withSeat = paid.filter(t => t.tableCode && ALL_TABLES.includes(t.tableCode));
+        const withoutSeat = paid.filter(t => !t.tableCode || !ALL_TABLES.includes(t.tableCode));
+
+        withSeat.sort((a,b) => (a.seatNumber||0) - (b.seatNumber||0));
+        withSeat.forEach(t => {
+            itemsById[t.id] = t;
+            dndTables[t.tableCode].push(t.id);
+        });
+
+        withoutSeat
+            .slice()
+            .sort((a,b) => {
+                const gA = parseInt(a.generation) || 9999, gB = parseInt(b.generation) || 9999;
+                if (gA !== gB) return gA - gB;
+                return String(a.holderName||a.buyerName||'').localeCompare(String(b.holderName||b.buyerName||''));
+            })
+            .forEach(t => {
+                itemsById[t.id] = t;
+                dndUnassigned.push(t.id);
+            });
+
+        dndBuilt = true;
+        renderDnd();
+    }
+
+    function dndLabel(item) {
+        if (!item) return { name:'—', sub:'' };
+        const isGuestKind = item.isGuest || item.isGuestNew;
+        const name = item.holderName || item.buyerName || '(ไม่ระบุชื่อ)';
+        const sub = isGuestKind ? (TYPE_LABEL[item.type] || item.type || '') : (item.generation ? `รุ่น ${item.generation}` : 'ไม่ระบุรุ่น');
+        return { name, sub };
+    }
+
+    function dndCardHTML(id, inTable) {
+        const item = itemsById[id];
+        if (!item) return '';
+        const { name, sub } = dndLabel(item);
+        const isGuestKind = item.isGuest || item.isGuestNew;
+        const selected = selectedDndId === id;
+        return `<div class="dnd-card${isGuestKind?' guest':''}${selected?' selected':''}" draggable="true"
+                    data-id="${esc(id)}"
+                    ondragstart="event.dataTransfer.setData('text/plain','${esc(id)}')"
+                    onclick="event.stopPropagation();selectDndCard('${esc(id)}')">
+            <div class="dnd-card-name">${esc(name)}</div>
+            <div class="dnd-card-sub">${esc(sub)}</div>
+            ${inTable ? `<button class="dnd-x" title="เอาออกจากโต๊ะ" onclick="event.stopPropagation();assignToTable('${esc(id)}',null)">✕</button>` : ''}
+            ${item.isGuestNew && !inTable ? `<button class="dnd-x" title="ลบรายชื่อนี้" onclick="event.stopPropagation();deleteGuestDraft('${esc(id)}')">🗑️</button>` : ''}
+        </div>`;
+    }
+
+    function hasDndChanges() {
+        if (Object.values(itemsById).some(it => it.isGuestNew)) return true;
+        for (const tc of ALL_TABLES) {
+            for (const id of dndTables[tc]) {
+                const orig = itemsById[id];
+                if (!orig.isGuestNew && (orig.tableCode||null) !== tc) return true;
+            }
+        }
+        for (const id of dndUnassigned) {
+            const orig = itemsById[id];
+            if (!orig.isGuestNew && orig.tableCode) return true;
+        }
+        return false;
+    }
+
+    function renderDnd() {
+        if (!dndBuilt) return;
+        const q = (gv('dndSearch')||'').toLowerCase();
+        const filteredUnassigned = dndUnassigned.filter(id => {
+            if (!q) return true;
+            const { name } = dndLabel(itemsById[id]);
+            return name.toLowerCase().includes(q) || String(itemsById[id].generation||'').includes(q);
+        });
+        sx('dndUnassignedCount', dndUnassigned.length);
+        const listEl = document.getElementById('dndUnassignedList');
+        listEl.innerHTML = filteredUnassigned.length
+            ? filteredUnassigned.map(id => dndCardHTML(id, false)).join('')
+            : '<div class="empty" style="padding:1rem;font-size:.82rem">ไม่มีรายชื่อ</div>';
+
+        const gridEl = document.getElementById('dndTablesGrid');
+        gridEl.innerHTML = ALL_TABLES.map(tc => {
+            const members = dndTables[tc];
+            const full = members.length >= SEATS_PER_TABLE;
+            return `<div class="dnd-table${full?' full':''}"
+                        ondragover="event.preventDefault();this.classList.add('over')"
+                        ondragleave="this.classList.remove('over')"
+                        ondrop="this.classList.remove('over');onDropZone(event,'${tc}')"
+                        onclick="dndZoneClicked('${tc}')">
+                <div class="dnd-table-hd"><span class="tbl-chip">${tc}</span><span>${members.length}/${SEATS_PER_TABLE}</span></div>
+                <div class="dnd-table-body">${members.map(id => dndCardHTML(id, true)).join('')}</div>
+            </div>`;
+        }).join('');
+
+        const changeEl = document.getElementById('dndChangeIndicator');
+        if (changeEl) changeEl.textContent = hasDndChanges() ? '⚠️ มีการเปลี่ยนแปลงที่ยังไม่บันทึก' : '✓ ไม่มีการเปลี่ยนแปลงที่ยังไม่บันทึก';
+    }
+
+    function onDropZone(e, tableCode) {
+        e.preventDefault();
+        const id = e.dataTransfer.getData('text/plain');
+        if (!id) return;
+        assignToTable(id, tableCode);
+    }
+
+    function selectDndCard(id) {
+        if (!isChairman) return;
+        selectedDndId = (selectedDndId === id) ? null : id;
+        renderDnd();
+    }
+
+    function dndZoneClicked(target) {
+        if (!isChairman || !selectedDndId) return;
+        assignToTable(selectedDndId, target);
+    }
+
+    function assignToTable(id, tableCode) {
+        if (!itemsById[id]) return;
+        if (tableCode) {
+            const already = dndTables[tableCode].includes(id);
+            if (!already && dndTables[tableCode].length >= SEATS_PER_TABLE) {
+                toast(`โต๊ะ ${tableCode} เต็มแล้ว (สูงสุด ${SEATS_PER_TABLE} ที่นั่ง)`, 'error');
+                return;
+            }
+        }
+        dndUnassigned = dndUnassigned.filter(x => x !== id);
+        ALL_TABLES.forEach(tc => { dndTables[tc] = dndTables[tc].filter(x => x !== id); });
+        if (tableCode) dndTables[tableCode].push(id); else dndUnassigned.push(id);
+        selectedDndId = null;
+        renderDnd();
+    }
+
+    /* ── VIP/Staff guest modal ── */
+    function showGuestModal() {
+        if (!isChairman) { toast('เฉพาะประธานเท่านั้นที่เพิ่มแขกพิเศษ/ทีมงานได้','error'); return; }
+        document.getElementById('guest-name').value = '';
+        document.getElementById('guest-type').value = 'vip';
+        document.getElementById('guestModal').classList.add('show');
+    }
+    function hideGuestModal() {
+        document.getElementById('guestModal').classList.remove('show');
+    }
+    function confirmAddGuest() {
+        const name = gv('guest-name');
+        if (!name) { toast('กรุณากรอกชื่อ-นามสกุล','error'); return; }
+        const type = document.getElementById('guest-type').value;
+        const id = 'new' + (++guestCounter);
+        itemsById[id] = { id, isGuestNew:true, type, holderName:name, generation:'', instrument:'' };
+        dndUnassigned.push(id);
+        hideGuestModal();
+        renderDnd();
+        toast('เพิ่มรายชื่อลงในรายการรอจัดที่นั่งแล้ว (ยังไม่บันทึกจนกว่าจะกดบันทึกข้อมูลการจัดที่นั่ง)','info');
+    }
+    function deleteGuestDraft(id) {
+        const item = itemsById[id];
+        if (!item || !item.isGuestNew) return;
+        delete itemsById[id];
+        dndUnassigned = dndUnassigned.filter(x => x !== id);
+        ALL_TABLES.forEach(tc => { dndTables[tc] = dndTables[tc].filter(x => x !== id); });
+        if (selectedDndId === id) selectedDndId = null;
+        renderDnd();
+    }
+
+    /* ── Save the seating draft to Firestore ── */
+    async function saveSeatingDraft() {
+        if (!isChairman) { toast('เฉพาะประธานเท่านั้นที่บันทึกการจัดที่นั่งได้','error'); return; }
+        const btn = document.getElementById('saveDndBtn');
+        btn.disabled = true; btn.textContent = '⏳ กำลังบันทึก...';
+        try {
+            const finalTableOf = {}, finalSeatOf = {};
+            ALL_TABLES.forEach(tc => {
+                dndTables[tc].forEach((id, idx) => { finalTableOf[id] = tc; finalSeatOf[id] = idx + 1; });
+            });
+
+            const ops = [];
+            let newGuestCount = 0, updatedCount = 0;
+
+            Object.values(itemsById).filter(it => it.isGuestNew).forEach(it => {
+                const code = genCode(GUEST_CODE_PREFIX[it.type] || 'G');
+                const data = {
+                    code, type: it.type, holderName: it.holderName, isGuest: true,
+                    paid: true, checkedIn: false, orderId: null,
+                    addedBy: staffName, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                if (finalTableOf[it.id]) { data.tableCode = finalTableOf[it.id]; data.seatNumber = finalSeatOf[it.id]; }
+                ops.push({ ref: db.collection(TICKETS_COL).doc(code), data, kind:'set' });
+                newGuestCount++;
+            });
+
+            Object.values(itemsById).filter(it => !it.isGuestNew).forEach(it => {
+                const newTable = finalTableOf[it.id] || null;
+                const newSeat  = finalSeatOf[it.id]  || null;
+                if ((it.tableCode||null) === newTable && (it.seatNumber||null) === newSeat) return;
+                const data = newTable
+                    ? { tableCode:newTable, seatNumber:newSeat }
+                    : { tableCode: firebase.firestore.FieldValue.delete(), seatNumber: firebase.firestore.FieldValue.delete() };
+                ops.push({ ref: db.collection(TICKETS_COL).doc(it.id), data, kind:'update' });
+                updatedCount++;
+            });
+
+            if (!ops.length) {
+                toast('ไม่มีการเปลี่ยนแปลงให้บันทึก','info');
+                return;
+            }
+
+            const BATCH_MAX = 499;
+            for (let i = 0; i < ops.length; i += BATCH_MAX) {
+                const batch = db.batch();
+                ops.slice(i, i + BATCH_MAX).forEach(op => {
+                    if (op.kind === 'set') batch.set(op.ref, op.data); else batch.update(op.ref, op.data);
+                });
+                await batch.commit();
+            }
+
+            toast(`✅ บันทึกที่นั่งสำเร็จ (อัปเดต ${updatedCount} ใบ, เพิ่มแขก ${newGuestCount} คน)`);
+            initSeatingDnd();
+            loadSeatingSummary();
+        } catch (err) {
+            toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error');
+            console.error(err);
+        } finally {
+            btn.disabled = false; btn.textContent = '💾 บันทึกข้อมูลการจัดที่นั่ง';
         }
     }
 
