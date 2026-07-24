@@ -212,23 +212,8 @@ textarea { resize:vertical; min-height:70px; }
     <p class="hdr-sub" id="hdrComingSoon">เปิดจำหน่ายบัตรออนไลน์เท่านั้น — เร็วๆ นี้</p>
 </header>
 
-<!-- ===== COMING SOON (default view for public) ===== -->
-<div class="coming-soon" id="comingSoon">
-    <div class="cs-card">
-        <div class="cs-icon">🎟️</div>
-        <h2>เปิดจำหน่ายบัตรเร็วๆ นี้</h2>
-        <p>
-            ระบบซื้อบัตรออนไลน์งานเลี้ยงคืนสู่เหย้า "12 ปีที่คิดถึง"<br>
-            กำลังจะเปิดให้สั่งซื้อเร็วๆ นี้ โปรดติดตามประกาศวันเปิดจำหน่าย<br>
-            ผ่านช่องทางของศิษย์เก่าดุริยางค์ พตพ.
-        </p>
-        <a class="btn-back" href="index.html">🏠 กลับหน้าลงทะเบียน</a>
-        <div class="cs-staff" onclick="staffPreviewPrompt()">สำหรับทีมงาน: เข้าทดสอบระบบ</div>
-    </div>
-</div>
-
-<!-- ===== TICKET PURCHASE SYSTEM (hidden until sales open / preview unlocked) ===== -->
-<div id="appGate" style="display:none">
+<!-- ===== TICKET PURCHASE SYSTEM (nav + search are always available; only the order-form controls below are gated by sales status) ===== -->
+<div id="appGate">
 
 <nav class="nav">
     <div class="ntab active" onclick="switchTab('buy')">🎫 ซื้อบัตร</div>
@@ -251,6 +236,18 @@ textarea { resize:vertical; min-height:70px; }
                 </div>
                 <button class="btn-gold" style="width:auto;padding:.65rem 1.4rem;flex-shrink:0" onclick="openLateSlipModal()">แนบสลิปย้อนหลัง →</button>
             </div>
+        </div>
+
+        <!-- SALES-CLOSED NOTICE (shown instead of the order form when ticket sales are closed) -->
+        <div class="card" id="buyClosedNotice" style="display:none;text-align:center">
+            <div class="cs-icon">🎟️</div>
+            <h2 style="font-size:1.3rem;font-weight:800;color:var(--navy);margin-bottom:.6rem">ขณะนี้ปิดระบบรับจองบัตรเรียบร้อยแล้ว</h2>
+            <p style="color:var(--text-2);font-size:.9rem;line-height:1.8">
+                ระบบสั่งซื้อบัตรใหม่ปิดรับชั่วคราว โปรดติดตามประกาศเปิดจำหน่ายอีกครั้ง<br>
+                ผ่านช่องทางของศิษย์เก่าดุริยางค์ พตพ.<br>
+                หากท่านสั่งซื้อบัตรไว้แล้ว สามารถตรวจสอบและดาวน์โหลดบัตรได้ที่แท็บ "ตรวจสอบ/ดาวน์โหลดบัตร" ด้านบนได้ตลอดเวลา
+            </p>
+            <div class="cs-staff" onclick="staffPreviewPrompt()" style="margin-top:1.4rem">สำหรับทีมงาน: เข้าทดสอบระบบ</div>
         </div>
 
         <!-- STEP 1: ORDER FORM -->
@@ -665,10 +662,22 @@ textarea { resize:vertical; min-height:70px; }
         }
     }
 
+    // canBuy ควบคุม "เฉพาะ" ส่วนฟอร์มสั่งซื้อบัตรใหม่ (STEP 1) เท่านั้น
+    // ห้ามใช้ค่านี้ไปซ่อนแท็บค้นหา/ดาวน์โหลดบัตร (sec-check) หรือแนบสลิปย้อนหลัง (late slip) เด็ดขาด — ต้องเปิดใช้งานได้ตลอดเวลา
+    function canBuyTickets() {
+        return salesOpen || hasPreviewAccess();
+    }
+
     function applyGate() {
-        const open = salesOpen || hasPreviewAccess();
-        document.getElementById('comingSoon').style.display = open ? 'none' : '';
-        document.getElementById('appGate').style.display = open ? '' : 'none';
+        const canBuy = canBuyTickets();
+        const inPaymentStep = document.getElementById('step-payment').style.display === 'block';
+        // อย่าเปลี่ยน step-form/step-payment ถ้าลูกค้ากำลังอยู่ระหว่างชำระเงินของออเดอร์ที่สั่งไปแล้ว
+        if (!inPaymentStep) {
+            document.getElementById('step-form').style.display = canBuy ? '' : 'none';
+            document.getElementById('buyClosedNotice').style.display = canBuy ? 'none' : '';
+        } else {
+            document.getElementById('buyClosedNotice').style.display = 'none';
+        }
         // ซ่อนวันที่จัดงานในหัวเว็บจนกว่าจะเปิดขายจริง (salesOpen) แม้ทีมงานจะพรีวิวอยู่
         document.getElementById('hdrEventDate').style.display = salesOpen ? '' : 'none';
         document.getElementById('hdrComingSoon').style.display = salesOpen ? 'none' : '';
@@ -912,6 +921,10 @@ textarea { resize:vertical; min-height:70px; }
     }
 
     async function submitOrder() {
+        if (!canBuyTickets()) {
+            toast('ขณะนี้ปิดระบบรับจองบัตรเรียบร้อยแล้ว','error');
+            return;
+        }
         const name  = gv('f-name');
         const nickname = gv('f-nickname');
         const phone = gv('f-phone');
@@ -1014,6 +1027,12 @@ textarea { resize:vertical; min-height:70px; }
     async function confirmSubmitOrder() {
         const d = pendingOrder;
         if (!d) return;
+        if (!canBuyTickets()) {
+            closeConfirmModal();
+            toast('ขณะนี้ปิดระบบรับจองบัตรเรียบร้อยแล้ว','error');
+            applyGate();
+            return;
+        }
         closeConfirmModal();
 
         const btn = document.getElementById('submitOrderBtn');
@@ -1177,7 +1196,7 @@ textarea { resize:vertical; min-height:70px; }
         document.getElementById('uploadPlaceholder').style.display = 'block';
         document.getElementById('slipInput').value = '';
         document.getElementById('step-payment').style.display = 'none';
-        document.getElementById('step-form').style.display = 'block';
+        applyGate();
     }
 
     /* ── Lazy auto-cancel: ออเดอร์ pending ที่ไม่แนบสลิปเกิน 48 ชม. ── */
