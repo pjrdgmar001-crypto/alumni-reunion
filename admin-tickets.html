@@ -186,6 +186,16 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
 .dnd-table.over{border-color:var(--navy);background:#eef1f6;}
 .dnd-table-hd{display:flex;align-items:center;justify-content:space-between;font-size:.78rem;font-weight:700;color:var(--text-2);margin-bottom:.4rem;}
 .dnd-table-body{min-height:24px;}
+
+/* ── PRINT: Visual Seating Simulator only ── */
+@media print {
+    body * { visibility:hidden; }
+    #printSeatingArea, #printSeatingArea * { visibility:visible; }
+    #printSeatingArea { position:absolute; left:0; top:0; width:100%; margin:0; box-shadow:none; border:none; }
+    #printSeatingArea .no-print { display:none !important; }
+    .sim-outer { background:#0d1929 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    @page { size:A4 portrait; margin:10mm; }
+}
 </style>
 </head>
 <body>
@@ -363,9 +373,14 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             </div>
 
             <!-- Visual Seating Simulator -->
-            <div class="card" style="padding:1.2rem">
-                <div class="card-title" style="margin-bottom:.3rem">🗺️ ผังที่นั่งแบบภาพ (Visual Seating Simulator)</div>
-                <div class="card-sub" style="margin-bottom:.9rem">Real-time · 🟢 ว่าง · 🟡 กำลังนั่ง · 🔴 เต็ม · Hover เพื่อดูรายชื่อ</div>
+            <div class="card" style="padding:1.2rem" id="printSeatingArea">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem">
+                    <div>
+                        <div class="card-title" style="margin-bottom:.3rem">🗺️ ผังที่นั่งแบบภาพ (Visual Seating Simulator)</div>
+                        <div class="card-sub" style="margin-bottom:.9rem">Real-time · 🟢 ว่าง · 🟡 กำลังนั่ง · 🔴 เต็ม · Hover เพื่อดูรายชื่อ</div>
+                    </div>
+                    <button class="btn btn-outline btn-sm no-print" onclick="printSeatingMap()">🖨️ พิมพ์ผังที่นั่ง</button>
+                </div>
                 <div class="sim-outer">
                     <div class="sim-inner">
                         <div class="sim-stage">⭐&nbsp;&nbsp;เวที&nbsp;&nbsp;⭐</div>
@@ -382,7 +397,15 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 </div>
             </div>
 
-            <div id="seatingResults"></div>
+            <!-- Assign Seats Table (ส่วนล่าง: จัดที่นั่งรายบุคคล/รายโต๊ะ) -->
+            <div class="card" style="padding:1.2rem">
+                <div class="card-title" style="margin-bottom:.2rem">📋 ตารางจัดที่นั่งรายบุคคล/รายโต๊ะ</div>
+                <div class="card-sub" style="margin-bottom:.8rem">ค้นหาชื่อ/รหัสบัตร/รุ่น/โต๊ะ แล้วกดปุ่ม ✏️ เพื่อจัด/แก้ไขที่นั่งรายบุคคล (สิทธิ์ประธาน)</div>
+                <div class="toolbar">
+                    <input type="text" id="seatAssignSearch" placeholder="🔍 ค้นหาชื่อ/ชื่อเล่น/รหัสบัตร/รุ่น/โต๊ะ" oninput="renderSeatAssignTable()">
+                </div>
+                <div id="seatingResults"><div class="empty">⏳ กำลังโหลด...</div></div>
+            </div>
         </section>
 
         <!-- ===== CHECKIN TAB ===== -->
@@ -689,6 +712,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         if (tab === 'seating') {
             loadSeatingSummary();
             initSeatingMap();
+            renderSeatAssignTable();
             document.getElementById('addGuestBtn').style.display = isChairman ? 'inline-block' : 'none';
             document.getElementById('dndPresidentBoard').style.display = isChairman ? 'block' : 'none';
             document.getElementById('dndStaffNotice').style.display = isChairman ? 'none' : 'block';
@@ -733,6 +757,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             tickets = snap.docs.map(d => ({ id:d.id, ...d.data() }));
             renderStats();
             renderSeatingMap();
+            renderSeatAssignTable();
         }, err => console.error(err));
     }
 
@@ -1520,7 +1545,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
 
             toast(`✅ จัดที่นั่งสำเร็จ! ${assignments.length} บัตร ใน ${new Set(assignments.map(a=>a.tableCode)).size} โต๊ะ`);
             loadSeatingSummary();
-            renderSeatingResults(assignments, paidTickets, ordersMap);
+            renderSeatAssignTable();
 
         } catch (err) {
             toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error');
@@ -1553,7 +1578,7 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
             }
             toast('รีเซ็ตการจัดที่นั่งสำเร็จ','info');
             loadSeatingSummary();
-            document.getElementById('seatingResults').innerHTML = '';
+            renderSeatAssignTable();
         } catch (err) {
             toast('เกิดข้อผิดพลาด: '+(err.code||err.message),'error');
         } finally {
@@ -1561,49 +1586,60 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
         }
     }
 
-    function renderSeatingResults(assignments, paidTickets, ordersMap) {
-        const ticketMap = {};
-        paidTickets.forEach(t => { ticketMap[t.id] = t; });
-
-        /* จัดกลุ่มตาม tableCode */
-        const tableGroups = {};
-        SEATING_PLAN.forEach(tc => { tableGroups[tc] = []; });
-        assignments.forEach(a => {
-            if (tableGroups[a.tableCode]) tableGroups[a.tableCode].push({ ...a, ticket: ticketMap[a.ticketId] });
-        });
-
-        let html = `<div class="card" style="padding:1rem 1.2rem">
-            <div class="card-title">📋 ผลการจัดที่นั่ง — รวม ${assignments.length} บัตร</div>
-            ${isChairman ? '<div class="card-sub">กดปุ่ม ✏️ เพื่อแก้ไขที่นั่งรายบุคคล (สิทธิ์ประธาน)</div>' : '<div class="card-sub">โหมดอ่านอย่างเดียว</div>'}
+    /* ตารางจัดที่นั่งรายบุคคล/รายโต๊ะ — real-time, ค้นหาได้, แสดงทั้งที่จัดแล้วและยังไม่จัด */
+    function seatAssignRowHTML(t, isUnassigned) {
+        return `<tr>
+            <td><b>${isUnassigned ? '—' : (t.seatNumber||'—')}</b></td>
+            <td>${esc(t.holderName||t.buyerName||'—')}</td>
+            <td>${esc(t.generation||'—')}</td>
+            <td>${esc(t.instrument||'—')}</td>
+            <td style="font-family:monospace;font-size:.76rem">${esc(t.code||t.id||'—')}</td>
+            ${isChairman ? `<td><button class="btn btn-outline btn-sm" style="padding:.2rem .45rem;font-size:.72rem" onclick="openSeatOverride('${esc(t.code||t.id||'')}','${esc(t.tableCode||'T1')}',${t.seatNumber||1})">✏️</button></td>` : ''}
+        </tr>`;
+    }
+    function seatAssignTableBlock(label, rows, isUnassigned) {
+        return `<div class="card" style="padding:1rem 1.2rem;margin-bottom:.8rem">
+            <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
+                <span class="tbl-chip" style="${isUnassigned ? 'background:var(--orange)' : ''}">${esc(label)}</span>
+                <span style="font-size:.82rem;color:var(--text-3)">${rows.length}${isUnassigned ? ' ใบ' : `/${SEATS_PER_TABLE} ที่นั่ง`}</span>
+            </div>
+            <table class="seat-table">
+                <tr><th>เก้าอี้</th><th>ชื่อผู้ถือบัตร</th><th>รุ่น</th><th>เครื่องดนตรี</th><th>รหัสบัตร</th>${isChairman ? '<th>แก้ไข</th>' : ''}</tr>
+                ${rows.map(t => seatAssignRowHTML(t, isUnassigned)).join('')}
+            </table>
         </div>`;
+    }
+    function renderSeatAssignTable() {
+        const container = document.getElementById('seatingResults');
+        if (!container) return;
+        const q = (document.getElementById('seatAssignSearch')?.value || '').toLowerCase().trim();
 
-        SEATING_PLAN.forEach(tableCode => {
-            const seats = tableGroups[tableCode];
-            if (!seats || !seats.length) return;
-            seats.sort((a,b) => a.seatNumber - b.seatNumber);
-            html += `<div class="card" style="padding:1rem 1.2rem;margin-bottom:.8rem">
-                <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
-                    <span class="tbl-chip">${tableCode}</span>
-                    <span style="font-size:.82rem;color:var(--text-3)">${seats.length}/${SEATS_PER_TABLE} ที่นั่ง</span>
-                </div>
-                <table class="seat-table">
-                    <tr><th>เก้าอี้</th><th>ชื่อผู้ถือบัตร</th><th>รุ่น</th><th>เครื่องดนตรี</th><th>รหัสบัตร</th>${isChairman ? '<th>แก้ไข</th>' : ''}</tr>
-                    ${seats.map(s => {
-                        const t = s.ticket || {};
-                        return `<tr>
-                            <td><b>${s.seatNumber}</b></td>
-                            <td>${esc(t.holderName||t.buyerName||'—')}</td>
-                            <td>${esc(t.generation||'—')}</td>
-                            <td>${esc(t.instrument||'—')}</td>
-                            <td style="font-family:monospace;font-size:.76rem">${esc(t.code||'—')}</td>
-                            ${isChairman ? `<td><button class="btn btn-outline btn-sm" style="padding:.2rem .45rem;font-size:.72rem" onclick="openSeatOverride('${esc(t.code||'')}','${esc(s.tableCode)}',${s.seatNumber})">✏️</button></td>` : ''}
-                        </tr>`;
-                    }).join('')}
-                </table>
-            </div>`;
+        const paidTickets = tickets.filter(t => t.paid);
+        const filtered = q
+            ? paidTickets.filter(t =>
+                `${t.holderName||''}${t.buyerName||''}${t.code||t.id||''}${t.generation||''}${t.tableCode||''}`.toLowerCase().includes(q))
+            : paidTickets;
+
+        const groups = {};
+        const unassigned = [];
+        filtered.forEach(t => {
+            if (t.tableCode) {
+                (groups[t.tableCode] = groups[t.tableCode] || []).push(t);
+            } else {
+                unassigned.push(t);
+            }
         });
 
-        document.getElementById('seatingResults').innerHTML = html;
+        let html = '';
+        if (unassigned.length) html += seatAssignTableBlock('⏳ ยังไม่จัดที่นั่ง', unassigned, true);
+        ALL_TABLES.forEach(tc => {
+            if (groups[tc] && groups[tc].length) {
+                html += seatAssignTableBlock(tc, groups[tc].slice().sort((a,b) => (a.seatNumber||0)-(b.seatNumber||0)), false);
+            }
+        });
+
+        if (!html) html = `<div class="empty">${q ? 'ไม่พบรายชื่อที่ค้นหา' : 'ยังไม่มีบัตรที่อนุมัติแล้ว'}</div>`;
+        container.innerHTML = html;
     }
 
     function exportSeatingCSV() {
@@ -1694,6 +1730,10 @@ input:focus, select:focus { outline:none; border-color:var(--navy); background:v
                 : '<div style="color:rgba(255,255,255,.4)">ว่าง</div>';
             ttEl.innerHTML = `<div class="sim-tt-hd">${tc} — ${c}/10 ที่นั่ง</div>${rows}`;
         });
+    }
+
+    function printSeatingMap() {
+        window.print();
     }
 
     /* ── Manual Seat Override (President only) ── */
